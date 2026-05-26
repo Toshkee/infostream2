@@ -70,21 +70,21 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   const titleWords = dict.hero.title.split(" ");
   const modules = dict.platform.items;
 
-  // Exit fade — scene 4 content fades out 3.7 → 4.1 (well before exit text appears)
-  const exitFade = phase <= 3.7 ? 1 : Math.max(0, 1 - (phase - 3.7) / 0.4);
+  // Exit fade — scene 4 holds until 4.45 so the user can read it, then fades out by 4.75
+  const exitFade = phase <= 4.45 ? 1 : Math.max(0, 1 - (phase - 4.45) / 0.3);
   const contentOpacity = exitFade;
   // Stepper progress — 0 at scene 1 start, 1 at scene 4 (fills the connecting line)
   const stepProgress = Math.max(0, Math.min(1, (phase - 1) / 3));
-  // Stepper visibility — only on stages 1..4 (fade in at 0.6, out at 4.1)
+  // Stepper visibility — fades out alongside scene 4 content
   const stepperOpacity = phase < 0.6
     ? Math.max(0, (phase - 0.3) / 0.3)
-    : phase > 4
-    ? Math.max(0, 1 - (phase - 4) / 0.3)
+    : phase > 4.45
+    ? Math.max(0, 1 - (phase - 4.45) / 0.3)
     : 1;
-  // Exit overlay — fades in 4.05 → 4.5, holds at full through end so it's readable
-  const exitOpacity = Math.max(0, Math.min(1, (phase - 4.05) / 0.45));
+  // Exit overlay — fades in 4.6 → 4.9 (after scene 4 has had time on screen)
+  const exitOpacity = Math.max(0, Math.min(1, (phase - 4.6) / 0.3));
   // Backdrop darken — gentle wash to separate the closing message from the field
-  const exitDarken = Math.max(0, Math.min(1, (phase - 4.2) / 0.6));
+  const exitDarken = Math.max(0, Math.min(1, (phase - 4.55) / 0.4));
 
   return (
     <div id="platform" ref={outer} className="relative bg-[var(--bg-inset)]">
@@ -107,8 +107,8 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           />
           {/* Constellation lines + dots */}
           <Constellation phase={phase} />
-          {/* Left-side wash so text stays readable */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)]/85 via-[var(--bg-inset)]/30 to-transparent" />
+          {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
           {/* Top + bottom soft edges */}
           <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--bg-inset)] to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
@@ -405,11 +405,12 @@ function Scene({
   );
 }
 
-// Smooth bell around `target` phase. Half-width controls overlap — 0.55 means
-// adjacent scenes have meaningful cross-fade ~30% of the way to each other.
+// Smooth bell around `target` phase. Tighter half-width = scene only appears
+// when you're close to arrival. 0.4 means scenes start cross-fading at ~half
+// way and the previous one is mostly gone by 70% of the transition.
 function sceneOpacity(phase: number, target: number): number {
   const d = Math.abs(phase - target);
-  const half = 0.55;
+  const half = 0.4;
   if (d >= half) return 0;
   const t = 1 - d / half;
   return t * t * (3 - 2 * t); // smoothstep
@@ -494,10 +495,15 @@ function Constellation({ phase }: { phase: number }) {
   const zoom = 1 + Math.sin(f * Math.PI) * 0.18;
   const vw = 1800 * zoom;
   const vh = 900 * zoom;
+  // Bias the viewBox so the active bubble sits ~70% from the left of the screen
+  // (right side, behind the StageViz card). This keeps it out of the text column.
+  const bubbleScreenX = 0.7;
+  const viewLeft = cx - vw * bubbleScreenX;
+  const viewTop = cy - vh / 2;
 
   return (
     <svg
-      viewBox={`${cx - vw / 2} ${cy - vh / 2} ${vw} ${vh}`}
+      viewBox={`${viewLeft} ${viewTop} ${vw} ${vh}`}
       preserveAspectRatio="xMidYMid slice"
       className="absolute inset-0 w-full h-full"
       aria-hidden
@@ -569,12 +575,13 @@ function Constellation({ phase }: { phase: number }) {
         const by = CLUSTER_Y[i];
         // Activation strength — 1.0 when phase exactly matches this stop, 0 when far away
         const d = Math.abs(phase - i);
-        const active = Math.max(0, 1 - d / 0.6);
+        // Tighter window so the bubble only pops as you arrive at this stop,
+        // not several scenes ahead.
+        const active = Math.max(0, 1 - d / 0.35);
         const easedActive = active * active * (3 - 2 * active);
         const baseR = 38;
         const r = baseR + easedActive * 28; // grows when active
         const ringR = r + 10 + easedActive * 14;
-        const isMain = i >= 1 && i <= 4; // 4 process stops; intro & exit are softer
         return (
           <g key={`b-${i}`}>
             {/* Outer pulse ring (only when active) */}
@@ -609,22 +616,7 @@ function Constellation({ phase }: { phase: number }) {
                 filter: easedActive > 0.4 ? "drop-shadow(0 0 12px var(--brand-teal-bright))" : "none",
               }}
             />
-            {/* Stage number label inside the bubble (only for main process stops) */}
-            {isMain && (
-              <text
-                x={bx}
-                y={by + 5}
-                textAnchor="middle"
-                fontSize="16"
-                fontFamily="ui-monospace, monospace"
-                letterSpacing="0.18em"
-                fill="var(--brand-teal-bright)"
-                opacity={0.55 + easedActive * 0.45}
-              >
-                {String(i).padStart(2, "0")}
-              </text>
-            )}
-            {/* Traveling marker — small dot at the bubble center when fully active */}
+            {/* Traveling marker — small dot above the bubble when fully active */}
             {easedActive > 0.7 && (
               <circle cx={bx} cy={by - r - 4} r="3" fill="var(--brand-red)" opacity={easedActive} />
             )}

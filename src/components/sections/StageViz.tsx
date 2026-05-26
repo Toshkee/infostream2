@@ -14,7 +14,16 @@ export default function StageViz({ stage, active }: Props) {
   const Comp = [Discovery, Architecture, Build, Operate][stage] ?? Discovery;
   return (
     <div className="relative w-full max-w-[560px] mx-auto lg:ml-auto lg:mr-0">
-      <div className="aspect-[4/3] w-full rounded-lg border border-white/10 bg-[var(--bg-inset-elev)]/40 backdrop-blur-sm overflow-hidden relative">
+      {/* Solid card — no backdrop bleed-through. Subtle teal-tinted border + soft outer glow */}
+      <div
+        className="aspect-[4/3] w-full rounded-lg border border-white/15 overflow-hidden relative"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(19,26,42,0.98), rgba(13,17,28,0.98))",
+          boxShadow:
+            "0 24px 60px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(72,184,177,0.08), 0 0 32px -12px rgba(72,184,177,0.25)",
+        }}
+      >
         <Comp key={key} active={active} />
       </div>
     </div>
