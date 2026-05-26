@@ -92,28 +92,32 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
         ref={pin}
         className="relative h-[100svh] w-full overflow-hidden text-white"
       >
-        {/* 3D backdrop */}
-        <div className="absolute inset-0 z-0">
-          <DataFlowScene stateRef={sceneStateRef} />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)]/85 via-[var(--bg-inset)]/40 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
-          {/* Exit darken — fades the whole scene into black before unpin */}
+        {/* Dark backdrop + constellation network on top.
+           As phase advances 0→4, the SVG viewBox pans toward the next cluster
+           (the "dive" between bubbles). */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-[var(--bg-inset)]">
+          {/* Deep radial vignette for depth */}
           <div
-            className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none transition-opacity"
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
+            }}
+          />
+          {/* Constellation lines + dots */}
+          <Constellation phase={phase} />
+          {/* Left-side wash so text stays readable */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)]/85 via-[var(--bg-inset)]/30 to-transparent" />
+          {/* Top + bottom soft edges */}
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--bg-inset)] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
+          {/* Exit darken — fades the scene before unpin */}
+          <div
+            className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none"
             style={{ opacity: exitDarken * 0.75 }}
           />
         </div>
-
-        {/* faint grid */}
-        <div
-          aria-hidden
-          className="absolute inset-0 z-[1] opacity-[0.08] pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-          }}
-        />
 
         {/* corner ticks */}
         {["top-6 left-6", "top-6 right-6", "bottom-6 left-6", "bottom-6 right-6"].map((c, i) => (
@@ -142,11 +146,12 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           ))}
         </div>
 
-        {/* All content scenes — fade out together on exit */}
+        {/* All content scenes — fade out together on exit. Each scene's own opacity
+           is a smooth bell around its target phase (no snap between layers). */}
         <div className="absolute inset-0 z-10 pointer-events-none" style={{ opacity: contentOpacity }}>
         <div className="absolute inset-0 pointer-events-auto">
         {/* Scene 0 — Intro */}
-        <Scene visible={activeScene === 0}>
+        <Scene opacity={sceneOpacity(phase, 0)} interactive={activeScene === 0}>
           <div className="hero-eyebrow mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
             <span className="flex items-end gap-[3px] h-3">
               <span className="bar-pulse inline-block w-[3px] h-full bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0s" }} />
@@ -194,7 +199,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
         {/* Scenes 1–4 — Process stages */}
         {modules.map((mod, i) => (
-          <Scene key={i} visible={activeScene === i + 1}>
+          <Scene key={i} opacity={sceneOpacity(phase, i + 1)} interactive={activeScene === i + 1}>
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center w-full">
               <div>
                 <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
@@ -227,23 +232,22 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           style={{ opacity: stepperOpacity }}
         >
           <HexStepper
-            labels={modules.map((m) => m.name)}
+            labels={modules.map((m) => ({ name: m.name }))}
             activeIndex={Math.max(0, activeScene - 1)}
             progress={stepProgress}
           />
         </div>
 
-        {/* Exit overlay — appears as camera pulls back */}
+        {/* Exit overlay — Infostream lockup on the dark backdrop */}
         <div
           className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
           style={{ opacity: exitOpacity }}
         >
           <div className="text-center px-6">
-            {/* Logo lockup — hexagon network drawing in, then Infostream logo pops in the center */}
-            <div className="relative mx-auto" style={{ width: 420, height: 260 }}>
+            <div className="relative mx-auto" style={{ width: 480, height: 140 }}>
               <LogoLockup play={exitOpacity > 0.4} />
             </div>
-            <div className="mt-5 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
+            <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
               Four stages. One accountable team. <span className="text-[var(--brand-teal-bright)]">Fifteen years of staying on the line.</span>
             </div>
             <div className="mt-7 mono text-[11px] tracking-[0.25em] uppercase text-white/45">
@@ -336,67 +340,314 @@ function HexStepper({
 }
 
 function LogoLockup({ play }: { play: boolean }) {
-  // Clean Infostream mark — bars + wordmark on a soft glow. Holds at full opacity
-  // (uses logo-hold which explicitly pins opacity:1 at 100%, no overshoot-then-shrink).
+  // Exact Infostream mark: teal signal-bars on left + RED "infostream" wordmark on right
+  // (matches infostream.webp reference — wordmark is brand-red, not white).
   const k = play ? "play" : "idle";
   return (
     <div
       key={k}
-      className="logo-hold flex items-center justify-center gap-5 w-full h-full"
+      className="logo-hold relative flex items-center justify-center gap-5 w-full h-full"
       style={{ animationDelay: "0.2s" }}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(72,184,177,0.28), rgba(72,184,177,0) 70%)",
-        }}
-      />
-      {/* Signal bars — same proportions as the door + navbar mark */}
-      <svg width="84" height="76" viewBox="0 0 84 76" className="relative shrink-0" aria-hidden>
-        <rect x="0"  y="38" width="11" height="36" rx="2" fill="var(--brand-teal-bright)" />
-        <rect x="15" y="24" width="11" height="50" rx="2" fill="var(--brand-teal-bright)" />
-        <rect x="30" y="2"  width="11" height="72" rx="2" fill="var(--brand-teal-bright)" />
-        <rect x="45" y="16" width="11" height="58" rx="2" fill="var(--brand-teal-bright)" />
-        <rect x="60" y="32" width="11" height="42" rx="2" fill="var(--brand-teal-bright)" />
+      {/* Signal bars — teal, ascending then descending peak in the middle */}
+      <svg width="78" height="72" viewBox="0 0 78 72" className="relative shrink-0" aria-hidden>
+        <rect x="0"  y="40" width="10" height="32" rx="1.5" fill="var(--brand-teal)" />
+        <rect x="14" y="24" width="10" height="48" rx="1.5" fill="var(--brand-teal)" />
+        <rect x="28" y="4"  width="10" height="68" rx="1.5" fill="var(--brand-teal)" />
+        <rect x="42" y="14" width="10" height="58" rx="1.5" fill="var(--brand-teal)" />
+        <rect x="56" y="30" width="10" height="42" rx="1.5" fill="var(--brand-teal)" />
       </svg>
-      {/* Wordmark */}
-      <div className="relative">
-        <div
-          className="text-white font-medium leading-none"
-          style={{
-            fontSize: 56,
-            letterSpacing: "-0.02em",
-            fontFamily: "var(--font-sans-stack), sans-serif",
-          }}
-        >
-          infostream
-        </div>
-        <div
-          className="mt-2 h-px w-full"
-          style={{
-            background:
-              "linear-gradient(90deg, var(--brand-teal-bright), rgba(72,184,177,0))",
-            boxShadow: "0 0 8px var(--brand-teal-bright)",
-          }}
-        />
+      {/* Wordmark — brand red, matches the real logo. No halo/background. */}
+      <div
+        className="relative font-semibold leading-none"
+        style={{
+          fontSize: 58,
+          letterSpacing: "-0.025em",
+          color: "var(--brand-red)",
+          fontFamily: "var(--font-sans-stack), sans-serif",
+        }}
+      >
+        infostream
       </div>
     </div>
   );
 }
 
 
-function Scene({ visible, children }: { visible: boolean; children: React.ReactNode }) {
+function Scene({
+  opacity,
+  interactive,
+  children,
+}: {
+  opacity: number;
+  interactive: boolean;
+  children: React.ReactNode;
+}) {
+  // Continuous opacity driven by phase distance — no snap between scenes.
+  // Below the activation threshold the layer is taken out of hit-testing.
+  const hidden = opacity < 0.02;
   return (
     <div
-      className={`absolute inset-0 z-10 transition-opacity duration-500 ease-out ${
-        visible ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
+      className="absolute inset-0 z-10"
+      style={{
+        opacity,
+        pointerEvents: interactive && !hidden ? "auto" : "none",
+        // Soft lift as a scene approaches its target — gives a parallax sense
+        transform: `translateY(${(1 - opacity) * 10}px)`,
+        willChange: "opacity, transform",
+      }}
+      aria-hidden={hidden}
     >
       <div className="mx-auto max-w-[1280px] h-full px-6 lg:px-10 flex flex-col justify-center pt-24 pb-12">
         {children}
       </div>
     </div>
   );
+}
+
+// Smooth bell around `target` phase. Half-width controls overlap — 0.55 means
+// adjacent scenes have meaningful cross-fade ~30% of the way to each other.
+function sceneOpacity(phase: number, target: number): number {
+  const d = Math.abs(phase - target);
+  const half = 0.55;
+  if (d >= half) return 0;
+  const t = 1 - d / half;
+  return t * t * (3 - 2 * t); // smoothstep
+}
+
+/* ─────────── Constellation backdrop ───────────
+   Wide virtual canvas with 6 clusters of dots+lines (one per scene).
+   The SVG viewBox pans toward the cluster matching `phase`, so scrolling
+   feels like flying between bubbles. Generated once with a seeded RNG. */
+function seededRand(seed: number) {
+  let s = seed >>> 0 || 1;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+type CNode = { x: number; y: number; r: number; red: boolean };
+type CCluster = { nodes: CNode[]; edges: [number, number][] };
+
+function buildCluster(seed: number, cx: number, cy: number, count: number, spread: number): CCluster {
+  const rand = seededRand(seed);
+  const nodes: CNode[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = rand() * Math.PI * 2;
+    const dist = (0.15 + rand() * 0.95) * spread;
+    nodes.push({
+      x: cx + Math.cos(angle) * dist,
+      y: cy + Math.sin(angle) * dist * 0.7,
+      r: 2 + rand() * 2.5,
+      red: rand() < 0.22,
+    });
+  }
+  // Edges: connect each node to its 1–2 nearest neighbors
+  const edges: [number, number][] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < nodes.length; i++) {
+    const others = nodes
+      .map((n, j) => ({ j, d: Math.hypot(n.x - nodes[i].x, n.y - nodes[i].y) }))
+      .filter((o) => o.j !== i)
+      .sort((a, b) => a.d - b.d);
+    const link = (j: number) => {
+      const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      edges.push([i, j]);
+    };
+    link(others[0].j);
+    if (rand() < 0.55) link(others[1].j);
+    if (rand() < 0.2) link(others[2].j);
+  }
+  return { nodes, edges };
+}
+
+const CLUSTER_X = [400, 1200, 2000, 2800, 3600, 4400]; // phase 0..5
+const CLUSTER_Y = [320, 240, 380, 260, 360, 300];
+
+// Smooth Catmull-Rom-ish path through all bubble centers — the "road"
+function buildRoadPath(): string {
+  const pts = CLUSTER_X.map((x, i) => [x, CLUSTER_Y[i]] as [number, number]);
+  // Cubic bezier with control points offset along x for smooth S-curve
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[i + 1];
+    const cx1 = x1 + (x2 - x1) * 0.45;
+    const cx2 = x2 - (x2 - x1) * 0.45;
+    d += ` C ${cx1} ${y1}, ${cx2} ${y2}, ${x2} ${y2}`;
+  }
+  return d;
+}
+
+function Constellation({ phase }: { phase: number }) {
+  const clusters = useConstellationClusters();
+  const road = useRoadPath();
+  const lo = Math.max(0, Math.min(4, Math.floor(phase)));
+  const hi = Math.min(5, lo + 1);
+  const f = phase - lo;
+  const fs = f * f * (3 - 2 * f); // smoothstep for camera motion
+  const cx = CLUSTER_X[lo] + (CLUSTER_X[hi] - CLUSTER_X[lo]) * fs;
+  const cy = CLUSTER_Y[lo] + (CLUSTER_Y[hi] - CLUSTER_Y[lo]) * fs;
+  const zoom = 1 + Math.sin(f * Math.PI) * 0.18;
+  const vw = 1800 * zoom;
+  const vh = 900 * zoom;
+
+  return (
+    <svg
+      viewBox={`${cx - vw / 2} ${cy - vh / 2} ${vw} ${vh}`}
+      preserveAspectRatio="xMidYMid slice"
+      className="absolute inset-0 w-full h-full"
+      aria-hidden
+    >
+      <defs>
+        <radialGradient id="bubbleFill" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(72,184,177,0.35)" />
+          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
+        </radialGradient>
+        <radialGradient id="bubbleFillActive" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(72,184,177,0.55)" />
+          <stop offset="60%" stopColor="rgba(72,184,177,0.15)" />
+          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
+        </radialGradient>
+      </defs>
+
+      {/* The road — full continuous path connecting all bubbles */}
+      <path
+        d={road}
+        fill="none"
+        stroke="rgba(72,184,177,0.18)"
+        strokeWidth="1.5"
+      />
+      {/* Flowing dashes along the road (animated) */}
+      <path
+        d={road}
+        fill="none"
+        stroke="var(--brand-teal-bright)"
+        strokeWidth="1.2"
+        strokeDasharray="6 14"
+        opacity="0.55"
+        style={{ animation: "roadFlow 8s linear infinite" }}
+      />
+
+      {/* Satellite dots + intra-cluster edges (constellation accent) */}
+      {clusters.map((cl, ci) => {
+        const dx = (CLUSTER_X[ci] - cx) / 1200;
+        const distOpacity = Math.max(0.18, 1 - Math.abs(dx) * 0.55);
+        return (
+          <g key={ci} style={{ opacity: distOpacity }}>
+            {cl.edges.map(([a, b], i) => (
+              <line
+                key={`e-${ci}-${i}`}
+                x1={cl.nodes[a].x}
+                y1={cl.nodes[a].y}
+                x2={cl.nodes[b].x}
+                y2={cl.nodes[b].y}
+                stroke="rgba(72,184,177,0.35)"
+                strokeWidth="0.6"
+              />
+            ))}
+            {cl.nodes.map((n, i) => (
+              <circle
+                key={`n-${ci}-${i}`}
+                cx={n.x}
+                cy={n.y}
+                r={n.r}
+                fill={n.red ? "var(--brand-red)" : "var(--brand-teal-bright)"}
+                opacity={n.red ? 0.85 : 0.7}
+              />
+            ))}
+          </g>
+        );
+      })}
+
+      {/* Process bubbles — one per phase stop. The bubble nearest the current
+         phase "pops" (scales + glows). */}
+      {CLUSTER_X.map((bx, i) => {
+        const by = CLUSTER_Y[i];
+        // Activation strength — 1.0 when phase exactly matches this stop, 0 when far away
+        const d = Math.abs(phase - i);
+        const active = Math.max(0, 1 - d / 0.6);
+        const easedActive = active * active * (3 - 2 * active);
+        const baseR = 38;
+        const r = baseR + easedActive * 28; // grows when active
+        const ringR = r + 10 + easedActive * 14;
+        const isMain = i >= 1 && i <= 4; // 4 process stops; intro & exit are softer
+        return (
+          <g key={`b-${i}`}>
+            {/* Outer pulse ring (only when active) */}
+            {easedActive > 0.05 && (
+              <circle
+                cx={bx}
+                cy={by}
+                r={ringR}
+                fill="none"
+                stroke="var(--brand-teal-bright)"
+                strokeWidth="1"
+                opacity={easedActive * 0.6}
+              />
+            )}
+            {/* Bubble body */}
+            <circle
+              cx={bx}
+              cy={by}
+              r={r}
+              fill={`url(#${easedActive > 0.5 ? "bubbleFillActive" : "bubbleFill"})`}
+            />
+            {/* Bubble border */}
+            <circle
+              cx={bx}
+              cy={by}
+              r={r}
+              fill="none"
+              stroke="var(--brand-teal-bright)"
+              strokeWidth={1 + easedActive * 0.8}
+              opacity={0.55 + easedActive * 0.4}
+              style={{
+                filter: easedActive > 0.4 ? "drop-shadow(0 0 12px var(--brand-teal-bright))" : "none",
+              }}
+            />
+            {/* Stage number label inside the bubble (only for main process stops) */}
+            {isMain && (
+              <text
+                x={bx}
+                y={by + 5}
+                textAnchor="middle"
+                fontSize="16"
+                fontFamily="ui-monospace, monospace"
+                letterSpacing="0.18em"
+                fill="var(--brand-teal-bright)"
+                opacity={0.55 + easedActive * 0.45}
+              >
+                {String(i).padStart(2, "0")}
+              </text>
+            )}
+            {/* Traveling marker — small dot at the bubble center when fully active */}
+            {easedActive > 0.7 && (
+              <circle cx={bx} cy={by - r - 4} r="3" fill="var(--brand-red)" opacity={easedActive} />
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+let _clusterCache: CCluster[] | null = null;
+function useConstellationClusters(): CCluster[] {
+  if (_clusterCache) return _clusterCache;
+  // Smaller satellite halo around each bubble (the bubble itself is drawn over them)
+  _clusterCache = CLUSTER_X.map((x, i) =>
+    buildCluster(0x9e37 + i * 7919, x, CLUSTER_Y[i], 9 + (i % 3), 260)
+  );
+  return _clusterCache;
+}
+
+let _roadCache: string | null = null;
+function useRoadPath(): string {
+  if (_roadCache) return _roadCache;
+  _roadCache = buildRoadPath();
+  return _roadCache;
 }

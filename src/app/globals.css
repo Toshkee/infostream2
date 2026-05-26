@@ -86,6 +86,29 @@ body {
 @keyframes chartDraw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
 @keyframes scanRow { from { transform: translateY(0); } to { transform: translateY(-100%); } }
 
+/* Drifting aurora blobs behind the pinned scene */
+@keyframes auroraA {
+  0%   { transform: translate3d(-12%, -8%, 0) scale(1); }
+  50%  { transform: translate3d(8%, 6%, 0) scale(1.15); }
+  100% { transform: translate3d(-12%, -8%, 0) scale(1); }
+}
+@keyframes auroraB {
+  0%   { transform: translate3d(20%, 10%, 0) scale(1.1); }
+  50%  { transform: translate3d(-10%, -6%, 0) scale(0.95); }
+  100% { transform: translate3d(20%, 10%, 0) scale(1.1); }
+}
+@keyframes auroraC {
+  0%   { transform: translate3d(-5%, 15%, 0) scale(1); }
+  50%  { transform: translate3d(12%, -10%, 0) scale(1.2); }
+  100% { transform: translate3d(-5%, 15%, 0) scale(1); }
+}
+.aurora-a { animation: auroraA 22s ease-in-out infinite; }
+.aurora-b { animation: auroraB 28s ease-in-out infinite; }
+.aurora-c { animation: auroraC 34s ease-in-out infinite; }
+
+/* Road dashes flowing along the constellation path */
+@keyframes roadFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -200; } }
+
 @keyframes logoHoldIn {
   0% { opacity: 0; transform: scale(0.92) translateY(8px); }
   60% { opacity: 1; transform: scale(1.02) translateY(0); }
