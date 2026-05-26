@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "platform": "Proces",
+    "clients": "Klijenti",
+    "security": "Bezbjednost",
+    "contact": "Kontakt",
+    "cta": "Razgovarajmo"
+  },
+  "hero": {
+    "eyebrow": "Infostream / Nacionalna finansijska infrastruktura",
+    "title": "Kičma podataka iza javnih finansija Crne Gore.",
+    "body": "Petnaest godina naš softver prenosi poreske prihode, namirenja Centralne banke i ministarske budžete širom zemlje — mjereno u milijardama eura, revidirano po ISO 27001, bez ijednog prekida.",
+    "ctaPrimary": "Pogledajte sisteme",
+    "ctaSecondary": "Pročitajte sažetak"
+  },
+  "stats": {
+    "uptime": { "value": "99,99%", "label": "Trajna dostupnost u trezorskim sistemima" },
+    "volume": { "value": "€14,2 mlrd", "label": "Godišnji obim namirenja kroz sistem" },
+    "years": { "value": "15+", "label": "Godina rada na kritičnim državnim sistemima" },
+    "iso": { "value": "ISO 27001", "label": "Informaciona bezbjednost, eksterno revidirana" }
+  },
+  "platform": {
+    "eyebrow": "Proces",
+    "title": "Četiri faze. Jedan odgovoran tim.",
+    "body": "Svaki angažman prolazi kroz iste četiri faze — bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
+    "items": [
+      {
+        "name": "Otkrivanje",
+        "description": "Sjedimo sa stejkholderima, mapiramo ograničenja i zapisujemo kako izgleda uspjeh — prije nego što se napiše ijedna linija koda."
+      },
+      {
+        "name": "Arhitektura",
+        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju — ne izmišljaju se usput."
+      },
+      {
+        "name": "Izrada",
+        "description": "Inženjering mjeren prema kriterijumima prihvatanja, otvrdnut prema modelu pretnji, prošao kroz interni red tim prije puštanja u rad."
+      },
+      {
+        "name": "Eksploatacija",
+        "description": "Deployment, monitoring, obuka i kontinuirano partnerstvo — petnaest godina rada na kritičnim sistemima znači da znamo kako izgleda 3 ujutru."
+      }
+    ]
+  },
+  "clients": {
+    "eyebrow": "Vjeruju nam",
+    "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
+    "list": [
+      "Ministarstvo finansija",
+      "Centralna banka Crne Gore",
+      "Skupština Crne Gore",
+      "Ministarstvo unutrašnjih poslova",
+      "Poreska uprava",
+      "Ministarstvo odbrane"
+    ]
+  },
+  "security": {
+    "eyebrow": "Bezbjednosna postavka",
+    "title": "Pravljeno da bude revidirano.",
+    "body": "Dva paralelna ISO režima, Bitdefender enterprise na svim krajnjim tačkama i serverima, interni red tim koji prvi lomi naš sopstveni kod.",
+    "pillars": [
+      { "k": "ISO 27001", "v": "Sistem upravljanja informacionom bezbjednošću, eksterno revidiran godišnje." },
+      { "k": "ISO 9001", "v": "Sistem upravljanja kvalitetom kroz cijeli ciklus isporuke." },
+      { "k": "Bitdefender", "v": "Enterprise zaštita radnih stanica i servera u cjelokupnom produkcionom okruženju." }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Kontaktirajte nas",
+    "title": "Ako vodite nešto kritično, treba da razgovaramo.",
+    "body": "Na upite za nabavku odgovaramo u roku od jednog radnog dana. Za incidente koristite dežurnu liniju.",
+    "office": "Bulevar Svetog Petra Cetinjskog, Podgorica, Crna Gora",
+    "emailLabel": "Nabavka",
+    "email": "contact@infostream.me",
+    "phoneLabel": "Operacije (24/7)",
+    "phone": "+382 20 000 000"
+  },
+  "footer": {
+    "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
+    "rights": "Sva prava zadržana."
+  }
+}

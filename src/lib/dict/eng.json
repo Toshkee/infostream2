@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "platform": "Process",
+    "clients": "Clients",
+    "security": "Security",
+    "contact": "Contact",
+    "cta": "Talk to us"
+  },
+  "hero": {
+    "eyebrow": "Infostream / National financial infrastructure",
+    "title": "The data spine behind Montenegro's public finance.",
+    "body": "For fifteen years our software has moved tax receipts, central-bank settlements and ministerial budgets across the country — measured in billions of euro, audited to ISO 27001, never down.",
+    "ctaPrimary": "See the systems",
+    "ctaSecondary": "Read the brief"
+  },
+  "stats": {
+    "uptime": { "value": "99.99%", "label": "Sustained uptime across treasury workloads" },
+    "volume": { "value": "€14.2B", "label": "Settlement volume routed annually" },
+    "years": { "value": "15+", "label": "Years operating critical state systems" },
+    "iso": { "value": "ISO 27001", "label": "Information security, externally audited" }
+  },
+  "platform": {
+    "eyebrow": "Process",
+    "title": "Four stages. One accountable team.",
+    "body": "Every engagement runs through the same four stages — no handoffs to subcontractors, no surprises after sign-off.",
+    "items": [
+      {
+        "name": "Discovery",
+        "description": "We sit with stakeholders, map constraints, and write down what success looks like before a single line of code is committed."
+      },
+      {
+        "name": "Architecture",
+        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build."
+      },
+      {
+        "name": "Build",
+        "description": "Engineering measured against acceptance criteria, hardened against the threat model, reviewed by an internal red team before release."
+      },
+      {
+        "name": "Operate",
+        "description": "Deployment, monitoring, training and ongoing partnership — fifteen years of running critical systems means we know what 3 a.m. looks like."
+      }
+    ]
+  },
+  "clients": {
+    "eyebrow": "Trusted by",
+    "title": "We do not have many clients. We have the right ones.",
+    "list": [
+      "Ministry of Finance",
+      "Central Bank of Montenegro",
+      "Parliament of Montenegro",
+      "Ministry of Interior",
+      "Tax Authority",
+      "Ministry of Defense"
+    ]
+  },
+  "security": {
+    "eyebrow": "Security posture",
+    "title": "Built to be audited.",
+    "body": "Two parallel ISO regimes, Bitdefender enterprise across endpoints and servers, an internal red team that breaks our own code before anyone else can.",
+    "pillars": [
+      { "k": "ISO 27001", "v": "Information security management, certified and externally audited annually." },
+      { "k": "ISO 9001", "v": "Quality management across the full delivery lifecycle." },
+      { "k": "Bitdefender", "v": "Enterprise endpoint and server protection across all production estate." }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Get in touch",
+    "title": "If you run something critical, we should talk.",
+    "body": "We respond to procurement enquiries within one business day. For incident-related contact use the 24/7 line.",
+    "office": "Bulevar Svetog Petra Cetinjskog, Podgorica, Montenegro",
+    "emailLabel": "Procurement",
+    "email": "contact@infostream.me",
+    "phoneLabel": "Operations (24/7)",
+    "phone": "+382 20 000 000"
+  },
+  "footer": {
+    "tagline": "National financial infrastructure, built in Podgorica.",
+    "rights": "All rights reserved."
+  }
+}

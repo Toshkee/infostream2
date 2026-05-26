@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #eef1f5;
+  --bg-elev: #ffffff;
+  --bg-inset: #0d111c;
+  --bg-inset-elev: #131a2a;
+  --fg: #0a0e16;
+  --fg-dim: #5a6477;
+  --line: #d8dee8;
+  --line-strong: #c3cad6;
+  --line-dark: #1f273a;
+  --brand-red: #d63b3b;
+  --brand-red-deep: #b62e2e;
+  --brand-teal: #3aa5a0;
+  --brand-teal-bright: #48b8b1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-bg-inset: var(--bg-inset);
+  --color-fg: var(--fg);
+  --color-fg-dim: var(--fg-dim);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-dark: var(--line-dark);
+  --color-brand-red: var(--brand-red);
+  --color-brand-teal: var(--brand-teal);
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  cursor: auto;
 }
+a, button { cursor: pointer; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-stack), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
 }
+
+.mono { font-family: var(--font-mono-stack), ui-monospace, monospace; letter-spacing: 0.02em; }
+
+.hairline { border-color: var(--line); }
+.hairline-strong { border-color: var(--line-strong); }
+.hairline-dark { border-color: var(--line-dark); }
+
+::selection { background: var(--brand-red); color: #fff; }
+
+/* Animation utilities */
+@keyframes barPulse {
+  0%, 100% { transform: scaleY(1); opacity: 0.7; }
+  50% { transform: scaleY(1.4); opacity: 1; }
+}
+.bar-pulse { animation: barPulse 1.4s ease-in-out infinite; transform-origin: bottom; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-inner { animation: marquee 40s linear infinite; }
+
+/* Reveal helper used pre-GSAP hydration to avoid flash */
+.reveal-init { opacity: 0; transform: translateY(24px); }
+
+/* Mask-reveal heading */
+.mask-reveal {
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+
+/* Magnetic CTA wrapper */
+.magnet { display: inline-block; will-change: transform; }
+
+/* Stage visualization animations */
+@keyframes svgDraw { from { stroke-dashoffset: var(--dash, 200); } to { stroke-dashoffset: 0; } }
+@keyframes svgPop  { 0% { opacity: 0; transform: scale(0.6); } 70% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes svgFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes typeCaret { 50% { opacity: 0; } }
+@keyframes pulseDot { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
+@keyframes chartDraw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+@keyframes scanRow { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+
+@keyframes logoHoldIn {
+  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.viz-draw { stroke-dasharray: var(--dash, 200); animation: svgDraw 1.8s ease-out forwards; }
+.viz-pop { transform-origin: center; opacity: 0; animation: svgPop 1.0s cubic-bezier(0.34,1.4,0.64,1) forwards; }
+.viz-fade { opacity: 0; animation: svgFade 0.9s ease-out forwards; }
+.viz-caret { animation: typeCaret 0.8s steps(1) infinite; }
+.viz-pulse { animation: pulseDot 1.6s ease-in-out infinite; transform-origin: center; }
+.viz-chart-draw { stroke-dasharray: 1000; animation: chartDraw 3.4s ease-out forwards; }
+.logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
