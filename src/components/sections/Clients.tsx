@@ -14,6 +14,7 @@ export default function Clients({ dict }: { dict: Dict }) {
 
   // Scroll-velocity skew on the marquee
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let last = window.scrollY;
     let raf = 0;
     let skew = 0, targetSkew = 0;
@@ -85,9 +86,6 @@ export default function Clients({ dict }: { dict: Dict }) {
           {dict.clients.list.map((name, i) => (
             <li key={i} className="client-row flex items-baseline justify-between py-5 lg:py-6 group cursor-default">
               <span className="flex items-baseline gap-5">
-                <span className="mono text-[11px] tracking-[0.22em] uppercase text-white/35 w-10">
-                  /{String(i + 1).padStart(2, "0")}
-                </span>
                 <span className="text-2xl lg:text-3xl tracking-[-0.01em] text-white group-hover:text-[var(--brand-teal-bright)] group-hover:translate-x-2 transition-all duration-300">
                   {name}
                 </span>

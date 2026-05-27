@@ -35,9 +35,10 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7 mono text-[11px] tracking-[0.2em] uppercase text-[var(--fg-dim)]">
+          <nav aria-label="Primary" className="hidden md:flex items-center gap-7 mono text-[11px] tracking-[0.2em] uppercase text-[var(--fg-dim)]">
             <a href="#platform" className="hover:text-[var(--brand-red)] transition-colors">{dict.nav.platform}</a>
             <a href="#clients" className="hover:text-[var(--brand-red)] transition-colors">{dict.nav.clients}</a>
+            <a href="#technology" className="hover:text-[var(--brand-red)] transition-colors">{dict.nav.technology}</a>
             <a href="#security" className="hover:text-[var(--brand-red)] transition-colors">{dict.nav.security}</a>
             <a href="#contact" className="hover:text-[var(--brand-red)] transition-colors">{dict.nav.contact}</a>
           </nav>
@@ -45,6 +46,8 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
           <div className="flex items-center gap-1.5">
             <Link
               href={`/${other}`}
+              hrefLang={other === "mne" ? "sr-ME" : "en"}
+              aria-label={other === "mne" ? "Pređi na crnogorski" : "Switch to English"}
               className="mono text-[11px] tracking-[0.2em] uppercase text-[var(--fg-dim)] hover:text-[var(--fg)] px-2.5 py-1 transition-colors"
             >
               {other}

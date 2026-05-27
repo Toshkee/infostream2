@@ -56,7 +56,7 @@ export default function Security({ dict }: { dict: Dict }) {
                 className="sec-pillar group relative bg-[var(--bg)] border hairline rounded-xl p-6 hover:border-[var(--brand-teal)] hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal)]">
-                  0{i + 1} · {p.k}
+                  {p.k}
                 </div>
                 <p className="mt-4 text-[var(--fg)] leading-relaxed text-[15px]">{p.v}</p>
                 <span className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-[var(--brand-teal)] opacity-60 group-hover:opacity-100 transition-opacity" />

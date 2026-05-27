@@ -187,14 +187,6 @@ function Architecture({ active }: { active: boolean }) {
           >
             {b.label}
           </text>
-          {/* tiny meta */}
-          <text
-            x={b.x + 4} y={b.y - 4}
-            fill={DIM} fontSize="6.5"
-            fontFamily="ui-monospace, monospace"
-          >
-            {String(i+1).padStart(2,"0")}
-          </text>
         </g>
       ))}
 

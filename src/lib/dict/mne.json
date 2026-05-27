@@ -2,6 +2,7 @@
   "nav": {
     "platform": "Proces",
     "clients": "Klijenti",
+    "technology": "Tehnologija",
     "security": "Bezbjednost",
     "contact": "Kontakt",
     "cta": "Razgovarajmo"
@@ -73,6 +74,28 @@
     "email": "contact@infostream.me",
     "phoneLabel": "Operacije (24/7)",
     "phone": "+382 20 000 000"
+  },
+  "technology": {
+    "eyebrow": "Tehnologija",
+    "title": "Stek u osnovi.",
+    "body": "Stabilan, dobro poznat alat — biran zbog dugovječnosti, revizorskog traga i operativne predvidljivosti, ne zbog novosti.",
+    "tiers": [
+      {
+        "label": "Aplikacija",
+        "tech": [".NET", "Oracle APEX"],
+        "note": "Operativne konzole, interna administracija i izvještaji."
+      },
+      {
+        "label": "Podaci",
+        "tech": ["Oracle Database"],
+        "note": "Primarno skladište — transakciona konzistentnost, oporavak u tački vremena, eksterno revidirano."
+      },
+      {
+        "label": "Bezbjednost",
+        "tech": ["Bitdefender Enterprise", "ISO 27001", "ISO 9001"],
+        "note": "Zaštita radnih stanica i servera u cjelokupnom produkcionom okruženju, pod eksterno revidiranim režimima kontrole."
+      }
+    ]
   },
   "footer": {
     "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",

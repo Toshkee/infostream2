@@ -52,6 +52,32 @@ body {
 
 ::selection { background: var(--brand-red); color: #fff; }
 
+/* Skip link — visually hidden until focused */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--brand-red);
+  color: #fff;
+  font-family: var(--font-mono-stack), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-bottom-right-radius: 0.5rem;
+  transform: translateY(-120%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus { transform: translateY(0); outline: none; }
+
+/* Focus rings — keyboard only, brand-teal */
+:focus-visible {
+  outline: 2px solid var(--brand-teal-bright);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* Animation utilities */
 @keyframes barPulse {
   0%, 100% { transform: scaleY(1); opacity: 0.7; }
@@ -164,4 +190,17 @@ body {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   background-size: 220px 220px;
   animation: grainShift 1.2s steps(10) infinite;
+}
+
+/* Honor user reduced-motion — kill decorative loops and scroll-coupled chrome.
+   The pinned hero / Lenis / Clients skew are also gated in JS so layout falls back
+   to natural document scroll without scrub or skew. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain-overlay { display: none; }
 }

@@ -1,31 +1,25 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Magnetic from "@/components/ui/Magnetic";
 import StageViz from "@/components/sections/StageViz";
-import type { SceneState } from "@/components/three/DataFlowScene";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const DataFlowScene = dynamic(() => import("@/components/three/DataFlowScene"), {
-  ssr: false,
-  loading: () => null,
-});
-
 export default function PinnedHero({ dict }: { dict: Dict }) {
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
-  const sceneStateRef = useRef<SceneState>({ phase: 0 });
   const [tx, setTx] = useState(1284);
   const [activeScene, setActiveScene] = useState(0);
   const [phase, setPhase] = useState(0);
-  // Cursor offset from center, normalized to [-1, 1]. Drives parallax on the constellation.
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+  // Parallax wrapper — receives CSS variables driven imperatively from a rAF loop.
+  // Keeping cursor state out of React avoids a re-render of the entire hero on every frame.
+  const parallax = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = window.setInterval(() => setTx((v) => v + Math.floor(Math.random() * 7) + 1), 220);
@@ -34,24 +28,25 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
   useEffect(() => {
     const el = pin.current;
-    if (!el) return;
+    const layer = parallax.current;
+    if (!el || !layer) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
-    let target = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
     const current = { x: 0, y: 0 };
     const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
-      target = {
-        x: ((e.clientX - r.left) / r.width) * 2 - 1,
-        y: ((e.clientY - r.top) / r.height) * 2 - 1,
-      };
+      target.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      target.y = ((e.clientY - r.top) / r.height) * 2 - 1;
     };
     const tick = () => {
       current.x += (target.x - current.x) * 0.08;
       current.y += (target.y - current.y) * 0.08;
-      setCursor({ x: current.x, y: current.y });
+      // Small px-space offset applied via CSS transform on the parallax wrapper
+      layer.style.transform = `translate3d(${(-current.x * 14).toFixed(2)}px, ${(-current.y * 10).toFixed(2)}px, 0)`;
       raf = requestAnimationFrame(tick);
     };
-    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousemove", onMove, { passive: true });
     raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("mousemove", onMove);
@@ -61,9 +56,11 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
   useGSAP(
     () => {
-      // Skip pinning on small screens — just show scene 0 statically
+      // Skip pinning on small screens or when user prefers reduced motion —
+      // both fall back to scene 0 displayed statically with no scroll-coupled work.
       const mq = window.matchMedia("(max-width: 900px)");
-      if (mq.matches) return;
+      const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (mq.matches || rm.matches) return;
 
       // 5 content scenes (0..4) + exit pull-back (4..5) = 5 transitions
       const stops = 5;
@@ -79,7 +76,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
         scrub: 0.6,
         onUpdate: (self) => {
           const p = self.progress * stops; // 0..5
-          sceneStateRef.current.phase = p;
           setPhase(p);
           setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
         },
@@ -134,8 +130,11 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
             }}
           />
-          {/* Constellation lines + dots */}
-          <Constellation phase={phase} cursor={cursor} />
+          {/* Constellation lines + dots — wrapped so cursor parallax is applied
+             via compositor transform on the wrapper rather than re-rendering React. */}
+          <div ref={parallax} className="absolute inset-0 will-change-transform">
+            <Constellation phase={phase} />
+          </div>
           {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
           {/* Top + bottom soft edges */}
@@ -233,18 +232,15 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
               <div>
                 <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
                   <span className="h-px w-8 bg-[var(--brand-teal-bright)]" />
-                  {dict.platform.eyebrow} · {String(i + 1).padStart(2, "0")} / 04
+                  {dict.platform.eyebrow}
                 </div>
                 <h2 className="mt-5 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
                   {mod.name}
                 </h2>
                 <p className="mt-5 max-w-md text-white/70 text-[15.5px] leading-relaxed">
-                  {mod.description}
+                  <Typewriter text={mod.description} active={activeScene === i + 1} />
                 </p>
-                <div className="mt-7 flex items-center gap-3 mono text-[11px] tracking-[0.2em] uppercase text-white/45">
-                  <span className="h-px w-10 bg-white/30" />
-                  {["scope · constraints · risk", "design · review · sign-off", "engineer · harden · review", "deploy · monitor · support"][i]}
-                </div>
+                <Transmission stage={i} active={activeScene === i + 1} />
               </div>
               <div className="hidden lg:block">
                 <StageViz stage={i} active={activeScene === i + 1} />
@@ -273,7 +269,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           style={{ opacity: exitOpacity }}
         >
           <div className="text-center px-6">
-            <div className="relative mx-auto" style={{ width: 480, height: 140 }}>
+            <div className="relative mx-auto flex items-center justify-center">
               <LogoLockup play={exitOpacity > 0.4} />
             </div>
             <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
@@ -289,6 +285,44 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   );
 }
 
+// Stage stream — gentle wave curve connecting 4 nodes, animated dashes flow
+// along it, and a teal droplet "packet" rides the curve at `progress`.
+// Echoes the company name and the constellation road in the backdrop.
+const STREAM_W = 760;
+const STREAM_H = 72;
+const STREAM_NODES_X = [40, 280, 480, 720];
+const STREAM_NODES_Y = [38, 22, 50, 32];
+
+function buildStreamPath(): string {
+  const pts = STREAM_NODES_X.map((x, i) => [x, STREAM_NODES_Y[i]] as [number, number]);
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[i + 1];
+    const cx1 = x1 + (x2 - x1) * 0.5;
+    const cx2 = x2 - (x2 - x1) * 0.5;
+    d += ` C ${cx1} ${y1}, ${cx2} ${y2}, ${x2} ${y2}`;
+  }
+  return d;
+}
+
+// Cubic bezier evaluation — the path is a chain of cubics with control points
+// pulled along x only (so the y of each control matches its endpoint).
+function streamPoint(progress: number): { x: number; y: number } {
+  const segs = STREAM_NODES_X.length - 1;
+  const clamped = Math.max(0, Math.min(1, progress));
+  const segIdx = Math.min(segs - 1, Math.floor(clamped * segs));
+  const t = clamped * segs - segIdx;
+  const mt = 1 - t;
+  const p0x = STREAM_NODES_X[segIdx], p0y = STREAM_NODES_Y[segIdx];
+  const p3x = STREAM_NODES_X[segIdx + 1], p3y = STREAM_NODES_Y[segIdx + 1];
+  const c1x = p0x + (p3x - p0x) * 0.5, c1y = p0y;
+  const c2x = p3x - (p3x - p0x) * 0.5, c2y = p3y;
+  const x = mt * mt * mt * p0x + 3 * mt * mt * t * c1x + 3 * mt * t * t * c2x + t * t * t * p3x;
+  const y = mt * mt * mt * p0y + 3 * mt * mt * t * c1y + 3 * mt * t * t * c2y + t * t * t * p3y;
+  return { x, y };
+}
+
 function HexStepper({
   labels,
   activeIndex,
@@ -298,110 +332,255 @@ function HexStepper({
   activeIndex: number;
   progress: number;
 }) {
-  const count = labels.length;
-  const gap = 140;
-  const totalW = (count - 1) * gap;
+  const path = buildStreamPath();
+  const packet = streamPoint(progress);
   const teal = "var(--brand-teal-bright)";
+
   return (
-    <div className="relative mono" style={{ width: totalW + 80, height: 96 }}>
-      {/* Connecting line (idle) */}
-      <div
-        className="absolute top-[22px] h-px bg-white/15"
-        style={{ left: 40, width: totalW }}
+    <svg
+      width={STREAM_W}
+      height={STREAM_H + 36}
+      viewBox={`0 0 ${STREAM_W} ${STREAM_H + 36}`}
+      className="overflow-visible mono"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="streamFill" x1="0%" x2="100%">
+          <stop offset="0%" stopColor="rgba(72,184,177,0.2)" />
+          <stop offset="60%" stopColor="var(--brand-teal-bright)" />
+          <stop offset="100%" stopColor="var(--brand-teal-bright)" />
+        </linearGradient>
+        <radialGradient id="packetGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(72,184,177,0.55)" />
+          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
+        </radialGradient>
+      </defs>
+
+      {/* Idle stream — thin white wash */}
+      <path d={path} stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+
+      {/* Flowing dashes — always animating, gives the water-flow feel */}
+      <path
+        d={path}
+        stroke={teal}
+        strokeWidth="1"
+        fill="none"
+        strokeDasharray="3 11"
+        opacity="0.45"
+        style={{ animation: "roadFlow 6s linear infinite" }}
       />
-      {/* Connecting line (filled with progress — tracks scrub directly) */}
-      <div
-        className="absolute top-[22px] h-px bg-[var(--brand-teal-bright)]"
-        style={{
-          left: 40,
-          width: totalW * progress,
-          boxShadow: "0 0 8px var(--brand-teal-bright)",
-        }}
+
+      {/* Progress fill — draws the first `progress` portion of the path */}
+      <path
+        d={path}
+        stroke="url(#streamFill)"
+        strokeWidth="2"
+        fill="none"
+        strokeLinecap="round"
+        pathLength={1}
+        strokeDasharray={`${Math.max(0, Math.min(1, progress))} 1`}
+        style={{ filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" }}
       />
-      {/* Hexagon nodes */}
-      {labels.map((m, i) => {
-        const cx = 40 + i * gap;
+
+      {/* Nodes */}
+      {STREAM_NODES_X.map((nx, i) => {
+        const ny = STREAM_NODES_Y[i];
         const isActive = i === activeIndex;
         const isDone = i < activeIndex;
-        const color = isActive || isDone ? teal : "rgba(255,255,255,0.35)";
-        const fill = isActive ? "rgba(72,184,177,0.18)" : "transparent";
+        const color = isActive || isDone ? teal : "rgba(255,255,255,0.45)";
+        const labelMain = isActive
+          ? "rgba(255,255,255,0.95)"
+          : isDone
+          ? "rgba(255,255,255,0.55)"
+          : "rgba(255,255,255,0.35)";
         return (
-          <div
-            key={i}
-            className="absolute -translate-x-1/2 flex flex-col items-center"
-            style={{ left: cx, top: 0 }}
-          >
-            <svg width="44" height="44" viewBox="0 0 44 44" style={{ overflow: "visible" }}>
-              <polygon
-                points="22,2 40,12 40,32 22,42 4,32 4,12"
-                fill={fill}
-                stroke={color}
-                strokeWidth={isActive ? 1.6 : 1}
-                style={{
-                  transition: "all 0.4s ease",
-                  filter: isActive ? "drop-shadow(0 0 6px var(--brand-teal-bright))" : "none",
-                  transform: isActive ? "scale(1.08)" : "scale(1)",
-                  transformOrigin: "center",
-                }}
-              />
-              <text
-                x="22"
-                y="26"
-                textAnchor="middle"
-                fontSize="11"
-                fill={color}
-                style={{ fontFamily: "var(--font-mono-stack), monospace", letterSpacing: "0.05em" }}
-              >
-                {String(i + 1).padStart(2, "0")}
-              </text>
-            </svg>
-            <div
-              className="mt-2 text-[10px] tracking-[0.22em] uppercase whitespace-nowrap"
-              style={{ color, transition: "color 0.4s" }}
+          <g key={i}>
+            {isActive && (
+              <circle cx={nx} cy={ny} r={13} fill="none" stroke={teal} strokeWidth="1" opacity="0.5" />
+            )}
+            <circle
+              cx={nx}
+              cy={ny}
+              r={isActive ? 5 : 3.5}
+              fill={color}
+              style={{ filter: isActive ? "drop-shadow(0 0 6px var(--brand-teal-bright))" : "none" }}
+            />
+            <text
+              x={nx}
+              y={STREAM_H + 22}
+              textAnchor="middle"
+              fontSize="9"
+              fill={labelMain}
+              style={{
+                fontFamily: "var(--font-mono-stack), monospace",
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+              }}
             >
-              {m.name}
-            </div>
-          </div>
+              {labels[i].name}
+            </text>
+          </g>
         );
       })}
-    </div>
+
+      {/* Traveling droplet — soft halo + bright core */}
+      <circle cx={packet.x} cy={packet.y} r={14} fill="url(#packetGlow)" />
+      <circle
+        cx={packet.x}
+        cy={packet.y}
+        r={4}
+        fill={teal}
+        style={{ filter: "drop-shadow(0 0 8px var(--brand-teal-bright))" }}
+      />
+    </svg>
   );
 }
 
 function LogoLockup({ play }: { play: boolean }) {
-  // Exact Infostream mark: teal signal-bars on left + RED "infostream" wordmark on right
-  // (matches infostream.webp reference — wordmark is brand-red, not white).
+  // Same asset as the navbar, rendered at its native 301×49 so it's pixel-sharp.
+  // Teal corner brackets give it presence without upscaling.
   const k = play ? "play" : "idle";
+  const accent = "var(--brand-teal-bright)";
   return (
     <div
       key={k}
-      className="logo-hold relative flex items-center justify-center gap-5 w-full h-full"
-      style={{ animationDelay: "0.2s" }}
+      className="logo-hold relative inline-flex items-center justify-center"
+      style={{ animationDelay: "0.2s", padding: "24px 36px" }}
     >
-      {/* Signal bars — teal, ascending then descending peak in the middle */}
-      <svg width="78" height="72" viewBox="0 0 78 72" className="relative shrink-0" aria-hidden>
-        <rect x="0"  y="40" width="10" height="32" rx="1.5" fill="var(--brand-teal)" />
-        <rect x="14" y="24" width="10" height="48" rx="1.5" fill="var(--brand-teal)" />
-        <rect x="28" y="4"  width="10" height="68" rx="1.5" fill="var(--brand-teal)" />
-        <rect x="42" y="14" width="10" height="58" rx="1.5" fill="var(--brand-teal)" />
-        <rect x="56" y="30" width="10" height="42" rx="1.5" fill="var(--brand-teal)" />
-      </svg>
-      {/* Wordmark — brand red, matches the real logo. No halo/background. */}
-      <div
-        className="relative font-semibold leading-none"
-        style={{
-          fontSize: 58,
-          letterSpacing: "-0.025em",
-          color: "var(--brand-red)",
-          fontFamily: "var(--font-sans-stack), sans-serif",
-        }}
-      >
-        infostream
-      </div>
+      {/* Corner brackets */}
+      {[
+        { top: 0, left: 0, borderTop: 1, borderLeft: 1 },
+        { top: 0, right: 0, borderTop: 1, borderRight: 1 },
+        { bottom: 0, left: 0, borderBottom: 1, borderLeft: 1 },
+        { bottom: 0, right: 0, borderBottom: 1, borderRight: 1 },
+      ].map((style, idx) => (
+        <span
+          key={idx}
+          aria-hidden
+          className="absolute h-3 w-3"
+          style={{
+            ...style,
+            borderColor: accent,
+            borderTopWidth: style.borderTop ? 1 : 0,
+            borderBottomWidth: style.borderBottom ? 1 : 0,
+            borderLeftWidth: style.borderLeft ? 1 : 0,
+            borderRightWidth: style.borderRight ? 1 : 0,
+            borderStyle: "solid",
+          }}
+        />
+      ))}
+      <Image
+        src="/infostream-logo.webp"
+        alt="Infostream"
+        width={301}
+        height={49}
+        priority
+      />
     </div>
   );
 }
 
+
+// Per-stage typewriter — retypes the description char-by-char each time its scene
+// becomes active. Full text is rendered invisibly behind the typed substring so
+// the paragraph reserves its final height and there's no reflow.
+function Typewriter({ text, active, speed = 22 }: { text: string; active: boolean; speed?: number }) {
+  const [shown, setShown] = useState("");
+
+  useEffect(() => {
+    if (!active) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShown(text);
+      return;
+    }
+    setShown("");
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setShown(text.slice(0, i));
+      if (i >= text.length) window.clearInterval(id);
+    }, speed);
+    return () => window.clearInterval(id);
+  }, [active, text, speed]);
+
+  return (
+    <span className="relative block">
+      <span className="invisible" aria-hidden>{text}</span>
+      <span className="absolute inset-0">
+        {shown}
+        <span
+          className="viz-caret inline-block w-[2px] h-[0.95em] align-[-0.12em] ml-[2px] bg-[var(--brand-teal-bright)]"
+          aria-hidden
+        />
+      </span>
+    </span>
+  );
+}
+
+// Per-stage transmission block — small mono terminal log. Each op line fades
+// in sequentially when the scene activates, ending with a teal "ok" tag.
+const TRANSMISSION_LINES: readonly string[][] = [
+  ["open channel · stakeholders", "map constraints", "write success criteria"],
+  ["draft data model", "map integration surface", "sign off security boundary"],
+  ["compile module", "red-team pass", "stage to acceptance"],
+  ["deploy build", "attach monitoring", "on-call → infostream"],
+];
+function Transmission({ stage, active }: { stage: number; active: boolean }) {
+  const lines = TRANSMISSION_LINES[stage] ?? [];
+  const [revealed, setRevealed] = useState<number>(active ? lines.length : 0);
+
+  useEffect(() => {
+    if (!active) return;
+    const target = TRANSMISSION_LINES[stage] ?? [];
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setRevealed(target.length);
+      return;
+    }
+    setRevealed(0);
+    const timers: number[] = [];
+    target.forEach((_, i) => {
+      timers.push(
+        window.setTimeout(() => setRevealed((r) => Math.max(r, i + 1)), 220 + i * 280)
+      );
+    });
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, [active, stage]);
+
+  return (
+    <div className="mt-7 mono text-[11px] tracking-[0.08em] uppercase max-w-md">
+      <div className="flex items-center gap-2 text-[var(--brand-teal-bright)] text-[10px] tracking-[0.22em]">
+        <span className="bar-pulse inline-block w-[3px] h-3 bg-[var(--brand-teal-bright)]" />
+        transmission
+      </div>
+      <div className="mt-3 space-y-1.5 border-l border-white/10 pl-3">
+        {lines.map((text, idx) => {
+          const shown = idx < revealed;
+          return (
+            <div
+              key={idx}
+              className="flex items-baseline gap-2 transition-all duration-300"
+              style={{
+                opacity: shown ? 1 : 0,
+                transform: shown ? "translateY(0)" : "translateY(4px)",
+              }}
+            >
+              <span className="text-white/30">&gt;</span>
+              <span className="text-white/75">{text}</span>
+              <span className="text-[var(--brand-teal-bright)] text-[10px]">· ok</span>
+            </div>
+          );
+        })}
+        <div className="flex items-baseline gap-2 text-white/35">
+          <span>&gt;</span>
+          <span
+            className="viz-caret inline-block w-[7px] h-[0.9em] bg-[var(--brand-teal-bright)] align-[-0.1em]"
+            aria-hidden
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Scene({
   opacity,
@@ -514,7 +693,7 @@ function buildRoadPath(): string {
   return d;
 }
 
-function Constellation({ phase, cursor }: { phase: number; cursor: { x: number; y: number } }) {
+function Constellation({ phase }: { phase: number }) {
   const clusters = useConstellationClusters();
   const road = useRoadPath();
   const lo = Math.max(0, Math.min(4, Math.floor(phase)));
@@ -529,15 +708,8 @@ function Constellation({ phase, cursor }: { phase: number; cursor: { x: number; 
   // Bias the viewBox so the active bubble sits ~70% from the left of the screen
   // (right side, behind the StageViz card). This keeps it out of the text column.
   const bubbleScreenX = 0.7;
-  // Cursor parallax — shift the viewBox opposite to cursor for a 3D-ish feel.
-  // Magnitudes kept small so the active bubble never drifts off-axis.
-  const parX = cursor.x * 90;
-  const parY = cursor.y * 60;
-  const viewLeft = cx - vw * bubbleScreenX + parX;
-  const viewTop = cy - vh / 2 + parY;
-  // Glow follower — projected back into viewBox space so it tracks the real cursor.
-  const glowCx = cx - vw * bubbleScreenX + parX + ((cursor.x + 1) / 2) * vw;
-  const glowCy = cy - vh / 2 + parY + ((cursor.y + 1) / 2) * vh;
+  const viewLeft = cx - vw * bubbleScreenX;
+  const viewTop = cy - vh / 2;
 
   return (
     <svg
@@ -556,16 +728,7 @@ function Constellation({ phase, cursor }: { phase: number; cursor: { x: number; 
           <stop offset="60%" stopColor="rgba(72,184,177,0.15)" />
           <stop offset="100%" stopColor="rgba(72,184,177,0)" />
         </radialGradient>
-        <radialGradient id="cursorGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(72,184,177,0.22)" />
-          <stop offset="60%" stopColor="rgba(72,184,177,0.05)" />
-          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
-        </radialGradient>
       </defs>
-
-      {/* Cursor glow — soft halo following the pointer */}
-      <circle cx={glowCx} cy={glowCy} r={320} fill="url(#cursorGlow)" />
-
 
       {/* The road — full continuous path connecting all bubbles */}
       <path
