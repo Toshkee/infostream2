@@ -20,14 +20,19 @@ export default function Security({ dict }: { dict: Dict }) {
         scrollTrigger: { trigger: ".sec-h2", start: "top 85%" },
       });
 
-      gsap.from(".sec-pillar", {
-        opacity: 0,
-        y: 40,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: { trigger: ".sec-pillars", start: "top 80%" },
-      });
+      gsap.fromTo(
+        ".sec-pillar",
+        { clipPath: "inset(0 0 100% 0)", opacity: 0, y: 30 },
+        {
+          clipPath: "inset(0 0 0% 0)",
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+          stagger: 0.12,
+          scrollTrigger: { trigger: ".sec-pillars", start: "top 80%" },
+        }
+      );
     },
     { scope: ref }
   );
@@ -60,6 +65,15 @@ export default function Security({ dict }: { dict: Dict }) {
                 </div>
                 <p className="mt-4 text-[var(--fg)] leading-relaxed text-[15px]">{p.v}</p>
                 <span className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-[var(--brand-teal)] opacity-60 group-hover:opacity-100 transition-opacity" />
+                {/* corner brackets — appear on hover */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute top-2 left-2 h-3 w-3 border-t border-l border-[var(--brand-teal)] opacity-0 -translate-x-1 -translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
+                />
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[var(--brand-teal)] opacity-0 translate-x-1 translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
+                />
               </div>
             ))}
           </div>

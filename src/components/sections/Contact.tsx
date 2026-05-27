@@ -3,7 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -27,9 +27,47 @@ export default function Contact({ dict }: { dict: Dict }) {
         stagger: 0.1,
         scrollTrigger: { trigger: ".cta-list", start: "top 85%" },
       });
+
+      gsap.fromTo(
+        ".cta-underline",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 0.9,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: ".cta-list", start: "top 80%" },
+        }
+      );
     },
     { scope: ref }
   );
+
+  // Magnetic hover on contact links
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const links = ref.current?.querySelectorAll<HTMLElement>("[data-magnetic]");
+    if (!links) return;
+    const cleanups: (() => void)[] = [];
+    links.forEach((el) => {
+      const onMove = (e: MouseEvent) => {
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - (r.left + r.width / 2);
+        const y = e.clientY - (r.top + r.height / 2);
+        gsap.to(el, { x: x * 0.25, y: y * 0.35, duration: 0.4, ease: "power3.out" });
+      };
+      const onLeave = () => {
+        gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,0.4)" });
+      };
+      el.addEventListener("mousemove", onMove);
+      el.addEventListener("mouseleave", onLeave);
+      cleanups.push(() => {
+        el.removeEventListener("mousemove", onMove);
+        el.removeEventListener("mouseleave", onLeave);
+      });
+    });
+    return () => cleanups.forEach((c) => c());
+  }, []);
 
   return (
     <section id="contact" ref={ref} className="relative py-28 lg:py-36 border-t hairline overflow-hidden">
@@ -54,20 +92,36 @@ export default function Contact({ dict }: { dict: Dict }) {
                 <dt className="mono text-[11px] tracking-[0.22em] uppercase text-[var(--fg-dim)]">
                   {dict.contact.emailLabel}
                 </dt>
-                <dd className="mt-2">
-                  <a href={`mailto:${dict.contact.email}`} className="text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors">
+                <dd className="mt-2 relative inline-block">
+                  <a
+                    data-magnetic
+                    href={`mailto:${dict.contact.email}`}
+                    className="inline-block text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors will-change-transform"
+                  >
                     {dict.contact.email}
                   </a>
+                  <span
+                    aria-hidden
+                    className="cta-underline absolute left-0 right-0 -bottom-1 h-px bg-[var(--brand-red)] origin-left"
+                  />
                 </dd>
               </div>
               <div className="cta-item">
                 <dt className="mono text-[11px] tracking-[0.22em] uppercase text-[var(--fg-dim)]">
                   {dict.contact.phoneLabel}
                 </dt>
-                <dd className="mt-2">
-                  <a href={`tel:${dict.contact.phone.replace(/\s/g, "")}`} className="text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors">
+                <dd className="mt-2 relative inline-block">
+                  <a
+                    data-magnetic
+                    href={`tel:${dict.contact.phone.replace(/\s/g, "")}`}
+                    className="inline-block text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors will-change-transform"
+                  >
                     {dict.contact.phone}
                   </a>
+                  <span
+                    aria-hidden
+                    className="cta-underline absolute left-0 right-0 -bottom-1 h-px bg-[var(--brand-red)] origin-left"
+                  />
                 </dd>
               </div>
               <div className="cta-item">

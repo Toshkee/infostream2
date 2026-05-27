@@ -52,6 +52,17 @@ export default function Clients({ dict }: { dict: Dict }) {
           scrollTrigger: { trigger: el, start: "top 90%" },
         });
       });
+
+      gsap.fromTo(
+        ".clients-eyebrow-dash",
+        { width: 0 },
+        {
+          width: "3.5rem",
+          duration: 1.1,
+          ease: "power3.out",
+          scrollTrigger: { trigger: ".clients-heading", start: "top 85%" },
+        }
+      );
     },
     { scope: ref }
   );
@@ -74,7 +85,7 @@ export default function Clients({ dict }: { dict: Dict }) {
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="clients-heading">
           <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-            <span className="h-px w-6 bg-[var(--brand-teal-bright)]" />
+            <span className="clients-eyebrow-dash h-px w-6 bg-[var(--brand-teal-bright)]" />
             {dict.clients.eyebrow}
           </div>
           <h2 className="clients-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium max-w-3xl">
@@ -84,7 +95,12 @@ export default function Clients({ dict }: { dict: Dict }) {
 
         <ul className="mt-14 divide-y divide-white/10 border-y border-white/10">
           {dict.clients.list.map((name, i) => (
-            <li key={i} className="client-row flex items-baseline justify-between py-5 lg:py-6 group cursor-default">
+            <li key={i} className="client-row relative flex items-baseline justify-between py-5 lg:py-6 group cursor-default overflow-hidden">
+              {/* hover line-fill — sweeps in from the left */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-0 bottom-0 h-px w-full origin-left scale-x-0 bg-[var(--brand-teal-bright)] transition-transform duration-500 ease-out group-hover:scale-x-100"
+              />
               <span className="flex items-baseline gap-5">
                 <span className="text-2xl lg:text-3xl tracking-[-0.01em] text-white group-hover:text-[var(--brand-teal-bright)] group-hover:translate-x-2 transition-all duration-300">
                   {name}

@@ -42,6 +42,21 @@ export default function Technology({ dict }: { dict: Dict }) {
           delay: bi * 0.12 + 0.15,
           scrollTrigger: { trigger: band, start: "top 85%" },
         });
+
+        const rail = band.querySelector<HTMLElement>("[data-tier-rail]");
+        if (rail) {
+          gsap.fromTo(
+            rail,
+            { scaleY: 0, transformOrigin: "top center" },
+            {
+              scaleY: 1,
+              duration: 0.9,
+              ease: "power3.out",
+              delay: bi * 0.12,
+              scrollTrigger: { trigger: band, start: "top 85%" },
+            }
+          );
+        }
       });
     },
     { scope: ref }
@@ -113,9 +128,10 @@ function TierBand({
       data-tier={index}
       className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 p-6 lg:p-8 border border-white/10 bg-[var(--bg-inset-elev)]/60 rounded-md overflow-hidden"
     >
-      {/* Glowing teal accent rail on left edge */}
+      {/* Glowing teal accent rail on left edge — drops in on enter */}
       <div
         aria-hidden
+        data-tier-rail
         className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--brand-teal-bright)] opacity-85"
         style={{ boxShadow: "0 0 14px var(--brand-teal-bright)" }}
       />

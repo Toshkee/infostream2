@@ -19,7 +19,7 @@ export default function Stats({ dict }: { dict: Dict }) {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  // Scan-line sweep — a thin teal beam crosses the strip when it enters view.
+  // Scan-line sweep + draw-in cell dividers + parallax drift on values.
   useGSAP(
     () => {
       gsap.fromTo(
@@ -33,6 +33,35 @@ export default function Stats({ dict }: { dict: Dict }) {
           scrollTrigger: { trigger: ref.current, start: "top 80%", once: true },
         }
       );
+
+      gsap.fromTo(
+        ".stats-divider",
+        { scaleY: 0, transformOrigin: "top center" },
+        {
+          scaleY: 1,
+          duration: 0.9,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: ref.current, start: "top 80%", once: true },
+        }
+      );
+
+      gsap.utils.toArray<HTMLElement>(".stats-value").forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 12 },
+          {
+            y: -12,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ref.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          }
+        );
+      });
     },
     { scope: ref }
   );
@@ -53,7 +82,7 @@ export default function Stats({ dict }: { dict: Dict }) {
         }}
       />
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10 py-14 lg:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0 md:divide-x md:divide-white/10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0">
           {items.map((s, i) => (
             <StatCell key={s.key} value={s.value} label={s.label} index={i} />
           ))}
@@ -106,8 +135,14 @@ function StatCell({ value, label, index }: { value: string; label: string; index
   }, [inView, value, index]);
 
   return (
-    <div ref={ref} className="px-6 first:pl-0 md:first:pl-6 md:px-8 lg:px-10">
-      <div className="mono text-[28px] md:text-[34px] lg:text-[42px] leading-none tracking-[-0.02em] text-white">
+    <div ref={ref} className="relative px-6 first:pl-0 md:first:pl-6 md:px-8 lg:px-10">
+      {index > 0 && (
+        <span
+          aria-hidden
+          className="stats-divider hidden md:block absolute left-0 top-0 bottom-0 w-px bg-white/10"
+        />
+      )}
+      <div className="stats-value mono text-[28px] md:text-[34px] lg:text-[42px] leading-none tracking-[-0.02em] text-white will-change-transform">
         {shown}
       </div>
       <div className="mt-3 mono text-[10px] tracking-[0.22em] uppercase text-white/45 max-w-[18ch]">

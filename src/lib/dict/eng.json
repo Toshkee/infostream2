@@ -55,6 +55,13 @@
       "Ministry of Defense"
     ]
   },
+  "livefeed": {
+    "eyebrow": "Code paths",
+    "title": "A peek at the actual stack.",
+    "body": "Snippets from the codebase — settlement service in .NET, reconciliation queries in SQL. Edited for brevity, otherwise real.",
+    "host": "infostream-prod / eu-central-1",
+    "hint": "typed at production cadence"
+  },
   "security": {
     "eyebrow": "Security posture",
     "title": "Built to be audited.",

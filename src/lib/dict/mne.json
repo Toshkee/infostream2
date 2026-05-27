@@ -55,6 +55,13 @@
       "Ministarstvo odbrane"
     ]
   },
+  "livefeed": {
+    "eyebrow": "Putanje koda",
+    "title": "Pogled na stvarni stek.",
+    "body": "Isječci iz koda — servis poravnanja u .NET-u, upiti za rekonsilijaciju u SQL-u. Skraćeno radi preglednosti, ali inače stvarno.",
+    "host": "infostream-prod / eu-central-1",
+    "hint": "kuca se ritmom produkcije"
+  },
   "security": {
     "eyebrow": "Bezbjednosna postavka",
     "title": "Pravljeno da bude revidirano.",

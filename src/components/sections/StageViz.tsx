@@ -207,110 +207,186 @@ function Architecture({ active }: { active: boolean }) {
 }
 
 /* ───────────────── BUILD ───────────────── */
+// C# code typed into editor → `dotnet build` succeeds → `dotnet run` prints output.
+// Three sequential phases, advanced by a single rAF-driven clock.
+const CSHARP_CODE: { text: string; kind: "comment" | "kw" | "type" | "str" | "code" }[] = [
+  { text: "using Infostream.Core;", kind: "code" },
+  { text: "using Infostream.Core.Ledger;", kind: "code" },
+  { text: "", kind: "code" },
+  { text: "namespace Treasury.Settlement;", kind: "code" },
+  { text: "", kind: "code" },
+  { text: "public sealed class SettlementService", kind: "code" },
+  { text: "{", kind: "code" },
+  { text: "    private readonly ILedger _ledger;", kind: "code" },
+  { text: "", kind: "code" },
+  { text: "    public async Task<Receipt> SettleAsync(Batch batch)", kind: "code" },
+  { text: "    {", kind: "code" },
+  { text: "        await using var audit = await AuditTrail.BeginAsync(batch.Id);", kind: "code" },
+  { text: "        var result = await _ledger.CommitAsync(batch);", kind: "code" },
+  { text: "        if (!result.Ok) throw new SettlementException(result.Error);", kind: "code" },
+  { text: "        return await audit.CloseAsync(result);", kind: "code" },
+  { text: "    }", kind: "code" },
+  { text: "}", kind: "code" },
+];
+
+const BUILD_OUTPUT: { text: string; tone: "dim" | "info" | "ok" | "cmd" }[] = [
+  { text: "$ dotnet build Treasury.Settlement.csproj -c Release", tone: "cmd" },
+  { text: "  Determining projects to restore...", tone: "dim" },
+  { text: "  Restored Treasury.Settlement.csproj (in 248ms).", tone: "dim" },
+  { text: "  Treasury.Settlement -> bin/Release/net8.0/Treasury.Settlement.dll", tone: "info" },
+  { text: "Build succeeded.   0 Warning(s)   0 Error(s)", tone: "ok" },
+  { text: "", tone: "dim" },
+  { text: "$ dotnet run -- --batch 7f2a-091b", tone: "cmd" },
+  { text: "[info]  audit trail opened · batch 7f2a-091b", tone: "info" },
+  { text: "[info]  committing 3,841 entries to ledger…", tone: "info" },
+  { text: "[ok]    batch 7f2a-091b settled in 14ms", tone: "ok" },
+];
+
+function syntaxColor(line: string, kind: string): React.ReactNode {
+  if (!line) return " ";
+  if (kind === "code") {
+    // Light tokenization — keywords + types + strings, rest is plain.
+    const kw = /\b(using|namespace|public|sealed|class|private|readonly|async|await|var|return|if|throw|new|null)\b/g;
+    const types = /\b(Task|Receipt|Batch|ILedger|AuditTrail|SettlementService|SettlementException|Infostream|Core|Ledger|Treasury|Settlement)\b/g;
+    const parts: React.ReactNode[] = [];
+    let last = 0;
+    const matches: { i: number; len: number; cls: string }[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = kw.exec(line))) matches.push({ i: m.index, len: m[0].length, cls: "text-[#c876d6]" });
+    while ((m = types.exec(line))) matches.push({ i: m.index, len: m[0].length, cls: "text-[#7ad8d2]" });
+    matches.sort((a, b) => a.i - b.i);
+    // Resolve overlaps: keyword wins
+    const filtered = matches.filter((mm, idx) =>
+      !matches.some((other, oi) => oi !== idx && other.i <= mm.i && other.i + other.len > mm.i && other.cls === "text-[#c876d6]")
+    );
+    filtered.forEach((mm, idx) => {
+      if (mm.i > last) parts.push(<span key={`p-${idx}`} className="text-white/80">{line.slice(last, mm.i)}</span>);
+      parts.push(<span key={`m-${idx}`} className={mm.cls}>{line.slice(mm.i, mm.i + mm.len)}</span>);
+      last = mm.i + mm.len;
+    });
+    if (last < line.length) parts.push(<span key="end" className="text-white/80">{line.slice(last)}</span>);
+    return parts;
+  }
+  return <span className="text-white/80">{line}</span>;
+}
+
 function Build({ active }: { active: boolean }) {
-  const [lines, setLines] = useState<string[]>([]);
-  const code = [
-    "// treasury-core/settlement.ts",
-    "import { Ledger, AuditTrail } from \"@infostream/core\";",
-    "",
-    "export async function settle(batch: Batch) {",
-    "  await AuditTrail.begin(batch.id);",
-    "  const result = await Ledger.commit(batch);",
-    "  if (!result.ok) throw new SettlementError();",
-    "  return AuditTrail.close(result);",
-    "}",
-  ];
+  const [linesShown, setLinesShown] = useState(0);
+  const [outShown, setOutShown] = useState(0);
 
   useEffect(() => {
-    if (!active) { setLines([]); return; }
-    setLines([]);
-    let i = 0;
-    const id = window.setInterval(() => {
-      setLines((prev) => {
-        if (i >= code.length) { window.clearInterval(id); return prev; }
-        const next = [...prev, code[i]];
-        i++;
-        return next;
-      });
-    }, 220);
-    return () => window.clearInterval(id);
+    if (!active) { setLinesShown(0); setOutShown(0); return; }
+    setLinesShown(0); setOutShown(0);
+    const timers: number[] = [];
+    // Phase 1: type code line-by-line
+    CSHARP_CODE.forEach((_, i) => {
+      timers.push(window.setTimeout(() => setLinesShown((n) => Math.max(n, i + 1)), 140 + i * 95));
+    });
+    // Phase 2: terminal output starts ~once code is mostly written
+    const start = 140 + CSHARP_CODE.length * 95 + 250;
+    BUILD_OUTPUT.forEach((_, i) => {
+      timers.push(window.setTimeout(() => setOutShown((n) => Math.max(n, i + 1)), start + i * 260));
+    });
+    return () => timers.forEach((t) => window.clearTimeout(t));
   }, [active]);
 
   if (!active) return null;
 
-  const commits = [
-    { hash: "9a2c1f8", msg: "feat: batch settlement", t: "2m" },
-    { hash: "e8b7d31", msg: "test: ledger invariants", t: "14m" },
-    { hash: "4c91a02", msg: "fix: audit trail close on err", t: "47m" },
-    { hash: "1b5f0ee", msg: "chore: bump @infostream/core", t: "1h" },
-  ];
-
   return (
-    <div className="absolute inset-0 flex flex-col text-[10px]" style={{ fontFamily: "ui-monospace, monospace" }}>
+    <div className="absolute inset-0 flex flex-col text-[9.5px]" style={{ fontFamily: "ui-monospace, monospace" }}>
       {/* Window chrome */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 bg-black/30">
+      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/10 bg-black/30">
         <span className="w-2 h-2 rounded-full bg-[#ff5f57]" />
         <span className="w-2 h-2 rounded-full bg-[#febc2e]" />
         <span className="w-2 h-2 rounded-full bg-[#28c840]" />
-        <span className="ml-3 text-white/50 tracking-[0.15em] uppercase text-[9px]">treasury-core.ts</span>
-        <span className="ml-auto text-white/30 text-[9px]">main · build passing</span>
+        <span className="ml-3 text-white/55 tracking-[0.14em] uppercase text-[9px]">SettlementService.cs</span>
+        <span className="ml-auto flex items-center gap-1.5 text-white/40 text-[9px]">
+          <span className="text-[var(--brand-teal-bright)]">●</span> .NET 8 · main
+        </span>
       </div>
 
-      <div className="flex flex-1 min-h-0">
-        {/* Code area */}
-        <div className="flex-1 px-3 py-2 leading-[1.55] overflow-hidden">
-          {lines.map((ln, i) => {
-            const isComment = ln.trim().startsWith("//");
-            const isLast = i === lines.length - 1;
-            return (
-              <div key={i} className="flex gap-3">
-                <span className="text-white/20 w-4 text-right">{i + 1}</span>
-                <span className={isComment ? "text-white/35" : "text-white/85"}>
-                  {ln}
-                  {isLast && <span className="viz-caret inline-block w-[5px] h-[10px] bg-[var(--brand-teal-bright)] align-middle ml-0.5" />}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Commit sidebar */}
-        <div className="w-[140px] border-l border-white/10 px-3 py-2 bg-black/20">
-          <div className="text-white/30 tracking-[0.18em] uppercase text-[8px] mb-2">recent commits</div>
-          {commits.map((c, i) => (
-            <div
-              key={i}
-              className="viz-fade mb-2"
-              style={{ animationDelay: `${0.5 + i * 0.15}s` }}
-            >
-              <div className="text-[var(--brand-teal-bright)] text-[9px]">{c.hash}</div>
-              <div className="text-white/65 truncate text-[9px]">{c.msg}</div>
-              <div className="text-white/25 text-[8px]">{c.t} ago</div>
+      {/* Editor pane */}
+      <div className="flex-1 min-h-0 px-3 py-2 leading-[1.5] overflow-hidden border-b border-white/10">
+        {CSHARP_CODE.slice(0, linesShown).map((ln, i) => {
+          const isLast = i === linesShown - 1 && linesShown < CSHARP_CODE.length;
+          return (
+            <div key={i} className="flex gap-2.5">
+              <span className="text-white/20 w-4 text-right select-none">{i + 1}</span>
+              <span>
+                {syntaxColor(ln.text, ln.kind)}
+                {isLast && (
+                  <span className="viz-caret inline-block w-[5px] h-[9px] bg-[var(--brand-teal-bright)] align-middle ml-0.5" />
+                )}
+              </span>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Status bar */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-t border-white/10 bg-black/30 text-white/40 text-[9px]">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
-            CI green
-          </span>
-          <span>2,847 commits</span>
-          <span>0 vulns</span>
+      {/* Terminal pane */}
+      <div className="h-[44%] min-h-0 px-3 py-2 bg-black/40 overflow-hidden">
+        <div className="text-white/35 text-[8px] tracking-[0.2em] uppercase mb-1.5 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+          terminal · zsh
         </div>
-        <span>v4.12.0</span>
+        {BUILD_OUTPUT.slice(0, outShown).map((ln, i) => {
+          const isLast = i === outShown - 1 && outShown < BUILD_OUTPUT.length;
+          const color =
+            ln.tone === "cmd" ? "text-white/85" :
+            ln.tone === "ok"  ? "text-[#7ce38b]" :
+            ln.tone === "info" ? "text-white/65" :
+            "text-white/40";
+          return (
+            <div key={i} className="leading-[1.5]">
+              <span className={color}>{ln.text || " "}</span>
+              {isLast && (
+                <span className="viz-caret inline-block w-[5px] h-[9px] bg-[var(--brand-teal-bright)] align-middle ml-0.5" />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 /* ───────────────── OPERATE ───────────────── */
+// Realistic throughput series — combines a slow trend, a daily-ish swell, faster
+// oscillation and seeded jitter so it reads as real telemetry rather than a sine wave.
+function buildOpsSeries(samples: number): { tx: number[]; p95: number[] } {
+  const rand = seededRand(0x71ae);
+  const tx: number[] = [];
+  const p95: number[] = [];
+  for (let i = 0; i < samples; i++) {
+    const t = i / (samples - 1);
+    const base = 1180 + Math.sin(t * Math.PI * 1.2) * 220;       // wide swell
+    const wave = Math.sin(t * Math.PI * 6) * 90;                  // mid frequency
+    const ripple = Math.sin(t * Math.PI * 18) * 35;               // fast ripple
+    const noise = (rand() - 0.5) * 70;                            // jitter
+    const spike = t > 0.74 && t < 0.78 ? -260 : 0;                // brief dip — looks real
+    const val = base + wave + ripple + noise + spike;
+    tx.push(val);
+    // p95 latency loosely correlates inversely with throughput, with jitter
+    const latBase = 22 - (val - 1180) / 60;
+    p95.push(Math.max(9, latBase + (rand() - 0.4) * 6));
+  }
+  return { tx, p95 };
+}
+
+function seededRand(seed: number) {
+  let s = seed >>> 0 || 1;
+  return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+}
+
+const OPS_SAMPLES = 96; // ~one point per 37.5s over 60m
+
 function Operate({ active }: { active: boolean }) {
   const [tx, setTx] = useState(1284);
   const [logs, setLogs] = useState<string[]>([]);
+  // Pre-compute series once per activation; keeps the chart shape stable
+  // while the live "tx/s" tile keeps updating.
+  const [series] = useState(() => buildOpsSeries(OPS_SAMPLES));
+
   useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => setTx(v => v + Math.floor(Math.random() * 9) + 1), 180);
@@ -319,11 +395,12 @@ function Operate({ active }: { active: boolean }) {
   useEffect(() => {
     if (!active) { setLogs([]); return; }
     const samples = [
-      "200 GET /settle/batch/7f2 · 14ms",
-      "200 POST /audit/seal · 22ms",
-      "200 GET /ledger/balance · 9ms",
-      "200 POST /idp/verify · 31ms",
-      "200 GET /reports/eod · 47ms",
+      "200 POST /api/v1/settle/batch · 14ms · 0.4KB",
+      "200 GET  /api/v1/ledger/7f2a · 9ms  · 2.1KB",
+      "200 POST /api/v1/audit/seal  · 22ms · 0.3KB",
+      "200 POST /api/v1/idp/verify  · 31ms · 0.6KB",
+      "200 GET  /api/v1/reports/eod · 47ms · 12KB",
+      "204 POST /api/v1/heartbeat   · 4ms  · -",
     ];
     let i = 0;
     const id = window.setInterval(() => {
@@ -335,22 +412,39 @@ function Operate({ active }: { active: boolean }) {
 
   if (!active) return null;
 
-  // Synthetic chart path — sine + drift, drawn on viewBox 0..380 x 0..70
-  const points: string[] = [];
-  for (let x = 0; x <= 380; x += 4) {
-    const y = 35 + Math.sin(x * 0.05) * 14 + Math.sin(x * 0.13) * 6 - x * 0.03;
-    points.push(`${x},${y.toFixed(1)}`);
-  }
-  const pathD = "M " + points.join(" L ");
+  // Chart geometry — leave room on the left for y-axis labels, bottom for x labels.
+  const W = 380, H = 100;
+  const PAD_L = 28, PAD_R = 8, PAD_T = 8, PAD_B = 14;
+  const innerW = W - PAD_L - PAD_R;
+  const innerH = H - PAD_T - PAD_B;
+
+  const txMin = Math.min(...series.tx);
+  const txMax = Math.max(...series.tx);
+  const yLo = Math.floor(txMin / 200) * 200;
+  const yHi = Math.ceil(txMax / 200) * 200;
+  const yTicks: number[] = [];
+  for (let v = yLo; v <= yHi; v += 200) yTicks.push(v);
+
+  const xAt = (i: number) => PAD_L + (i / (OPS_SAMPLES - 1)) * innerW;
+  const yAt = (v: number) => PAD_T + (1 - (v - yLo) / (yHi - yLo)) * innerH;
+
+  const linePath = "M " + series.tx.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" L ");
+  const areaPath = `${linePath} L ${xAt(OPS_SAMPLES - 1).toFixed(1)},${(PAD_T + innerH).toFixed(1)} L ${xAt(0).toFixed(1)},${(PAD_T + innerH).toFixed(1)} Z`;
+
+  // p95 latency mini-band (rescaled to bottom 25% of chart)
+  const p95Max = Math.max(...series.p95);
+  const p95Min = Math.min(...series.p95);
+  const p95yAt = (v: number) => PAD_T + innerH - 4 - ((v - p95Min) / (p95Max - p95Min)) * 14;
+  const p95Path = "M " + series.p95.map((v, i) => `${xAt(i).toFixed(1)},${p95yAt(v).toFixed(1)}`).join(" L ");
 
   const stats = [
     { k: "tx/s", v: tx.toLocaleString(), color: TEAL_BRIGHT },
-    { k: "uptime", v: "99.99%", color: "white" },
-    { k: "incidents", v: "0", color: "white" },
+    { k: "p95 lat", v: `${series.p95[series.p95.length - 1].toFixed(0)}ms`, color: "white" },
+    { k: "error rate", v: "0.00%", color: "white" },
   ];
 
   return (
-    <div className="absolute inset-0 p-4 flex flex-col gap-3 text-[10px]" style={{ fontFamily: "ui-monospace, monospace" }}>
+    <div className="absolute inset-0 p-3 flex flex-col gap-2.5 text-[10px]" style={{ fontFamily: "ui-monospace, monospace" }}>
       {/* Stat tiles */}
       <div className="grid grid-cols-3 gap-2">
         {stats.map((s, i) => (
@@ -365,40 +459,102 @@ function Operate({ active }: { active: boolean }) {
         ))}
       </div>
 
-      {/* Line chart */}
-      <div className="relative border border-white/10 rounded-sm bg-black/20 flex-1 min-h-0 p-2">
-        <div className="text-white/35 text-[8px] tracking-[0.2em] uppercase mb-1">throughput · last 60m</div>
-        <svg viewBox="0 0 380 70" className="w-full h-[calc(100%-14px)]" preserveAspectRatio="none">
-          {/* grid */}
-          {[10,25,40,55].map((y) => (
-            <line key={y} x1={0} y1={y} x2={380} y2={y} stroke="rgba(255,255,255,0.06)" />
+      {/* Chart panel */}
+      <div className="relative border border-white/10 rounded-sm bg-black/25 flex-1 min-h-0 p-2 flex flex-col">
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-white/40 text-[8px] tracking-[0.2em] uppercase">throughput · tx/s · last 60m</div>
+          <div className="flex items-center gap-3 text-[8px] text-white/45">
+            <span className="flex items-center gap-1"><span className="w-2 h-px bg-[var(--brand-teal-bright)]" /> tx/s</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-px bg-white/35" style={{ borderTop: "1px dashed rgba(255,255,255,0.35)" }} /> p95 ms</span>
+          </div>
+        </div>
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full flex-1 min-h-0" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="opsArea" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor={TEAL_BRIGHT} stopOpacity="0.28" />
+              <stop offset="100%" stopColor={TEAL_BRIGHT} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {/* Horizontal grid + y-axis tick labels */}
+          {yTicks.map((v) => (
+            <g key={v}>
+              <line x1={PAD_L} y1={yAt(v)} x2={W - PAD_R} y2={yAt(v)} stroke="rgba(255,255,255,0.07)" />
+              <text x={PAD_L - 4} y={yAt(v) + 3} textAnchor="end" fontSize="7" fill="rgba(255,255,255,0.4)">
+                {v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}
+              </text>
+            </g>
           ))}
-          {/* area fill */}
+
+          {/* X-axis time labels */}
+          {[
+            { label: "-60m", t: 0 },
+            { label: "-45m", t: 0.25 },
+            { label: "-30m", t: 0.5 },
+            { label: "-15m", t: 0.75 },
+            { label: "now", t: 1 },
+          ].map((tk) => {
+            const x = PAD_L + tk.t * innerW;
+            return (
+              <g key={tk.label}>
+                <line x1={x} y1={PAD_T + innerH} x2={x} y2={PAD_T + innerH + 2} stroke="rgba(255,255,255,0.25)" />
+                <text x={x} y={PAD_T + innerH + 10} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.4)">
+                  {tk.label}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Area fill under throughput line */}
+          <path d={areaPath} fill="url(#opsArea)" className="viz-fade" style={{ animationDelay: "0.5s" }} />
+
+          {/* Throughput line */}
           <path
-            d={`${pathD} L 380,70 L 0,70 Z`}
-            fill={TEAL}
-            opacity={0.12}
-            className="viz-fade"
-            style={{ animationDelay: "0.6s" }}
-          />
-          {/* line */}
-          <path
-            d={pathD}
+            d={linePath}
             stroke={TEAL_BRIGHT}
-            strokeWidth={1.4}
+            strokeWidth={1.3}
             fill="none"
             className="viz-chart-draw"
-            style={{ animationDelay: "0.3s" }}
+            style={{ animationDelay: "0.25s" }}
+          />
+
+          {/* p95 latency overlay — dashed white, sits low in the chart */}
+          <path
+            d={p95Path}
+            stroke="rgba(255,255,255,0.4)"
+            strokeWidth={0.9}
+            fill="none"
+            strokeDasharray="2 2"
+            className="viz-chart-draw"
+            style={{ animationDelay: "0.55s" }}
+          />
+
+          {/* "Now" cursor on the right edge */}
+          <line
+            x1={xAt(OPS_SAMPLES - 1)}
+            y1={PAD_T}
+            x2={xAt(OPS_SAMPLES - 1)}
+            y2={PAD_T + innerH}
+            stroke={TEAL_BRIGHT}
+            strokeOpacity="0.5"
+            strokeDasharray="2 3"
+          />
+          <circle
+            cx={xAt(OPS_SAMPLES - 1)}
+            cy={yAt(series.tx[series.tx.length - 1])}
+            r={2.5}
+            fill={TEAL_BRIGHT}
+            style={{ filter: "drop-shadow(0 0 4px var(--brand-teal-bright))" }}
           />
         </svg>
       </div>
 
-      {/* Status row */}
+      {/* Service health row */}
       <div className="flex items-center gap-3 text-[9px]">
-        {["api","db","queue","auth","idp"].map((s, i) => (
+        {["api","oracle","queue","idp","cdc"].map((s, i) => (
           <span
             key={s}
-            className="viz-fade flex items-center gap-1.5 text-white/55"
+            className="viz-fade flex items-center gap-1.5 text-white/60"
             style={{ animationDelay: `${0.4 + i * 0.08}s` }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
@@ -408,11 +564,11 @@ function Operate({ active }: { active: boolean }) {
       </div>
 
       {/* Log stream */}
-      <div className="border border-white/10 rounded-sm bg-black/30 px-2 py-1.5 text-[9px] text-white/55 h-[64px] overflow-hidden">
+      <div className="border border-white/10 rounded-sm bg-black/35 px-2 py-1.5 text-[9px] text-white/60 h-[60px] overflow-hidden">
         {logs.map((l, i) => (
           <div
             key={`${l}-${i}`}
-            className="viz-fade truncate"
+            className="viz-fade truncate leading-[1.45]"
             style={{ opacity: 1 - i * 0.22, animationDelay: "0s" }}
           >
             <span className="text-[var(--brand-teal-bright)]">›</span> {l}
