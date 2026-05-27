@@ -24,10 +24,39 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   const [tx, setTx] = useState(1284);
   const [activeScene, setActiveScene] = useState(0);
   const [phase, setPhase] = useState(0);
+  // Cursor offset from center, normalized to [-1, 1]. Drives parallax on the constellation.
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const id = window.setInterval(() => setTx((v) => v + Math.floor(Math.random() * 7) + 1), 220);
     return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const el = pin.current;
+    if (!el) return;
+    let raf = 0;
+    let target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      target = {
+        x: ((e.clientX - r.left) / r.width) * 2 - 1,
+        y: ((e.clientY - r.top) / r.height) * 2 - 1,
+      };
+    };
+    const tick = () => {
+      current.x += (target.x - current.x) * 0.08;
+      current.y += (target.y - current.y) * 0.08;
+      setCursor({ x: current.x, y: current.y });
+      raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener("mousemove", onMove);
+    raf = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   useGSAP(
@@ -106,7 +135,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             }}
           />
           {/* Constellation lines + dots */}
-          <Constellation phase={phase} />
+          <Constellation phase={phase} cursor={cursor} />
           {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
           {/* Top + bottom soft edges */}
@@ -466,7 +495,9 @@ function buildCluster(seed: number, cx: number, cy: number, count: number, sprea
 }
 
 const CLUSTER_X = [400, 1200, 2000, 2800, 3600, 4400]; // phase 0..5
-const CLUSTER_Y = [320, 240, 380, 260, 360, 300];
+// Pronounced zigzag — alternates high/low so the road feels like a winding path,
+// not a near-straight line. Each bubble is on a different vertical band than its neighbors.
+const CLUSTER_Y = [300, 480, 200, 500, 220, 380];
 
 // Smooth Catmull-Rom-ish path through all bubble centers — the "road"
 function buildRoadPath(): string {
@@ -483,7 +514,7 @@ function buildRoadPath(): string {
   return d;
 }
 
-function Constellation({ phase }: { phase: number }) {
+function Constellation({ phase, cursor }: { phase: number; cursor: { x: number; y: number } }) {
   const clusters = useConstellationClusters();
   const road = useRoadPath();
   const lo = Math.max(0, Math.min(4, Math.floor(phase)));
@@ -498,8 +529,15 @@ function Constellation({ phase }: { phase: number }) {
   // Bias the viewBox so the active bubble sits ~70% from the left of the screen
   // (right side, behind the StageViz card). This keeps it out of the text column.
   const bubbleScreenX = 0.7;
-  const viewLeft = cx - vw * bubbleScreenX;
-  const viewTop = cy - vh / 2;
+  // Cursor parallax — shift the viewBox opposite to cursor for a 3D-ish feel.
+  // Magnitudes kept small so the active bubble never drifts off-axis.
+  const parX = cursor.x * 90;
+  const parY = cursor.y * 60;
+  const viewLeft = cx - vw * bubbleScreenX + parX;
+  const viewTop = cy - vh / 2 + parY;
+  // Glow follower — projected back into viewBox space so it tracks the real cursor.
+  const glowCx = cx - vw * bubbleScreenX + parX + ((cursor.x + 1) / 2) * vw;
+  const glowCy = cy - vh / 2 + parY + ((cursor.y + 1) / 2) * vh;
 
   return (
     <svg
@@ -518,7 +556,16 @@ function Constellation({ phase }: { phase: number }) {
           <stop offset="60%" stopColor="rgba(72,184,177,0.15)" />
           <stop offset="100%" stopColor="rgba(72,184,177,0)" />
         </radialGradient>
+        <radialGradient id="cursorGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(72,184,177,0.22)" />
+          <stop offset="60%" stopColor="rgba(72,184,177,0.05)" />
+          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
+        </radialGradient>
       </defs>
+
+      {/* Cursor glow — soft halo following the pointer */}
+      <circle cx={glowCx} cy={glowCy} r={320} fill="url(#cursorGlow)" />
+
 
       {/* The road — full continuous path connecting all bubbles */}
       <path

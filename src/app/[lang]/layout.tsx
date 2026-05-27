@@ -40,6 +40,7 @@ export default async function RootLayout({
           <ScrollProgress />
           {children}
         </SmoothScroll>
+        <div className="grain-overlay" aria-hidden />
       </body>
     </html>
   );
