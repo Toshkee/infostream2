@@ -15,7 +15,7 @@ No test runner is configured.
 
 ## Stack
 
-Next.js 16 (App Router) + React 19 + TypeScript 5, Tailwind CSS v4 (via `@tailwindcss/postcss`, no `tailwind.config`), GSAP + `@gsap/react` for animation, Lenis for smooth scroll, `@react-three/fiber` + `@react-three/drei` + Three.js for 3D.
+Next.js 16 (App Router) + React 19 + TypeScript 5, Tailwind CSS v4 (via `@tailwindcss/postcss`, no `tailwind.config`), GSAP + `@gsap/react` for animation, Lenis for smooth scroll, `@react-three/fiber` + `@react-three/drei` + Three.js for the 3D hero layer (`src/components/three/`).
 
 ## Architecture
 
@@ -37,7 +37,7 @@ Dictionaries live in `src/lib/dict/*.json` and are dynamically imported. Pages f
 
 ### Animation / 3D
 - GSAP-driven pinned/scroll animations live inside the section components (e.g. `PinnedHero`, `StageViz`). Smooth scroll is provided globally by `src/components/providers/SmoothScroll.tsx` — GSAP ScrollTrigger work must integrate with Lenis rather than the native scroller.
-- Three.js scenes (`src/components/three/`) are mounted via React Three Fiber from within section components.
+- `src/components/three/HeroScene.tsx` is the R3F canvas mounted inside `PinnedHero`'s backdrop. It's loaded via `next/dynamic` with `ssr: false` and suppressed under `prefers-reduced-motion`. Receives `phase` (0..5) from the parent's ScrollTrigger to couple camera/material to scroll progress.
 
 ### Styling
 Tailwind v4 is configured purely through `src/app/globals.css` (`@import "tailwindcss"` + `@theme` tokens). There is no `tailwind.config.{js,ts}` — add design tokens in `globals.css`. Fonts are wired via `next/font` in the root layout exposing `--font-sans-stack` / `--font-mono-stack` CSS variables.

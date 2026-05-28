@@ -1,15 +1,33 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+const ShieldScene = dynamic(() => import("@/components/three/ShieldScene"), {
+  ssr: false,
+});
+
 export default function Security({ dict }: { dict: Dict }) {
   const ref = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const [buildProgress, setBuildProgress] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useGSAP(
     () => {
@@ -33,6 +51,18 @@ export default function Security({ dict }: { dict: Dict }) {
           scrollTrigger: { trigger: ".sec-pillars", start: "top 80%" },
         }
       );
+
+      // Drive the shield build from scroll position over the stage element —
+      // particles lock into the shield outline as the section scrolls past.
+      if (stage.current) {
+        ScrollTrigger.create({
+          trigger: stage.current,
+          start: "top 85%",
+          end: "bottom 30%",
+          scrub: 0.5,
+          onUpdate: (self) => setBuildProgress(self.progress),
+        });
+      }
     },
     { scope: ref }
   );
@@ -40,7 +70,7 @@ export default function Security({ dict }: { dict: Dict }) {
   return (
     <section id="security" ref={ref} className="relative py-28 lg:py-36 bg-[var(--bg-elev)] overflow-hidden">
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
-        <div className="grid lg:grid-cols-12 gap-12">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 sec-heading">
             <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal)] flex items-center gap-2">
               <span className="h-px w-6 bg-[var(--brand-teal)]" />
@@ -54,29 +84,36 @@ export default function Security({ dict }: { dict: Dict }) {
             </p>
           </div>
 
-          <div className="lg:col-span-7 sec-pillars grid sm:grid-cols-3 gap-4">
-            {dict.security.pillars.map((p, i) => (
-              <div
-                key={i}
-                className="sec-pillar group relative bg-[var(--bg)] border hairline rounded-xl p-6 hover:border-[var(--brand-teal)] hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal)]">
-                  {p.k}
-                </div>
-                <p className="mt-4 text-[var(--fg)] leading-relaxed text-[15px]">{p.v}</p>
-                <span className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-[var(--brand-teal)] opacity-60 group-hover:opacity-100 transition-opacity" />
-                {/* corner brackets — appear on hover */}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute top-2 left-2 h-3 w-3 border-t border-l border-[var(--brand-teal)] opacity-0 -translate-x-1 -translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[var(--brand-teal)] opacity-0 translate-x-1 translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
-                />
-              </div>
-            ))}
+          {/* 3D shield — assembles from particles as you scroll. */}
+          <div ref={stage} className="lg:col-span-7 relative h-[420px] lg:h-[520px]">
+            {!reducedMotion && <ShieldScene progress={buildProgress} />}
+            <div className="absolute bottom-3 left-0 mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal)]/60 pointer-events-none">
+              · scroll to engage
+            </div>
           </div>
+        </div>
+
+        <div className="sec-pillars grid sm:grid-cols-3 gap-4 mt-16">
+          {dict.security.pillars.map((p, i) => (
+            <div
+              key={i}
+              className="sec-pillar group relative bg-[var(--bg)] border hairline rounded-xl p-6 hover:border-[var(--brand-teal)] hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal)]">
+                {p.k}
+              </div>
+              <p className="mt-4 text-[var(--fg)] leading-relaxed text-[15px]">{p.v}</p>
+              <span className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-[var(--brand-teal)] opacity-60 group-hover:opacity-100 transition-opacity" />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute top-2 left-2 h-3 w-3 border-t border-l border-[var(--brand-teal)] opacity-0 -translate-x-1 -translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
+              />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-2 right-2 h-3 w-3 border-b border-r border-[var(--brand-teal)] opacity-0 translate-x-1 translate-y-1 group-hover:opacity-90 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>

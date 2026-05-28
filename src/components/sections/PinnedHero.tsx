@@ -1,13 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Magnetic from "@/components/ui/Magnetic";
-import StageViz from "@/components/sections/StageViz";
 import type { Dict } from "@/lib/dictionaries";
+
+const HeroScene = dynamic(() => import("@/components/three/HeroScene"), { ssr: false });
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -17,6 +19,17 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   const [tx, setTx] = useState(1284);
   const [activeScene, setActiveScene] = useState(0);
   const [phase, setPhase] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
   // Parallax wrapper — receives CSS variables driven imperatively from a rAF loop.
   // Keeping cursor state out of React avoids a re-render of the entire hero on every frame.
   const parallax = useRef<HTMLDivElement>(null);
@@ -130,9 +143,20 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
             }}
           />
-          {/* Constellation lines + dots — wrapped so cursor parallax is applied
-             via compositor transform on the wrapper rather than re-rendering React. */}
-          <div ref={parallax} className="absolute inset-0 will-change-transform">
+          {/* 3D process pipeline — centerpiece of stages 1..4. Camera dollies between
+             four nodes laid out in 3D space and the active node pulses as you scroll. */}
+          {!reducedMotion && (
+            <div className="absolute inset-0 pointer-events-none">
+              <HeroScene phase={phase} />
+            </div>
+          )}
+          {/* 2D constellation backdrop — strong during the intro, fades back as the
+             3D pipeline takes over to avoid competing with it. */}
+          <div
+            ref={parallax}
+            className="absolute inset-0 will-change-transform"
+            style={{ opacity: Math.max(0.2, 1 - phase * 0.55) }}
+          >
             <Constellation phase={phase} />
           </div>
           {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
@@ -225,14 +249,15 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           </div>
         </Scene>
 
-        {/* Scenes 1–4 — Process stages */}
+        {/* Scenes 1–4 — Process stages. Text card on the left; the 3D pipeline
+           in the backdrop takes the right half of the frame. */}
         {modules.map((mod, i) => (
           <Scene key={i} opacity={sceneOpacity(phase, i + 1)} interactive={activeScene === i + 1}>
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center w-full">
-              <div>
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
+              <div className="lg:col-span-5">
                 <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
                   <span className="h-px w-8 bg-[var(--brand-teal-bright)]" />
-                  {dict.platform.eyebrow}
+                  {dict.platform.eyebrow} · <span className="text-white/45">stage 0{i + 1}</span>
                 </div>
                 <h2 className="mt-5 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
                   {mod.name}
@@ -241,9 +266,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                   <Typewriter text={mod.description} active={activeScene === i + 1} />
                 </p>
                 <Transmission stage={i} active={activeScene === i + 1} />
-              </div>
-              <div className="hidden lg:block">
-                <StageViz stage={i} active={activeScene === i + 1} />
               </div>
             </div>
           </Scene>
