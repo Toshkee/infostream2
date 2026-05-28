@@ -88,14 +88,14 @@
     "body": "Stable, well-understood tooling — chosen for longevity, audit-trail and operational predictability over novelty.",
     "tiers": [
       {
-        "label": "Application",
-        "tech": [".NET", "Oracle APEX"],
-        "note": "Custom operator consoles, internal admin and reporting surfaces."
+        "label": "Core Platform",
+        "tech": ["Oracle Database", "Oracle APEX"],
+        "note": "Primary data store and rapid-development platform — transactional integrity, point-in-time recovery, externally audited."
       },
       {
-        "label": "Data",
-        "tech": ["Oracle Database"],
-        "note": "Primary store — transactional integrity, point-in-time recovery, externally audited."
+        "label": "Application",
+        "tech": [".NET", "SQL", "JavaScript", "Angular"],
+        "note": "Server-side logic, data access, and operator-facing web interfaces."
       },
       {
         "label": "Security",

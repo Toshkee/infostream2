@@ -88,14 +88,14 @@
     "body": "Stabilan, dobro poznat alat — biran zbog dugovječnosti, revizorskog traga i operativne predvidljivosti, ne zbog novosti.",
     "tiers": [
       {
-        "label": "Aplikacija",
-        "tech": [".NET", "Oracle APEX"],
-        "note": "Operativne konzole, interna administracija i izvještaji."
+        "label": "Osnovna platforma",
+        "tech": ["Oracle Database", "Oracle APEX"],
+        "note": "Primarno skladište podataka i platforma za brzi razvoj — transakciona konzistentnost, oporavak u tački vremena, eksterno revidirano."
       },
       {
-        "label": "Podaci",
-        "tech": ["Oracle Database"],
-        "note": "Primarno skladište — transakciona konzistentnost, oporavak u tački vremena, eksterno revidirano."
+        "label": "Aplikacija",
+        "tech": [".NET", "SQL", "JavaScript", "Angular"],
+        "note": "Serverska logika, pristup podacima i korisnički web interfejsi."
       },
       {
         "label": "Bezbjednost",
