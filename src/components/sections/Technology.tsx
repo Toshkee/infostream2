@@ -4,22 +4,76 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
+import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import type { Dict } from "@/lib/dictionaries";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, useGSAP);
 
-const BURST_COUNT = 10;
-const SPINE_PARTICLES = 8;
+// ── Topology layout ─────────────────────────────────────────────────
+// Three node groups, mapped to dict.tiers:
+//   tier 0 (Core Platform) → database cluster   (bottom)
+//   tier 1 (Application)    → servers + operator workstations (middle/top)
+//   tier 2 (Security)       → the enclosing perimeter
+// Coordinates are in the SVG's 600×560 viewBox.
+type Pt = { x: number; y: number };
+
+const ENDPOINTS: Pt[] = [
+  { x: 110, y: 84 },
+  { x: 300, y: 70 },
+  { x: 490, y: 84 },
+];
+const SERVERS: Pt[] = [
+  { x: 206, y: 270 },
+  { x: 394, y: 270 },
+];
+const DBS: Pt[] = [
+  { x: 150, y: 462 },
+  { x: 300, y: 474 },
+  { x: 450, y: 462 },
+];
+
+// Each link carries a stream of packets. dir 1 = data flowing down toward
+// storage (a query/write), dir -1 = a result/alert surfacing back up.
+type Link = { a: Pt; b: Pt; dir: 1 | -1 };
+const LINKS: Link[] = [
+  { a: ENDPOINTS[0], b: SERVERS[0], dir: 1 },
+  { a: ENDPOINTS[1], b: SERVERS[0], dir: -1 },
+  { a: ENDPOINTS[1], b: SERVERS[1], dir: 1 },
+  { a: ENDPOINTS[2], b: SERVERS[1], dir: -1 },
+  { a: SERVERS[0], b: DBS[0], dir: 1 },
+  { a: SERVERS[0], b: DBS[1], dir: -1 },
+  { a: SERVERS[1], b: DBS[1], dir: 1 },
+  { a: SERVERS[1], b: DBS[2], dir: 1 },
+];
+
+// Smooth vertical S-curve between two nodes.
+function linkPath(a: Pt, b: Pt) {
+  const my = (a.y + b.y) / 2;
+  return `M${a.x},${a.y} C${a.x},${my} ${b.x},${my} ${b.x},${b.y}`;
+}
+
+// Two packets per link, offset half a cycle apart → a steady stream.
+const PACKETS = LINKS.flatMap((link, li) => [
+  { li, link, phase: 0 },
+  { li, link, phase: 0.5 },
+]);
+
+const CYCLE_MS = 2600;
+const TEAL = "rgba(122,216,210,0.55)";
+const TEAL_FILL = "rgba(122,216,210,0.06)";
+const RED = "var(--brand-red)";
 
 export default function Technology({ dict }: { dict: Dict }) {
   const tech = dict.technology;
+  const tiers = tech.tiers;
   const ref = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const [reducedMotion, setReducedMotion] = useState(
     () =>
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+  const [activeTier, setActiveTier] = useState(0);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -28,164 +82,101 @@ export default function Technology({ dict }: { dict: Dict }) {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  // Cycle the live layer, but only while on-screen and in motion.
+  useEffect(() => {
+    if (reducedMotion) return;
+    const el = ref.current;
+    let visible = false;
+    const io = el
+      ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, {
+          rootMargin: "0px 0px -20% 0px",
+        })
+      : null;
+    if (el && io) io.observe(el);
+    const id = window.setInterval(() => {
+      if (visible) setActiveTier((v) => (v + 1) % 3);
+    }, CYCLE_MS);
+    return () => {
+      window.clearInterval(id);
+      io?.disconnect();
+    };
+  }, [reducedMotion]);
+
   useGSAP(
     () => {
-      // Title reveal
       gsap.to(".tech-h2", {
         clipPath: "inset(0 0% 0 0)",
-        duration: 1.2,
+        duration: 1.1,
         ease: "power4.out",
         scrollTrigger: { trigger: ".tech-h2", start: "top 85%" },
       });
 
-      // Spine draws first
-      gsap.fromTo(
-        ".tech-spine-line",
-        { scaleY: 0, transformOrigin: "top center" },
-        {
-          scaleY: 1,
-          duration: 1.6,
-          ease: "power3.inOut",
-          scrollTrigger: { trigger: ".tech-spine-wrap", start: "top 78%" },
-        }
-      );
+      const links = gsap.utils.toArray<SVGPathElement>(".tech-link");
+      const nodes = gsap.utils.toArray<SVGGElement>(".tech-node");
+      const packets = gsap.utils.toArray<SVGCircleElement>(".tech-packet");
 
-      // Spine flowing particles
-      if (!reducedMotion) {
-        ScrollTrigger.create({
-          trigger: ".tech-spine-wrap",
-          start: "top 78%",
-          onEnter: () => {
-            const h = wrapRef.current?.offsetHeight ?? 620;
-            gsap.utils
-              .toArray<HTMLElement>(".tech-spine-p")
-              .forEach((p, i) => {
-                const dur = 3.4;
-                const tl = gsap.timeline({
-                  repeat: -1,
-                  delay: i * (dur / SPINE_PARTICLES),
-                });
-                tl.fromTo(p, { y: 0, opacity: 0 }, { y: h * 0.05, opacity: 1, duration: 0.28, ease: "none" });
-                tl.to(p, { y: h * 0.92, opacity: 1, duration: dur * 0.83, ease: "none" });
-                tl.to(p, { y: h, opacity: 0, duration: 0.28, ease: "none" });
-              });
-          },
-        });
+      if (reducedMotion) {
+        gsap.set(links, { drawSVG: "100%" });
+        gsap.set(nodes, { opacity: 1, scale: 1 });
+        gsap.set(packets, { opacity: 0 });
+        return;
       }
 
-      // Per-tier: burst particles → badges fly in from spine direction
-      gsap.utils.toArray<HTMLElement>(".tech-tier-row").forEach((row, i) => {
-        const isLeft = i % 2 === 0;
-        const st = { trigger: row, start: "top 82%" };
+      // Links wire themselves in, then nodes pop on, then packets stream.
+      gsap.set(links, { drawSVG: "0%" });
+      gsap.set(nodes, { opacity: 0, transformOrigin: "center", scale: 0.5 });
+      gsap.set(packets, { opacity: 0 });
 
-        // Node pops in
-        const node = row.querySelector<HTMLElement>(".tech-tier-node");
-        if (node) {
-          gsap.from(node, {
-            scale: 0,
-            opacity: 0,
-            duration: 0.52,
-            ease: "back.out(2.5)",
-            scrollTrigger: st,
-          });
-        }
-
-        // Connector arm draws toward content
-        const arm = row.querySelector<HTMLElement>(".tech-connector-arm");
-        if (arm) {
-          gsap.fromTo(
-            arm,
-            { scaleX: 0, transformOrigin: isLeft ? "right center" : "left center" },
-            { scaleX: 1, duration: 0.5, ease: "power3.out", delay: 0.12, scrollTrigger: st }
-          );
-        }
-
-        // Tier heading slides in
-        const heading = row.querySelector<HTMLElement>(".tech-tier-heading");
-        if (heading) {
-          gsap.from(heading, {
-            opacity: 0,
-            x: isLeft ? -20 : 20,
-            duration: 0.5,
-            ease: "power3.out",
-            delay: 0.2,
-            scrollTrigger: st,
-          });
-        }
-
-        // Burst particles scatter from node center
-        if (!reducedMotion) {
-          const burst = row.querySelectorAll<HTMLElement>(".tech-burst-p");
-          burst.forEach((p, pi) => {
-            const angle = (pi / BURST_COUNT) * Math.PI * 2;
-            const dist = pi % 2 === 0 ? 70 : 48;
-            gsap.fromTo(
-              p,
-              { x: 0, y: 0, opacity: 0.9, scale: 1 },
-              {
-                x: Math.cos(angle) * dist,
-                y: Math.sin(angle) * dist,
-                opacity: 0,
-                scale: 0.3,
-                duration: 0.75,
-                ease: "power2.out",
-                delay: 0.05 + pi * 0.025,
-                scrollTrigger: st,
-              }
-            );
-          });
-        }
-
-        // Badges fly out from spine direction, staggered left-to-right
-        const badges = row.querySelectorAll<HTMLElement>(".tech-badge");
-        gsap.fromTo(
-          badges,
-          {
-            opacity: 0,
-            x: isLeft ? 55 : -55,
-            scale: 0.55,
-            filter: "blur(4px)",
-          },
-          {
-            opacity: 1,
-            x: 0,
-            scale: 1,
-            filter: "blur(0px)",
-            duration: 0.6,
-            ease: "power3.out",
-            stagger: { each: 0.09, from: isLeft ? "end" : "start" },
-            delay: 0.18,
-            scrollTrigger: st,
-          }
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: ".tech-scene", start: "top 78%" },
+      });
+      tl.to(links, { drawSVG: "100%", duration: 0.9, stagger: 0.06, ease: "power2.out" })
+        .to(
+          nodes,
+          { opacity: 1, scale: 1, duration: 0.55, stagger: 0.05, ease: "back.out(1.7)" },
+          "-=0.5"
         );
 
-        // Note fades last
-        const note = row.querySelector<HTMLElement>(".tech-tier-note");
-        if (note) {
-          gsap.from(note, {
-            opacity: 0,
-            y: 5,
-            duration: 0.45,
-            ease: "power2.out",
-            delay: 0.55,
-            scrollTrigger: st,
-          });
-        }
-      });
-
-      // Node pulse rings
-      if (!reducedMotion) {
-        gsap.utils.toArray<HTMLElement>(".tech-node-ring").forEach((ring) => {
-          gsap.fromTo(
-            ring,
-            { scale: 1, opacity: 0.5 },
-            { scale: 2.5, opacity: 0, duration: 2.2, ease: "power2.out", repeat: -1, repeatDelay: 0.7 }
-          );
+      // Flowing data packets riding each connection.
+      packets.forEach((packet, idx) => {
+        const meta = PACKETS[idx];
+        const path = links[meta.li];
+        if (!path) return;
+        const down = meta.link.dir === 1;
+        const dur = 2 + (idx % 3) * 0.5;
+        gsap.set(packet, { opacity: 0 });
+        const tw = gsap.to(packet, {
+          duration: dur,
+          ease: "none",
+          repeat: -1,
+          delay: meta.phase * dur,
+          motionPath: {
+            path,
+            align: path,
+            alignOrigin: [0.5, 0.5],
+            start: down ? 0 : 1,
+            end: down ? 1 : 0,
+          },
+          // Fade in off the source, fade out into the target.
+          onUpdate: () => {
+            packet.style.opacity = String(Math.sin(tw.progress() * Math.PI));
+          },
         });
-      }
+      });
     },
-    { scope: ref }
+    { scope: ref, dependencies: [reducedMotion] }
   );
+
+  const word = tiers[activeTier]?.tech[0] ?? "";
+
+  // tier → which node group is "live". Endpoints + servers are the
+  // Application tier; databases are Core; the perimeter is Security.
+  const dbLive = activeTier === 0 || reducedMotion;
+  const appLive = activeTier === 1 || reducedMotion;
+  const secLive = activeTier === 2 || reducedMotion;
+
+  const glow = (on: boolean) =>
+    on ? "drop-shadow(0 0 9px rgba(214,59,59,0.55))" : "none";
 
   return (
     <section
@@ -215,254 +206,250 @@ export default function Technology({ dict }: { dict: Dict }) {
           <h2 className="tech-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
             {tech.title}
           </h2>
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-[clamp(1.05rem,2.2vw,1.55rem)] tracking-[-0.01em]">
+            <span className="text-white/45">{tech.builtOn}</span>
+            <span className="relative inline-flex overflow-hidden">
+              <span
+                key={reducedMotion ? "static" : activeTier}
+                className={`inline-block font-medium text-[var(--brand-red)] ${reducedMotion ? "" : "tech-word"}`}
+              >
+                {word}.
+              </span>
+            </span>
+          </div>
           <p className="mt-6 text-white/65 leading-relaxed max-w-md text-[15.5px]">
             {tech.body}
           </p>
         </div>
 
-        {/* Spine */}
-        <div ref={wrapRef} className="tech-spine-wrap mt-24 relative max-w-3xl mx-auto">
-          {/* Spine line */}
-          <div
-            className="tech-spine-line absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent, rgba(72,184,177,0.4) 6%, rgba(72,184,177,0.4) 94%, transparent)",
-            }}
-          />
+        {/* Scene + tier detail */}
+        <div className="mt-16 lg:mt-20 grid gap-12 lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center">
+          <svg
+            viewBox="0 0 600 560"
+            className="tech-scene w-full h-auto max-w-[540px] mx-auto"
+            role="img"
+            aria-label={tech.title}
+          >
+            <defs>
+              <linearGradient id="tech-screen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="rgba(122,216,210,0.28)" />
+                <stop offset="1" stopColor="rgba(122,216,210,0.04)" />
+              </linearGradient>
+            </defs>
 
-          {/* Spine flowing particles */}
-          {!reducedMotion && (
-            <div
-              aria-hidden
-              className="absolute left-1/2 top-0 bottom-0 pointer-events-none"
-              style={{ width: 0, overflow: "visible" }}
+            {/* Security perimeter — a flowing dashed envelope around the estate */}
+            <rect
+              className="tech-perimeter"
+              x={34}
+              y={30}
+              width={532}
+              height={500}
+              rx={26}
+              fill={secLive ? "rgba(214,59,59,0.035)" : "transparent"}
+              stroke={secLive ? RED : "rgba(122,216,210,0.4)"}
+              strokeWidth={1.4}
+              strokeDasharray="3 9"
+              style={{
+                animation: reducedMotion ? "none" : "roadFlow 3.2s linear infinite",
+                filter: glow(secLive),
+                transition: "stroke 0.5s ease, fill 0.5s ease, filter 0.5s ease",
+              }}
+            />
+            <text
+              x={300}
+              y={22}
+              textAnchor="middle"
+              className="mono"
+              fontSize={10}
+              letterSpacing={3}
+              fill={secLive ? RED : "rgba(122,216,210,0.7)"}
+              style={{ transition: "fill 0.5s ease" }}
             >
-              {Array.from({ length: SPINE_PARTICLES }).map((_, i) => {
-                const big = i % 3 === 0;
-                return (
-                  <div
-                    key={i}
-                    className="tech-spine-p absolute"
-                    style={{
-                      top: 0,
-                      left: big ? -2 : -1.5,
-                      width: big ? 4 : 3,
-                      height: big ? 4 : 3,
-                      borderRadius: "50%",
-                      background: "#48b8b1",
-                      boxShadow: big
-                        ? "0 0 7px #48b8b1, 0 0 14px rgba(72,184,177,0.55)"
-                        : "0 0 4px #48b8b1",
-                      opacity: 0,
-                    }}
-                  />
-                );
-              })}
-            </div>
-          )}
+              SECURE PERIMETER
+            </text>
 
-          {/* Tiers */}
-          {tech.tiers.map((tier, i) => {
-            const isSec = i === tech.tiers.length - 1;
-            const isLeft = i % 2 === 0;
-            const accent = isSec ? "var(--brand-red)" : "var(--brand-teal-bright)";
-            const accentHex = isSec ? "#d63b3b" : "#48b8b1";
-            const accentGlow = isSec ? "rgba(214,59,59,0.18)" : "rgba(72,184,177,0.18)";
-            const accentGlowRing = isSec ? "rgba(214,59,59,0.5)" : "rgba(72,184,177,0.5)";
-            const accentFaint = isSec ? "rgba(214,59,59,0.2)" : "rgba(72,184,177,0.2)";
+            {/* Connections (drawn before nodes so nodes sit on top) */}
+            {LINKS.map((l, i) => (
+              <path
+                key={i}
+                className="tech-link"
+                d={linkPath(l.a, l.b)}
+                fill="none"
+                stroke="rgba(122,216,210,0.28)"
+                strokeWidth={1.2}
+              />
+            ))}
 
-            return (
-              <div key={i} className="tech-tier-row group relative">
-                {/* Subtle hover bg */}
+            {/* ── Database cluster (tier 0 · Core Platform) ── */}
+            {DBS.map((d, i) => (
+              <Database key={`db${i}`} p={d} active={dbLive} pulse={dbLive && !reducedMotion} />
+            ))}
+
+            {/* ── Application servers (tier 1) ── */}
+            {SERVERS.map((s, i) => (
+              <Server key={`s${i}`} p={s} active={appLive} pulse={appLive && !reducedMotion} />
+            ))}
+
+            {/* ── Operator workstations (tier 1) ── */}
+            {ENDPOINTS.map((e, i) => (
+              <Workstation key={`e${i}`} p={e} active={appLive} />
+            ))}
+
+            {/* Flowing packets */}
+            {PACKETS.map((pk, i) => (
+              <circle
+                key={i}
+                className="tech-packet"
+                r={3.4}
+                fill={pk.link.dir === 1 ? "var(--brand-teal-soft)" : RED}
+                style={{
+                  filter:
+                    pk.link.dir === 1
+                      ? "drop-shadow(0 0 5px rgba(122,216,210,0.9))"
+                      : "drop-shadow(0 0 6px rgba(214,59,59,0.9))",
+                }}
+              />
+            ))}
+          </svg>
+
+          {/* Tier detail cards — Security → Application → Core (mirror the topology top→bottom) */}
+          <div className="flex flex-col gap-3.5">
+            {[2, 1, 0].map((i) => {
+              const tier = tiers[i];
+              const active = activeTier === i || reducedMotion;
+              return (
                 <div
-                  aria-hidden
-                  className="absolute inset-x-[-1.5rem] inset-y-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  key={i}
+                  className="relative rounded-2xl border p-5 transition-all duration-500"
                   style={{
-                    background: `radial-gradient(ellipse 65% 75% at ${isLeft ? "60%" : "40%"} 50%, ${accentGlow} 0%, transparent 70%)`,
+                    borderColor: active ? "rgba(214,59,59,0.45)" : "rgba(255,255,255,0.08)",
+                    background: active ? "rgba(214,59,59,0.05)" : "rgba(255,255,255,0.015)",
+                    boxShadow: active ? "0 0 28px -8px rgba(214,59,59,0.4)" : "none",
+                    opacity: active ? 1 : 0.55,
                   }}
-                />
-
-                <div
-                  className="grid items-center py-12 lg:py-16"
-                  style={{ gridTemplateColumns: "1fr 80px 1fr" }}
                 >
-                  {/* Left cell */}
-                  <div className="pr-8">
-                    {isLeft && (
-                      <div className="tech-tier-content flex flex-col items-end text-right gap-4">
-                        <TierContent
-                          tier={tier}
-                          accent={accent}
-                          accentHex={accentHex}
-                          align="right"
-                        />
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="mono text-[10px] tracking-[0.2em] tabular-nums transition-colors duration-500"
+                      style={{ color: active ? "var(--brand-red)" : "rgba(122,216,210,0.8)" }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="text-white font-medium text-[clamp(1.05rem,1.8vw,1.3rem)] leading-tight tracking-[-0.01em]">
+                      {tier.label}
+                    </h3>
                   </div>
 
-                  {/* Center — node + connector arm + burst particles */}
-                  <div className="relative flex items-center justify-center">
-                    {/* Connector arm */}
-                    <div
-                      className="tech-connector-arm absolute top-1/2 -translate-y-1/2 h-px w-8 pointer-events-none"
-                      style={{
-                        background: `linear-gradient(${isLeft ? "to left" : "to right"}, transparent, ${accent})`,
-                        [isLeft ? "right" : "left"]: "100%",
-                      }}
-                    />
-
-                    {/* Burst particle cloud — all start at 0,0 (node center) */}
-                    {!reducedMotion && (
-                      <div
-                        aria-hidden
-                        className="absolute inset-0 pointer-events-none"
-                        style={{ overflow: "visible" }}
-                      >
-                        {Array.from({ length: BURST_COUNT }).map((_, pi) => (
-                          <div
-                            key={pi}
-                            className="tech-burst-p absolute"
-                            style={{
-                              top: "50%",
-                              left: "50%",
-                              width: pi % 3 === 0 ? 4 : 3,
-                              height: pi % 3 === 0 ? 4 : 3,
-                              borderRadius: "50%",
-                              background: accentHex,
-                              boxShadow: `0 0 6px ${accentHex}`,
-                              transform: "translate(-50%,-50%)",
-                              opacity: 0,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Node */}
-                    <div className="tech-tier-node relative z-10">
-                      {!reducedMotion && (
-                        <div
-                          className="tech-node-ring absolute inset-0 rounded-full pointer-events-none"
-                          style={{ border: `1px solid ${accent}` }}
-                        />
-                      )}
-                      {/* Outer faint ring */}
-                      <div
-                        className="absolute -inset-[6px] rounded-full pointer-events-none"
-                        style={{ border: `1px solid ${accentFaint}` }}
-                      />
-                      <div
-                        className="relative w-14 h-14 rounded-full flex flex-col items-center justify-center bg-[var(--bg-inset)]"
+                  <div className="mt-3.5 flex flex-wrap gap-2">
+                    {tier.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 border rounded-md text-[13px] font-medium transition-all duration-500"
                         style={{
-                          border: `1px solid ${accent}`,
-                          boxShadow: `0 0 0 5px ${accentGlow}, 0 0 24px ${accentGlowRing}`,
+                          borderColor: active ? "rgba(214,59,59,0.3)" : "rgba(255,255,255,0.1)",
+                          background: active ? "rgba(214,59,59,0.06)" : "rgba(255,255,255,0.04)",
+                          color: active ? "#fff" : "rgba(255,255,255,0.7)",
                         }}
                       >
                         <span
-                          className="mono text-[8px] tracking-[0.1em] leading-none mb-0.5"
-                          style={{ color: accent, opacity: 0.65 }}
-                        >
-                          TIER
-                        </span>
-                        <span
-                          className="mono text-[16px] font-semibold leading-none"
-                          style={{ color: accent }}
-                        >
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                    </div>
+                          className="inline-block h-1.5 w-1.5 rounded-full flex-none transition-colors duration-500"
+                          style={{
+                            background: active ? "var(--brand-red)" : "rgba(122,216,210,0.7)",
+                            boxShadow: active ? "0 0 5px rgba(214,59,59,0.8)" : "none",
+                          }}
+                        />
+                        {t}
+                      </span>
+                    ))}
                   </div>
 
-                  {/* Right cell */}
-                  <div className="pl-8">
-                    {!isLeft && (
-                      <div className="tech-tier-content flex flex-col items-start text-left gap-4">
-                        <TierContent
-                          tier={tier}
-                          accent={accent}
-                          accentHex={accentHex}
-                          align="left"
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <p className="mt-3.5 mono text-[11px] leading-relaxed text-white/40 tracking-[0.02em]">
+                    {tier.note}
+                  </p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function TierContent({
-  tier,
-  accent,
-  accentHex,
-  align,
-}: {
-  tier: { label: string; tech: string[]; note: string };
-  accent: string;
-  accentHex: string;
-  align: "left" | "right";
-}) {
+// ── Node icons ───────────────────────────────────────────────────────
+// All share the .tech-node class so GSAP can stagger them in.
+
+function nodeStroke(active: boolean) {
+  return active ? RED : TEAL;
+}
+function nodeFill(active: boolean) {
+  return active ? "rgba(214,59,59,0.10)" : TEAL_FILL;
+}
+function nodeGlow(active: boolean) {
+  return active ? "drop-shadow(0 0 8px rgba(214,59,59,0.5))" : "none";
+}
+const nodeTransition = "stroke 0.5s ease, fill 0.5s ease, filter 0.5s ease";
+
+function Database({ p, active, pulse }: { p: Pt; active: boolean; pulse: boolean }) {
+  const rx = 26;
+  const ry = 8.5;
+  const top = p.y - 28;
+  const bot = p.y + 24;
+  const stroke = nodeStroke(active);
+  const fill = nodeFill(active);
+  const body = `M${p.x - rx},${top} L${p.x - rx},${bot} A${rx},${ry} 0 0 0 ${p.x + rx},${bot} L${p.x + rx},${top}`;
   return (
-    <>
-      {/* Tier heading */}
-      <div className="tech-tier-heading">
-        <div
-          className="mono text-[10px] tracking-[0.3em] uppercase mb-1.5"
-          style={{ color: accent, opacity: 0.8 }}
-        >
-          {`0${align === "right" ? "← " : " →"}`.trim()}
-        </div>
-        <h3
-          className="text-white font-medium text-[clamp(1.1rem,2vw,1.5rem)] leading-tight tracking-[-0.01em]"
-        >
-          {tier.label}
-        </h3>
-      </div>
-
-      {/* Tech badges */}
-      <div
-        className={`flex flex-wrap gap-2 ${align === "right" ? "justify-end" : "justify-start"}`}
-      >
-        {tier.tech.map((t) => (
-          <TechBadge key={t} name={t} accent={accent} accentHex={accentHex} />
-        ))}
-      </div>
-
-      {/* Note */}
-      <p
-        className={`tech-tier-note mono text-[11px] leading-relaxed text-white/38 tracking-[0.02em] max-w-[240px] ${align === "right" ? "text-right" : "text-left"}`}
-      >
-        {tier.note}
-      </p>
-    </>
+    <g className="tech-node" style={{ filter: nodeGlow(active), transition: nodeTransition }}>
+      <path d={body} fill={fill} stroke={stroke} strokeWidth={1.5} style={{ transition: nodeTransition }} />
+      {/* storage bands */}
+      <ellipse cx={p.x} cy={top + 18} rx={rx} ry={ry} fill="none" stroke={stroke} strokeWidth={1} opacity={0.55} style={{ transition: nodeTransition }} />
+      <ellipse cx={p.x} cy={top + 36} rx={rx} ry={ry} fill="none" stroke={stroke} strokeWidth={1} opacity={0.45} style={{ transition: nodeTransition }} />
+      {/* lid */}
+      <ellipse cx={p.x} cy={top} rx={rx} ry={ry} fill={active ? "rgba(214,59,59,0.16)" : "rgba(122,216,210,0.12)"} stroke={stroke} strokeWidth={1.5} style={{ transition: nodeTransition }} />
+      <circle cx={p.x} cy={top} r={3.5} fill={active ? RED : "rgba(122,216,210,0.85)"} className={pulse ? "viz-pulse" : ""} style={{ transition: "fill 0.5s ease" }} />
+    </g>
   );
 }
 
-function TechBadge({
-  name,
-  accent,
-  accentHex,
-}: {
-  name: string;
-  accent: string;
-  accentHex: string;
-}) {
+function Server({ p, active, pulse }: { p: Pt; active: boolean; pulse: boolean }) {
+  const w = 62;
+  const h = 70;
+  const x = p.x - w / 2;
+  const y = p.y - h / 2;
+  const stroke = nodeStroke(active);
+  const fill = nodeFill(active);
   return (
-    <span
-      className="tech-badge inline-flex items-center gap-2 px-3.5 py-2 border border-white/10 bg-white/[0.04] rounded-md text-[13.5px] text-white/90 font-medium cursor-default transition-transform duration-200 hover:-translate-y-0.5"
-    >
-      <span
-        className="inline-block h-1.5 w-1.5 rounded-full flex-none"
-        style={{ background: accent, boxShadow: `0 0 5px ${accentHex}99` }}
-      />
-      {name}
-    </span>
+    <g className="tech-node" style={{ filter: nodeGlow(active), transition: nodeTransition }}>
+      <rect x={x} y={y} width={w} height={h} rx={6} fill={fill} stroke={stroke} strokeWidth={1.5} style={{ transition: nodeTransition }} />
+      {[0, 1, 2].map((k) => {
+        const sy = y + 12 + k * 16;
+        return (
+          <g key={k}>
+            <rect x={x + 9} y={sy} width={w - 18} height={9} rx={2} fill={active ? "rgba(214,59,59,0.14)" : "rgba(122,216,210,0.1)"} stroke={stroke} strokeWidth={0.8} opacity={0.85} style={{ transition: nodeTransition }} />
+            <circle cx={x + w - 14} cy={sy + 4.5} r={2} fill={active ? RED : "rgba(122,216,210,0.9)"} className={pulse && k === 0 ? "viz-pulse" : ""} style={{ transition: "fill 0.5s ease" }} />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function Workstation({ p, active }: { p: Pt; active: boolean }) {
+  const w = 56;
+  const h = 38;
+  const x = p.x - w / 2;
+  const y = p.y - h / 2 - 6;
+  const stroke = nodeStroke(active);
+  return (
+    <g className="tech-node" style={{ filter: nodeGlow(active), transition: nodeTransition }}>
+      <rect x={x} y={y} width={w} height={h} rx={4} fill="url(#tech-screen)" stroke={stroke} strokeWidth={1.5} style={{ transition: nodeTransition }} />
+      {/* screen scan lines */}
+      <line x1={x + 8} y1={y + 11} x2={x + w - 18} y2={y + 11} stroke={stroke} strokeWidth={1.4} opacity={0.7} style={{ transition: nodeTransition }} />
+      <line x1={x + 8} y1={y + 19} x2={x + w - 10} y2={y + 19} stroke={stroke} strokeWidth={1.4} opacity={0.45} style={{ transition: nodeTransition }} />
+      <line x1={x + 8} y1={y + 27} x2={x + w - 22} y2={y + 27} stroke={stroke} strokeWidth={1.4} opacity={0.45} style={{ transition: nodeTransition }} />
+      {/* stand */}
+      <rect x={p.x - 5} y={y + h} width={10} height={8} fill={nodeFill(active)} stroke={stroke} strokeWidth={1} style={{ transition: nodeTransition }} />
+      <rect x={p.x - 14} y={y + h + 8} width={28} height={3.5} rx={1.75} fill={stroke} style={{ transition: nodeTransition }} />
+    </g>
   );
 }

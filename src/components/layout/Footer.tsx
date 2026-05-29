@@ -65,9 +65,9 @@ export default function Footer({ dict }: { dict: Dict }) {
 
           {/* Contact / legal column */}
           <div className="md:text-right space-y-3">
-            <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/35">Podgorica · Montenegro</div>
-            <a href="mailto:info@infostream.me" className="block mono text-[12px] tracking-[0.1em] text-white hover:text-[var(--brand-teal-bright)] transition-colors">
-              info@infostream.me
+            <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{dict.footer.location}</div>
+            <a href={`mailto:${dict.contact.email}`} className="block mono text-[12px] tracking-[0.1em] text-white hover:text-[var(--brand-teal-bright)] transition-colors">
+              {dict.contact.email}
             </a>
           </div>
         </div>

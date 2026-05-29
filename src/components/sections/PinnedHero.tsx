@@ -34,10 +34,24 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   // Keeping cursor state out of React avoids a re-render of the entire hero on every frame.
   const parallax = useRef<HTMLDivElement>(null);
 
+  // Fake live throughput ticker. Gated on reduced-motion and viewport visibility
+  // so it doesn't re-render the whole hero tree forever while scrolled off-screen.
   useEffect(() => {
-    const id = window.setInterval(() => setTx((v) => v + Math.floor(Math.random() * 7) + 1), 220);
-    return () => window.clearInterval(id);
-  }, []);
+    if (reducedMotion) return;
+    const el = outer.current;
+    let visible = true;
+    const io = el
+      ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: "300px" })
+      : null;
+    if (el && io) io.observe(el);
+    const id = window.setInterval(() => {
+      if (visible) setTx((v) => v + Math.floor(Math.random() * 7) + 1);
+    }, 220);
+    return () => {
+      window.clearInterval(id);
+      io?.disconnect();
+    };
+  }, [reducedMotion]);
 
   useEffect(() => {
     const el = pin.current;
@@ -237,7 +251,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
               { k: "nodes", v: "6" },
               { k: "edges", v: "9" },
               { k: "uptime", v: "99.99%" },
-              { k: "tx/s", v: tx.toLocaleString() },
+              { k: "tx/s", v: tx.toLocaleString("en-US") },
             ].map((m, i) => (
               <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3">
                 <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/40">{m.k}</div>
@@ -253,19 +267,17 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
            in the backdrop takes the right half of the frame. */}
         {modules.map((mod, i) => (
           <Scene key={i} opacity={sceneOpacity(phase, i + 1)} interactive={activeScene === i + 1}>
-            <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
-              <div className="lg:col-span-5">
-                <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
-                  <span className="h-px w-8 bg-[var(--brand-teal-bright)]" />
-                  {dict.platform.eyebrow} · <span className="text-white/45">stage 0{i + 1}</span>
-                </div>
-                <h2 className="mt-5 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
+              <div className="lg:col-span-6">
+                <StageHeader index={i} eyebrow={dict.platform.eyebrow} total={modules.length} />
+                <h2 className="mt-4 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
                   {mod.name}
                 </h2>
                 <p className="mt-5 max-w-md text-white/70 text-[15.5px] leading-relaxed">
                   <Typewriter text={mod.description} active={activeScene === i + 1} />
                 </p>
-                <Transmission stage={i} active={activeScene === i + 1} />
+                <StageDiagram stage={i} active={activeScene === i + 1} />
+                <StageMeta stage={i} active={activeScene === i + 1} />
               </div>
             </div>
           </Scene>
@@ -295,10 +307,10 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
               <LogoLockup play={exitOpacity > 0.4} />
             </div>
             <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
-              Four stages. One accountable team. <span className="text-[var(--brand-teal-bright)]">Fifteen years of staying on the line.</span>
+              {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
             </div>
             <div className="mt-7 mono text-[11px] tracking-[0.25em] uppercase text-white/45">
-              ↓ scroll to see who&apos;s connected
+              ↓ {dict.hero.exitScrollHint}
             </div>
           </div>
         </div>
@@ -507,15 +519,21 @@ function LogoLockup({ play }: { play: boolean }) {
 // becomes active. Full text is rendered invisibly behind the typed substring so
 // the paragraph reserves its final height and there's no reflow.
 function Typewriter({ text, active, speed = 22 }: { text: string; active: boolean; speed?: number }) {
-  const [shown, setShown] = useState("");
+  const reduce =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [shown, setShown] = useState(active && reduce ? text : "");
+  // Reset the typed text on each activation edge during render (the React-blessed
+  // "adjust state while rendering" pattern) rather than synchronously inside an
+  // effect — the effect below only schedules async updates from a timer.
+  const [prevActive, setPrevActive] = useState(active);
+  if (active !== prevActive) {
+    setPrevActive(active);
+    setShown(active && reduce ? text : "");
+  }
 
   useEffect(() => {
-    if (!active) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShown(text);
-      return;
-    }
-    setShown("");
+    if (!active || reduce) return;
     let i = 0;
     const id = window.setInterval(() => {
       i += 1;
@@ -523,7 +541,7 @@ function Typewriter({ text, active, speed = 22 }: { text: string; active: boolea
       if (i >= text.length) window.clearInterval(id);
     }, speed);
     return () => window.clearInterval(id);
-  }, [active, text, speed]);
+  }, [active, text, speed, reduce]);
 
   return (
     <span className="relative block">
@@ -539,66 +557,380 @@ function Typewriter({ text, active, speed = 22 }: { text: string; active: boolea
   );
 }
 
-// Per-stage transmission block — small mono terminal log. Each op line fades
-// in sequentially when the scene activates, ending with a teal "ok" tag.
-const TRANSMISSION_LINES: readonly string[][] = [
-  ["open channel · stakeholders", "map constraints", "write success criteria"],
-  ["draft data model", "map integration surface", "sign off security boundary"],
-  ["compile module", "red-team pass", "stage to acceptance"],
-  ["deploy build", "attach monitoring", "on-call → infostream"],
-];
-function Transmission({ stage, active }: { stage: number; active: boolean }) {
-  const lines = TRANSMISSION_LINES[stage] ?? [];
-  const [revealed, setRevealed] = useState<number>(active ? lines.length : 0);
-
-  useEffect(() => {
-    if (!active) return;
-    const target = TRANSMISSION_LINES[stage] ?? [];
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRevealed(target.length);
-      return;
-    }
-    setRevealed(0);
-    const timers: number[] = [];
-    target.forEach((_, i) => {
-      timers.push(
-        window.setTimeout(() => setRevealed((r) => Math.max(r, i + 1)), 220 + i * 280)
-      );
-    });
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [active, stage]);
-
+// ─── Stage header ───
+// Eyebrow + giant stage numeral + total-count indicator. Replaces the plain
+// "PROCESS · stage 02" line with something that anchors the card visually.
+function StageHeader({ index, eyebrow, total }: { index: number; eyebrow: string; total: number }) {
+  const num = String(index + 1).padStart(2, "0");
+  const tot = String(total).padStart(2, "0");
   return (
-    <div className="mt-7 mono text-[11px] tracking-[0.08em] uppercase max-w-md">
-      <div className="flex items-center gap-2 text-[var(--brand-teal-bright)] text-[10px] tracking-[0.22em]">
-        <span className="bar-pulse inline-block w-[3px] h-3 bg-[var(--brand-teal-bright)]" />
-        transmission
+    <div className="flex items-end gap-5">
+      <div className="leading-none">
+        <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/45">
+          {eyebrow} / stage
+        </div>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span
+            className="font-medium text-[clamp(2.2rem,3.6vw,3.2rem)] leading-none tracking-[-0.04em] text-transparent"
+            style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
+          >
+            {num}
+          </span>
+          <span className="mono text-[11px] tracking-[0.22em] text-white/35">/ {tot}</span>
+        </div>
       </div>
-      <div className="mt-3 space-y-1.5 border-l border-white/10 pl-3">
-        {lines.map((text, idx) => {
-          const shown = idx < revealed;
+      <span className="hidden sm:block flex-1 h-px bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent mb-2" />
+    </div>
+  );
+}
+
+// ─── Stage meta footer ───
+// Three short mono columns under the diagram — anchors the card with editorial
+// "spec-sheet" detail (deliverable, sign-off, owner) rather than a "· ok" repeat.
+const STAGE_META: { k: string; v: string }[][] = [
+  [
+    { k: "deliverable", v: "brief.md" },
+    { k: "sign-off",    v: "stakeholders" },
+    { k: "owner",       v: "lead architect" },
+  ],
+  [
+    { k: "deliverable", v: "system-context" },
+    { k: "sign-off",    v: "cto · security" },
+    { k: "owner",       v: "2× architects" },
+  ],
+  [
+    { k: "deliverable", v: "release candidate" },
+    { k: "sign-off",    v: "internal red team" },
+    { k: "owner",       v: "engineering" },
+  ],
+  [
+    { k: "deliverable", v: "runbook + on-call" },
+    { k: "sign-off",    v: "infostream sre" },
+    { k: "owner",       v: "24 / 7 rotation" },
+  ],
+];
+function StageMeta({ stage, active }: { stage: number; active: boolean }) {
+  const items = STAGE_META[stage] ?? [];
+  return (
+    <div className="mt-7 grid grid-cols-3 gap-px bg-white/10 border-y border-white/10 max-w-md">
+      {items.map((m, i) => (
+        <div
+          key={m.k}
+          className="bg-[var(--bg-inset)]/60 px-3 py-2.5 viz-fade"
+          style={{ animationDelay: active ? `${1.5 + i * 0.08}s` : "0s" }}
+        >
+          <div className="mono text-[8.5px] tracking-[0.22em] uppercase text-white/35">{m.k}</div>
+          <div className="mono text-[10.5px] tracking-[0.14em] uppercase text-white/85 mt-1">{m.v}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Stage diagram ───
+// Inline animated mini-diagram. Each stage gets its own visualization that
+// draws / pops / fades into view via the existing viz-* CSS animations.
+function StageDiagram({ stage, active }: { stage: number; active: boolean }) {
+  // Replay the diagram animation each time the scene (re)activates. Bump the
+  // remount key on the active false→true edge during render — no setState inside
+  // an effect (which would cascade renders).
+  const [prevActive, setPrevActive] = useState(active);
+  const [runId, setRunId] = useState(0);
+  if (active !== prevActive) {
+    setPrevActive(active);
+    if (active) setRunId((r) => r + 1);
+  }
+  const Inner = [DiscoveryDiagram, ArchitectureDiagram, BuildDiagram, OperateDiagram][stage] ?? DiscoveryDiagram;
+  return (
+    <div className="mt-7 max-w-md">
+      <div
+        className="viz-panel relative w-full rounded-md border border-white/10 overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, rgba(19,26,42,0.55), rgba(13,17,28,0.55))",
+          boxShadow: "inset 0 0 40px -20px rgba(72,184,177,0.18)",
+          aspectRatio: "16 / 9",
+        }}
+      >
+        {/* corner ticks */}
+        {[[6,6],[null,6],[6,null],[null,null]].map((c, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className="absolute h-1.5 w-1.5 border-[var(--brand-teal-bright)]/60"
+            style={{
+              top: c[1] === 6 ? 6 : undefined,
+              bottom: c[1] === null ? 6 : undefined,
+              left: c[0] === 6 ? 6 : undefined,
+              right: c[0] === null ? 6 : undefined,
+              borderTopWidth: c[1] === 6 ? 1 : 0,
+              borderBottomWidth: c[1] === null ? 1 : 0,
+              borderLeftWidth: c[0] === 6 ? 1 : 0,
+              borderRightWidth: c[0] === null ? 1 : 0,
+            }}
+          />
+        ))}
+        {active && <Inner key={runId} />}
+      </div>
+    </div>
+  );
+}
+
+const D_TEAL = "var(--brand-teal-soft)";
+const D_DIM = "rgba(255,255,255,0.42)";
+
+// Discovery — central brief + satellite stakeholder dots being mapped.
+function DiscoveryDiagram() {
+  const nodes = [
+    { x: 70,  y: 50,  label: "STAKEHOLDERS" },
+    { x: 330, y: 48,  label: "CONSTRAINTS" },
+    { x: 50,  y: 165, label: "USERS" },
+    { x: 350, y: 168, label: "RISK" },
+    { x: 200, y: 195, label: "COMPLIANCE" },
+  ];
+  return (
+    <svg viewBox="0 0 400 225" className="absolute inset-0 w-full h-full">
+      <defs>
+        <pattern id="dGrid2" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="0.55" fill="rgba(255,255,255,0.08)" />
+        </pattern>
+      </defs>
+      <rect width="400" height="225" fill="url(#dGrid2)" />
+
+      {nodes.map((n, i) => (
+        <line
+          key={`l-${i}`}
+          x1={200} y1={112} x2={n.x} y2={n.y}
+          stroke={D_TEAL} strokeOpacity={0.45} strokeWidth={1}
+          className="viz-draw"
+          style={{ ["--dash" as never]: 200, animationDelay: `${0.25 + i * 0.09}s` }}
+        />
+      ))}
+      {nodes.map((n, i) => (
+        <g key={`n-${i}`} className="viz-pop" style={{ animationDelay: `${0.4 + i * 0.09}s` }}>
+          <circle cx={n.x} cy={n.y} r={5} fill={D_TEAL} />
+          <circle cx={n.x} cy={n.y} r={10} fill="none" stroke={D_TEAL} strokeOpacity={0.35} />
+        </g>
+      ))}
+      {nodes.map((n, i) => (
+        <text
+          key={`t-${i}`}
+          x={n.x} y={n.y - 16}
+          textAnchor="middle"
+          fill="rgba(255,255,255,0.58)"
+          fontSize="8"
+          fontFamily="ui-monospace, monospace"
+          letterSpacing="0.18em"
+          className="viz-fade"
+          style={{ animationDelay: `${0.6 + i * 0.09}s` }}
+        >
+          {n.label}
+        </text>
+      ))}
+      <g className="viz-pop" style={{ animationDelay: "0.1s" }}>
+        <circle cx={200} cy={112} r={24} fill="none" stroke="var(--brand-red)" strokeWidth={1.4} />
+        <circle cx={200} cy={112} r={11} fill="var(--brand-red)" />
+        <text x={200} y={115} textAnchor="middle" fill="white" fontSize="7.5" fontFamily="ui-monospace, monospace" letterSpacing="0.22em">BRIEF</text>
+      </g>
+    </svg>
+  );
+}
+
+// Architecture — blueprint of services + integration boundaries being drawn.
+function ArchitectureDiagram() {
+  const boxes = [
+    { x: 22,  y: 95,  w: 72, h: 38, label: "CITIZENS" },
+    { x: 122, y: 95,  w: 72, h: 38, label: "GATEWAY" },
+    { x: 222, y: 95,  w: 72, h: 38, label: "SERVICE" },
+    { x: 322, y: 95,  w: 60, h: 38, label: "LEDGER" },
+    { x: 172, y: 18,  w: 72, h: 32, label: "IDENTITY" },
+    { x: 172, y: 178, w: 72, h: 32, label: "AUDIT" },
+  ];
+  const wires = [
+    { d: "M94,114 L122,114",  delay: 0.85 },
+    { d: "M194,114 L222,114", delay: 1.0  },
+    { d: "M294,114 L322,114", delay: 1.15 },
+    { d: "M208,50 L256,95",   delay: 1.3  },
+    { d: "M256,133 L208,178", delay: 1.45 },
+  ];
+  return (
+    <svg viewBox="0 0 400 225" className="absolute inset-0 w-full h-full">
+      <defs>
+        <pattern id="aGrid2" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+          <path d="M18 0 L0 0 0 18" fill="none" stroke="rgba(122,216,210,0.055)" strokeWidth="0.5" />
+        </pattern>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill={D_TEAL} />
+        </marker>
+      </defs>
+      <rect width="400" height="225" fill="url(#aGrid2)" />
+
+      {boxes.map((b, i) => (
+        <g
+          key={i}
+          className="viz-pop"
+          style={{ animationDelay: `${0.2 + i * 0.1}s`, transformOrigin: `${b.x + b.w/2}px ${b.y + b.h/2}px` }}
+        >
+          <rect x={b.x} y={b.y} width={b.w} height={b.h} fill="rgba(72,184,177,0.08)" stroke={D_TEAL} strokeWidth={1} />
+          <text x={b.x + b.w/2} y={b.y + b.h/2 + 3} textAnchor="middle" fill="white" fontSize="8" fontFamily="ui-monospace, monospace" letterSpacing="0.18em">
+            {b.label}
+          </text>
+        </g>
+      ))}
+      {wires.map((w, i) => (
+        <path
+          key={i}
+          d={w.d}
+          stroke={D_TEAL} strokeWidth={1.2} fill="none"
+          markerEnd="url(#arrow2)"
+          className="viz-draw"
+          style={{ ["--dash" as never]: 100, animationDelay: `${w.delay}s` }}
+        />
+      ))}
+    </svg>
+  );
+}
+
+// Build — commit log streaming in, compile bar fills, "PASS" badge on the right.
+const BUILD_COMMITS = [
+  { hash: "7f2a091", msg: "feat: settlement service" },
+  { hash: "a14de6c", msg: "audit: chain trail" },
+  { hash: "be0d2f1", msg: "harden: idp boundary" },
+  { hash: "c39ab50", msg: "test: red-team batch" },
+];
+function BuildDiagram() {
+  const [shown, setShown] = useState(0);
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const timers: number[] = [];
+    BUILD_COMMITS.forEach((_, i) => {
+      timers.push(window.setTimeout(() => setShown((n) => Math.max(n, i + 1)), 260 + i * 260));
+    });
+    const start = 260 + BUILD_COMMITS.length * 260 + 80;
+    const steps = 24;
+    for (let s = 0; s <= steps; s++) {
+      timers.push(window.setTimeout(() => setProgress(s / steps), start + s * 26));
+    }
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }, []);
+
+  const passed = progress >= 0.999;
+  return (
+    <div className="absolute inset-0 px-4 py-3 text-[10px]" style={{ fontFamily: "ui-monospace, monospace" }}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-white/40 text-[8.5px] tracking-[0.22em] uppercase">main · 4 commits</span>
+        <span className="flex items-center gap-1.5 text-white/45 text-[8.5px] tracking-[0.18em] uppercase">
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" /> .net 8
+        </span>
+      </div>
+      <div className="relative pl-3 border-l border-white/15 space-y-1.5">
+        {BUILD_COMMITS.map((c, i) => {
+          const visible = i < shown;
           return (
             <div
-              key={idx}
-              className="flex items-baseline gap-2 transition-all duration-300"
-              style={{
-                opacity: shown ? 1 : 0,
-                transform: shown ? "translateY(0)" : "translateY(4px)",
-              }}
+              key={c.hash}
+              className="flex items-center gap-2 transition-all duration-300"
+              style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(4px)" }}
             >
-              <span className="text-white/30">&gt;</span>
-              <span className="text-white/75">{text}</span>
-              <span className="text-[var(--brand-teal-bright)] text-[10px]">· ok</span>
+              <span className="absolute -left-[3.5px] w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)]" style={{ marginTop: i * 16 }} />
+              <span className="text-[var(--brand-teal-bright)]">{c.hash}</span>
+              <span className="text-white/70 truncate">{c.msg}</span>
+              {visible && <span className="ml-auto text-[var(--signal-ok)] text-[9px]">✓</span>}
             </div>
           );
         })}
-        <div className="flex items-baseline gap-2 text-white/35">
-          <span>&gt;</span>
-          <span
-            className="viz-caret inline-block w-[7px] h-[0.9em] bg-[var(--brand-teal-bright)] align-[-0.1em]"
-            aria-hidden
+      </div>
+      <div className="absolute left-4 right-4 bottom-3">
+        <div className="flex items-center justify-between text-[8.5px] tracking-[0.22em] uppercase">
+          <span className="text-white/40">{passed ? "build passed" : "compiling"}</span>
+          <span className={passed ? "text-[var(--signal-ok)]" : "text-white/55"}>{Math.round(progress * 100)}%</span>
+        </div>
+        <div className="mt-1 h-[3px] bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full"
+            style={{
+              width: `${progress * 100}%`,
+              background: passed ? "var(--signal-ok)" : "var(--brand-teal-bright)",
+              transition: "width 60ms linear",
+              boxShadow: "0 0 8px var(--brand-teal-bright)",
+            }}
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Operate — heartbeat sparkline draws across, status pills pulse below.
+function OperateDiagram() {
+  const W = 380, H = 140;
+  const samples = 48;
+  const points: number[] = [];
+  let s = 0x7a91 >>> 0;
+  const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  for (let i = 0; i < samples; i++) {
+    const t = i / (samples - 1);
+    const base = 60 + Math.sin(t * Math.PI * 1.5) * 18;
+    const wave = Math.sin(t * Math.PI * 7) * 8;
+    const noise = (rand() - 0.5) * 6;
+    points.push(base + wave + noise);
+  }
+  const minV = Math.min(...points) - 4;
+  const maxV = Math.max(...points) + 4;
+  const PAD_L = 26, PAD_R = 10, PAD_T = 14, PAD_B = 28;
+  const innerW = W - PAD_L - PAD_R;
+  const innerH = H - PAD_T - PAD_B;
+  const xAt = (i: number) => PAD_L + (i / (samples - 1)) * innerW;
+  const yAt = (v: number) => PAD_T + (1 - (v - minV) / (maxV - minV)) * innerH;
+  const linePath = "M " + points.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" L ");
+  const areaPath = `${linePath} L ${xAt(samples - 1).toFixed(1)},${(PAD_T + innerH).toFixed(1)} L ${xAt(0).toFixed(1)},${(PAD_T + innerH).toFixed(1)} Z`;
+  const services = ["api", "oracle", "queue", "idp"];
+
+  return (
+    <div className="absolute inset-0 px-3 py-2.5" style={{ fontFamily: "ui-monospace, monospace" }}>
+      <div className="flex items-center justify-between mb-1 text-[8.5px] tracking-[0.22em] uppercase">
+        <span className="text-white/45">throughput · last 60m</span>
+        <span className="text-[var(--brand-teal-bright)] viz-fade" style={{ animationDelay: "0.2s" }}>uptime 99.99%</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[70%]" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="opsAreaMini" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor={D_TEAL} stopOpacity="0.32" />
+            <stop offset="100%" stopColor={D_TEAL} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0, 0.5, 1].map((t) => (
+          <line key={t} x1={PAD_L} y1={PAD_T + t * innerH} x2={W - PAD_R} y2={PAD_T + t * innerH} stroke="rgba(255,255,255,0.06)" />
+        ))}
+        <path d={areaPath} fill="url(#opsAreaMini)" className="viz-fade" style={{ animationDelay: "0.5s" }} />
+        <path
+          d={linePath}
+          stroke={D_TEAL} strokeWidth={1.3} fill="none"
+          className="viz-chart-draw"
+          style={{ animationDelay: "0.2s" }}
+        />
+        <circle
+          cx={xAt(samples - 1)}
+          cy={yAt(points[points.length - 1])}
+          r={2.6}
+          fill={D_TEAL}
+          style={{ filter: "drop-shadow(0 0 4px var(--brand-teal-bright))" }}
+        />
+        <text x={PAD_L - 4} y={yAt(maxV) + 9} textAnchor="end" fontSize="7" fill={D_DIM}>{Math.round(maxV)}</text>
+        <text x={PAD_L - 4} y={yAt(minV) + 3} textAnchor="end" fontSize="7" fill={D_DIM}>{Math.round(minV)}</text>
+        <text x={PAD_L} y={H - 10} fontSize="7" fill={D_DIM}>-60m</text>
+        <text x={W - PAD_R} y={H - 10} textAnchor="end" fontSize="7" fill={D_DIM}>now</text>
+      </svg>
+      <div className="absolute left-3 right-3 bottom-2 flex items-center gap-3 text-[9px]">
+        {services.map((sv, i) => (
+          <span
+            key={sv}
+            className="viz-fade flex items-center gap-1.5 text-white/65"
+            style={{ animationDelay: `${0.6 + i * 0.1}s` }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" style={{ animationDelay: `${i * 0.18}s` }} />
+            {sv}
+          </span>
+        ))}
       </div>
     </div>
   );

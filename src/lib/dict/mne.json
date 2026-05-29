@@ -3,16 +3,34 @@
     "platform": "Proces",
     "clients": "Klijenti",
     "technology": "Tehnologija",
+    "projects": "Radovi",
     "security": "Bezbjednost",
     "contact": "Kontakt",
     "cta": "Razgovarajmo"
+  },
+  "meta": {
+    "description": "Infostream gradi i održava ključne sisteme javnih finansija Crne Gore — poreske, trezorske i namirenja Centralne banke — revidirano po ISO 27001, uz 15+ godina neprekidnog rada.",
+    "ogTagline": "Nacionalna finansijska infrastruktura"
+  },
+  "notFound": {
+    "title": "Stranica nije pronađena",
+    "body": "Stranica koju tražite ne postoji ili je premještena.",
+    "cta": "Nazad na početnu"
+  },
+  "error": {
+    "title": "Došlo je do greške",
+    "body": "Neočekivana greška je prekinula ovu stranicu. Možete pokušati ponovo.",
+    "retry": "Pokušaj ponovo"
   },
   "hero": {
     "eyebrow": "Infostream / Nacionalna finansijska infrastruktura",
     "title": "Kičma podataka iza javnih finansija Crne Gore.",
     "body": "Petnaest godina naš softver prenosi poreske prihode, namirenja Centralne banke i ministarske budžete širom zemlje — mjereno u milijardama eura, revidirano po ISO 27001, bez ijednog prekida.",
     "ctaPrimary": "Pogledajte sisteme",
-    "ctaSecondary": "Pročitajte sažetak"
+    "ctaSecondary": "Pročitajte sažetak",
+    "exitTitle": "Četiri faze. Jedan odgovoran tim.",
+    "exitAccent": "Petnaest godina na liniji.",
+    "exitScrollHint": "skrolujte da vidite ko je povezan"
   },
   "stats": {
     "uptime": { "value": "99,99%", "label": "Trajna dostupnost u trezorskim sistemima" },
@@ -55,12 +73,43 @@
       "Ministarstvo odbrane"
     ]
   },
-  "livefeed": {
-    "eyebrow": "Putanje koda",
-    "title": "Pogled na stvarni stek.",
-    "body": "Isječci iz koda — servis poravnanja u .NET-u, upiti za rekonsilijaciju u SQL-u. Skraćeno radi preglednosti, ali inače stvarno.",
-    "host": "infostream-prod / eu-central-1",
-    "hint": "kuca se ritmom produkcije"
+  "projects": {
+    "eyebrow": "Izabrani radovi",
+    "title": "Sistemi koje smo isporučili.",
+    "body": "Nekoliko platformi koje smo izgradili i održavamo u produkciji — za institucije koje ne smiju priuštiti prekid rada.",
+    "scrollHint": "Skrolujte za pregled",
+    "items": [
+      {
+        "name": "Nacionalni sistem poravnanja",
+        "summary": "Poravnanje i rekonsilijacija među bankama u realnom vremenu za centralnobankarski sistem.",
+        "tags": ["Oracle DB", ".NET", "APEX"],
+        "year": "2024"
+      },
+      {
+        "name": "Trezor i izvršenje budžeta",
+        "summary": "Izvršenje budžeta, kontrola obaveza i zakonsko izvještavanje za Ministarstvo finansija.",
+        "tags": ["Oracle DB", "SQL", "Angular"],
+        "year": "2023"
+      },
+      {
+        "name": "Portal za poreske prijave",
+        "summary": "Elektronsko podnošenje i obrada poreskih prijava uz provjeru u realnom vremenu.",
+        "tags": [".NET", "SQL", "JavaScript"],
+        "year": "2023"
+      },
+      {
+        "name": "Registar predmeta i evidencija",
+        "summary": "Sigurno vođenje predmeta i dugoročno čuvanje evidencija za institucije javnog sektora.",
+        "tags": ["Oracle APEX", "Oracle DB"],
+        "year": "2022"
+      },
+      {
+        "name": "Konzola za reviziju i izvještavanje",
+        "summary": "Centralizovano izvještavanje, nepromjenljivi revizorski tragovi i nadzorne table.",
+        "tags": [".NET", "Angular", "SQL"],
+        "year": "2025"
+      }
+    ]
   },
   "security": {
     "eyebrow": "Bezbjednosna postavka",
@@ -85,6 +134,7 @@
   "technology": {
     "eyebrow": "Tehnologija",
     "title": "Stek u osnovi.",
+    "builtOn": "Građeno na",
     "body": "Stabilan, dobro poznat alat — biran zbog dugovječnosti, revizorskog traga i operativne predvidljivosti, ne zbog novosti.",
     "tiers": [
       {
@@ -106,6 +156,7 @@
   },
   "footer": {
     "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
-    "rights": "Sva prava zadržana."
+    "rights": "Sva prava zadržana.",
+    "location": "Podgorica · Crna Gora"
   }
 }

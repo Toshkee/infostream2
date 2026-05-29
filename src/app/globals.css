@@ -14,6 +14,8 @@
   --brand-red-deep: #b62e2e;
   --brand-teal: #3aa5a0;
   --brand-teal-bright: #48b8b1;
+  --brand-teal-soft: #7ad8d2;
+  --signal-ok: #7ce38b;
 }
 
 @theme inline {
@@ -27,6 +29,9 @@
   --color-line-dark: var(--line-dark);
   --color-brand-red: var(--brand-red);
   --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-bright: var(--brand-teal-bright);
+  --color-brand-teal-soft: var(--brand-teal-soft);
+  --color-signal-ok: var(--signal-ok);
   --font-sans: var(--font-sans-stack);
   --font-mono: var(--font-mono-stack);
 }
@@ -93,6 +98,10 @@ body {
 
 /* Reveal helper used pre-GSAP hydration to avoid flash */
 .reveal-init { opacity: 0; transform: translateY(24px); }
+
+/* Hide scrollbar on swipe tracks (Projects horizontal gallery on touch) */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* Mask-reveal heading */
 .mask-reveal {
@@ -162,8 +171,49 @@ body {
 .viz-fade { opacity: 0; animation: svgFade 0.9s ease-out forwards; }
 .viz-caret { animation: typeCaret 0.8s steps(1) infinite; }
 .viz-pulse { animation: pulseDot 1.6s ease-in-out infinite; transform-origin: center; }
+
+/* Technology — rotating tier word swap (clip + slide-up reveal, no scramble) */
+@keyframes techWordIn {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(0.35em); opacity: 0; }
+  to   { clip-path: inset(0 0 0 0);    transform: translateY(0);      opacity: 1; }
+}
+.tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .viz-chart-draw { stroke-dasharray: 1000; animation: chartDraw 3.4s ease-out forwards; }
 .logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* Instrument-panel texture — fine teal scanlines + corner darkening so the stage
+   diagrams read like a CRT/oscilloscope readout rather than a flat SVG on a box.
+   Both layers are pointer-events:none and sit above the panel bg but below content. */
+.viz-panel::before,
+.viz-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Scanlines */
+.viz-panel::before {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(122, 216, 210, 0.05) 0px,
+    rgba(122, 216, 210, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+/* Inner vignette — darkens edges, lifts the center where the diagram sits */
+.viz-panel::after {
+  background: radial-gradient(
+    ellipse 75% 75% at 50% 50%,
+    transparent 55%,
+    rgba(7, 9, 15, 0.45) 100%
+  );
+}
+/* Keep diagram content + corner ticks above the texture (all are positioned) */
+.viz-panel > * { z-index: 2; }
 
 /* Film grain — fixed full-viewport noise overlay. SVG turbulence baked into a data URL
    so it costs nothing at runtime and tiles seamlessly. The animation jitters the layer

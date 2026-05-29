@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
 
-const SECTIONS = ["platform", "clients", "technology", "security", "contact"] as const;
+const SECTIONS = ["platform", "clients", "technology", "projects", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
 export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
@@ -61,12 +61,14 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
     if (!mobileOpen) return;
     const close = () => setMobileOpen(false);
     window.addEventListener("scroll", close, { passive: true, once: true });
+    return () => window.removeEventListener("scroll", close);
   }, [mobileOpen]);
 
   const links = [
     { id: "platform",   label: dict.nav.platform },
     { id: "clients",    label: dict.nav.clients },
     { id: "technology", label: dict.nav.technology },
+    { id: "projects",   label: dict.nav.projects },
     { id: "security",   label: dict.nav.security },
     { id: "contact",    label: dict.nav.contact },
   ] as const;
@@ -110,8 +112,9 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                 <a
                   key={id}
                   href={`#${id}`}
+                  aria-current={isActive ? "true" : undefined}
                   className={`relative pb-0.5 transition-colors duration-200 ${
-                    isActive ? "text-white" : "text-white/38 hover:text-white/70"
+                    isActive ? "text-white" : "text-white/60 hover:text-white"
                   }`}
                 >
                   {label}
@@ -137,14 +140,14 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
               href={`/${other}`}
               hrefLang={other === "mne" ? "sr-ME" : "en"}
               aria-label={other === "mne" ? "Pređi na crnogorski" : "Switch to English"}
-              className="hidden sm:flex items-center mono text-[10px] tracking-[0.22em] uppercase text-white/28 hover:text-white/60 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
+              className="hidden sm:flex items-center mono text-[10px] tracking-[0.22em] uppercase text-white/55 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
             >
               {other}
             </Link>
 
             <a
               href="#contact"
-              className="mono text-[11px] tracking-[0.18em] uppercase px-4 py-[7px] rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
+              className="mono text-[11px] tracking-[0.18em] uppercase px-4 py-2.5 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
               style={{ boxShadow: "0 2px 14px rgba(214,59,59,0.3)" }}
             >
               {dict.nav.cta}
@@ -182,10 +185,11 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                     key={id}
                     href={`#${id}`}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={isActive ? "true" : undefined}
                     className={`flex items-center gap-3 px-3 py-3.5 rounded-xl mono text-[11px] tracking-[0.2em] uppercase transition-colors duration-150 ${
                       isActive
                         ? "text-[var(--brand-teal-bright)] bg-[rgba(72,184,177,0.08)]"
-                        : "text-white/42 hover:text-white/80 hover:bg-white/[0.04]"
+                        : "text-white/60 hover:text-white hover:bg-white/[0.04]"
                     }`}
                     style={{
                       transitionDelay: mobileOpen ? delay : "0ms",
@@ -213,7 +217,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             <div className="mt-2 pt-3 border-t border-white/[0.06] flex items-center justify-between px-3">
               <Link
                 href={`/${other}`}
-                className="mono text-[10px] tracking-[0.22em] uppercase text-white/28 hover:text-white/60 transition-colors"
+                className="mono text-[10px] tracking-[0.22em] uppercase text-white/55 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
               >
                 {other === "mne" ? "Crnogorski" : "English"}
               </Link>

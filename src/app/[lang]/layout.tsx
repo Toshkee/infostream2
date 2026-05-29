@@ -33,7 +33,7 @@ export async function generateMetadata({
   const title = lang === "mne"
     ? "Infostream — Nacionalna finansijska infrastruktura"
     : "Infostream — National financial infrastructure";
-  const description = dict.hero.body;
+  const description = dict.meta.description;
 
   return {
     metadataBase: new URL(SITE),
@@ -46,9 +46,12 @@ export async function generateMetadata({
       : ["Infostream", "Montenegro", "financial software", "ISO 27001", "central bank", "treasury", "tax authority"],
     alternates: {
       canonical: url,
-      languages: Object.fromEntries(
-        locales.map((l) => [l === "mne" ? "sr-ME" : "en", `${SITE}/${l}`])
-      ),
+      languages: {
+        ...Object.fromEntries(
+          locales.map((l) => [l === "mne" ? "sr-ME" : "en", `${SITE}/${l}`])
+        ),
+        "x-default": `${SITE}/eng`,
+      },
     },
     openGraph: {
       type: "website",
@@ -57,13 +60,13 @@ export async function generateMetadata({
       title,
       description,
       locale: lang === "mne" ? "sr_ME" : "en_US",
-      images: [{ url: "/infostream-logo.webp", width: 1200, height: 630, alt: "Infostream" }],
+      // Image intentionally omitted — the file-based opengraph-image.tsx in this
+      // segment generates the social card per locale.
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/infostream-logo.webp"],
     },
     robots: { index: true, follow: true },
   };
@@ -76,7 +79,36 @@ export default async function RootLayout({
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 
+  const dict = await getDictionary(lang);
   const skipLabel = lang === "mne" ? "Pređi na glavni sadržaj" : "Skip to main content";
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Infostream",
+    legalName: "Infostream",
+    url: `${SITE}/${lang}`,
+    logo: `${SITE}/infostream-logo.webp`,
+    image: `${SITE}/${lang}/opengraph-image`,
+    email: dict.contact.email,
+    description: dict.meta.description,
+    foundingDate: "2009",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Bulevar Svetog Petra Cetinjskog",
+      addressLocality: "Podgorica",
+      addressCountry: "ME",
+    },
+    areaServed: { "@type": "Country", name: "Montenegro" },
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: dict.contact.phone,
+      email: dict.contact.email,
+      contactType: "customer support",
+      availableLanguage: ["English", "Montenegrin"],
+    },
+    sameAs: [] as string[],
+  };
 
   return (
     <html lang={lang === "mne" ? "sr-ME" : "en"} className={`${sans.variable} ${mono.variable} h-full antialiased`}>
@@ -89,23 +121,7 @@ export default async function RootLayout({
         <div className="grain-overlay" aria-hidden />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Infostream",
-              url: SITE,
-              logo: `${SITE}/infostream-logo.webp`,
-              email: "contact@infostream.me",
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: "Bulevar Svetog Petra Cetinjskog",
-                addressLocality: "Podgorica",
-                addressCountry: "ME",
-              },
-              sameAs: [],
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
       </body>
     </html>

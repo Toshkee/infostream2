@@ -16,6 +16,13 @@ export default function Magnetic({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // No magnetic pull for reduced-motion users or coarse (touch) pointers —
+    // there's no hover to track, and the rAF loop would run for nothing.
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(pointer: coarse)").matches
+    )
+      return;
     let raf = 0;
     let tx = 0, ty = 0, cx = 0, cy = 0;
 

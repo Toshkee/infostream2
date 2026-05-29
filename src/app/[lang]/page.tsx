@@ -7,7 +7,7 @@ import Stats from "@/components/sections/Stats";
 import Clients from "@/components/sections/Clients";
 import Technology from "@/components/sections/Technology";
 import Security from "@/components/sections/Security";
-import LiveFeed from "@/components/sections/LiveFeed";
+import Projects from "@/components/sections/Projects";
 import Contact from "@/components/sections/Contact";
 import EdgeBeam from "@/components/effects/EdgeBeam";
 
@@ -24,7 +24,7 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
         <EdgeBeam><Stats dict={dict} /></EdgeBeam>
         <EdgeBeam><Clients dict={dict} /></EdgeBeam>
         <EdgeBeam><Technology dict={dict} /></EdgeBeam>
-        <EdgeBeam><LiveFeed dict={dict} /></EdgeBeam>
+        <EdgeBeam><Projects dict={dict} /></EdgeBeam>
         <EdgeBeam><Security dict={dict} /></EdgeBeam>
         <EdgeBeam><Contact dict={dict} /></EdgeBeam>
       </main>
