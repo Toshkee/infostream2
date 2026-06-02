@@ -23,11 +23,11 @@ type ProjectMedia = {
 };
 
 const MEDIA: ProjectMedia[] = [
-  { accent: "var(--brand-teal-bright)", kind: "video" },
-  { accent: "var(--brand-red)", kind: "image" },
-  { accent: "var(--brand-teal-soft)", kind: "image" },
-  { accent: "var(--brand-red)", kind: "video" },
-  { accent: "var(--brand-teal-bright)", kind: "image" },
+  { accent: "var(--brand-teal-bright)", video: "/projects/main.mp4", poster: "/projects/main-poster.jpg" },
+  { accent: "var(--brand-red)", video: "/projects/dotbond.mp4", poster: "/projects/dotbond-poster.jpg" },
+  { accent: "var(--brand-teal-soft)", video: "/projects/perf.mp4", poster: "/projects/perf-poster.jpg" },
+  { accent: "var(--brand-red)", video: "/projects/zadaci.mp4", poster: "/projects/zadaci-poster.jpg" },
+  { accent: "var(--brand-teal-bright)", video: "/projects/NVO.mp4", poster: "/projects/NVO-poster.jpg" },
 ];
 
 const FALLBACK: ProjectMedia = { accent: "var(--brand-teal-bright)", kind: "image" };

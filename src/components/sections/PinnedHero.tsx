@@ -160,7 +160,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           {/* 3D process pipeline — centerpiece of stages 1..4. Camera dollies between
              four nodes laid out in 3D space and the active node pulses as you scroll. */}
           {!reducedMotion && (
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none opacity-[0.12] lg:opacity-100">
               <HeroScene phase={phase} />
             </div>
           )}
@@ -171,7 +171,14 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             className="absolute inset-0 will-change-transform"
             style={{ opacity: Math.max(0.2, 1 - phase * 0.55) }}
           >
-            <Constellation phase={phase} />
+            {/* On mobile (below lg) the layout is single-column, so this "planet"
+               sits directly behind the stage text/diagram. Fade it well back there
+               — compounds with the phase fade above, so it recedes as you move
+               between stages and the content reads cleanly. Full strength on the
+               lg+ two-column layout where it sits beside the text, not behind it. */}
+            <div className="absolute inset-0 opacity-40 lg:opacity-100">
+              <Constellation phase={phase} />
+            </div>
           </div>
           {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
@@ -287,9 +294,12 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
         {/* Hexagon stepper — visible across all four stages, line fills with progress */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none"
+          className="absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[88vw] max-w-[760px]"
           style={{ opacity: stepperOpacity }}
         >
+          {/* Responsive: the stepper fills the viewport width (capped at its natural
+             760px) and its SVG viewBox scales the whole diagram to fit — so the
+             first and last stages stay visible even on narrow screens. */}
           <HexStepper
             labels={modules.map((m) => ({ name: m.name }))}
             activeIndex={Math.max(0, activeScene - 1)}
@@ -378,7 +388,7 @@ function HexStepper({
       width={STREAM_W}
       height={STREAM_H + 36}
       viewBox={`0 0 ${STREAM_W} ${STREAM_H + 36}`}
-      className="overflow-visible mono"
+      className="mono w-full h-auto"
       aria-hidden
     >
       <defs>
