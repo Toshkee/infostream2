@@ -304,7 +304,10 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
         >
           <div className="text-center px-6">
             <div className="relative mx-auto flex items-center justify-center">
-              <LogoLockup play={exitOpacity > 0.4} />
+              {/* Mount only once the exit actually begins, so the logo plays its
+                 entrance a single time here — not pre-played (hidden) at page
+                 load and then restarted, which read as a double appearance. */}
+              {exitOpacity > 0.02 && <LogoLockup />}
             </div>
             <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
               {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
@@ -470,14 +473,12 @@ function HexStepper({
   );
 }
 
-function LogoLockup({ play }: { play: boolean }) {
+function LogoLockup() {
   // Same asset as the navbar, rendered at its native 301×49 so it's pixel-sharp.
   // Teal corner brackets give it presence without upscaling.
-  const k = play ? "play" : "idle";
   const accent = "var(--brand-teal-bright)";
   return (
     <div
-      key={k}
       className="logo-hold relative inline-flex items-center justify-center"
       style={{ animationDelay: "0.2s", padding: "24px 36px" }}
     >

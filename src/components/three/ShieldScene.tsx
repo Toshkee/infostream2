@@ -1,5 +1,6 @@
 "use client";
 
+import "./silenceClockDeprecation";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Line } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
