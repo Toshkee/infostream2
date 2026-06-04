@@ -25,6 +25,7 @@ export default function Magnetic({
       return;
     let raf = 0;
     let tx = 0, ty = 0, cx = 0, cy = 0;
+    let prev = 0;
 
     const onMove = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
@@ -35,9 +36,14 @@ export default function Magnetic({
     };
     const onLeave = () => { tx = 0; ty = 0; };
 
-    const tick = () => {
-      cx += (tx - cx) * 0.18;
-      cy += (ty - cy) * 0.18;
+    const tick = (now: number) => {
+      // Frame-rate-independent damping: 0.18 is the per-frame blend at 60fps;
+      // scaling the exponent by dt*60 keeps the feel identical at any refresh rate.
+      const dt = prev ? Math.min(0.05, (now - prev) / 1000) : 1 / 60;
+      prev = now;
+      const k = 1 - Math.pow(1 - 0.18, dt * 60);
+      cx += (tx - cx) * k;
+      cy += (ty - cy) * k;
       el.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
       raf = requestAnimationFrame(tick);
     };

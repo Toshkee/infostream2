@@ -4,6 +4,7 @@ import "./silenceClockDeprecation";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useInView } from "./useInView";
 
 const TEAL = new THREE.Color("#48b8b1");
 const RED = new THREE.Color("#d8413a");
@@ -236,8 +237,11 @@ function CameraRig({ phase }: { phase: number }) {
 }
 
 export default function HeroScene({ phase }: { phase: number }) {
+  const [canvasRef, inView] = useInView<HTMLCanvasElement>();
   return (
     <Canvas
+      ref={canvasRef}
+      frameloop={inView ? "always" : "never"}
       dpr={[1, 1.75]}
       camera={{ position: [0, 1.8, 18], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}

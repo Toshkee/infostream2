@@ -64,6 +64,11 @@
   "clients": {
     "eyebrow": "Trusted by",
     "title": "We do not have many clients. We have the right ones.",
+    "lead": "Few clients, deep relationships — and the systems that run a country in production.",
+    "count": "60+",
+    "colOrg": "Institution",
+    "colSystem": "System",
+    "more": "more systems in production",
     "list": [
       "Ministry of Finance",
       "Central Bank of Montenegro",
@@ -71,6 +76,28 @@
       "Ministry of Interior",
       "Tax Authority",
       "Ministry of Defense"
+    ],
+    "projects": [
+      { "org": "Pension & Disability Insurance Fund", "system": "National information system" },
+      { "org": "Tax Administration of Montenegro", "system": "Central Register of Business Entities" },
+      { "org": "Ministry of Defense", "system": "INFODMS document management" },
+      { "org": "Intelligence Agency of Montenegro", "system": "Enterprise resource planning" },
+      { "org": "Parliament of Montenegro", "system": "ERPStream platform" },
+      { "org": "Ministry of Interior", "system": "Security & detective activity licensing" },
+      { "org": "Address Register of Montenegro", "system": "National address IT system" },
+      { "org": "Official Gazette of Montenegro", "system": "Register of regulations & acts" },
+      { "org": "Ministry of Finance", "system": "REES system upgrade" },
+      { "org": "Military Intelligence Department", "system": "Document management system" },
+      { "org": "Innovation Fund of Montenegro", "system": "Information system" },
+      { "org": "einovacije.gov.me", "system": "National innovation portal" },
+      { "org": "Ministry of European Affairs", "system": "SPRINTgov ERP" },
+      { "org": "Ministry of Energy & Mining", "system": "SPRINTgov ERP" },
+      { "org": "Maritime Security Administration", "system": "SPRINTgov ERP" },
+      { "org": "EU Delegation to Montenegro", "system": "Freedom-of-information system" },
+      { "org": "EU Assistance Funds — CFCU", "system": "eCES contract execution system" },
+      { "org": "Human Resources Management Authority", "system": "HR management information system" },
+      { "org": "Government of Montenegro", "system": "COVID-19 state-aid platform" },
+      { "org": "ERSTE Bank", "system": "ERPStream on Oracle 12c" }
     ]
   },
   "projects": {

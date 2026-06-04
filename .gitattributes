@@ -1,0 +1,22 @@
+# Normalize all text files to LF in the repo (detected automatically).
+# Working copies check out with LF on every platform — no CRLF churn.
+* text=auto eol=lf
+
+# Binary assets Git should never touch / try to normalize.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.pdf   binary
+*.mp4   binary
+*.webm  binary
+*.glb   binary
+*.gltf  binary

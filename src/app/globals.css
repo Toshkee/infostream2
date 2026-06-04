@@ -90,12 +90,6 @@ body {
 }
 .bar-pulse { animation: barPulse 1.4s ease-in-out infinite; transform-origin: bottom; }
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.marquee-inner { animation: marquee 40s linear infinite; }
-
 /* Reveal helper used pre-GSAP hydration to avoid flash */
 .reveal-init { opacity: 0; transform: translateY(24px); }
 

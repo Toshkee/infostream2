@@ -87,9 +87,6 @@ export default function Security({ dict }: { dict: Dict }) {
           {/* 3D shield — assembles from particles as you scroll. */}
           <div ref={stage} className="lg:col-span-7 relative h-[420px] lg:h-[520px]">
             {!reducedMotion && <ShieldScene progress={buildProgress} />}
-            <div className="absolute bottom-3 left-0 mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal)]/60 pointer-events-none">
-              · scroll to engage
-            </div>
           </div>
         </div>
 

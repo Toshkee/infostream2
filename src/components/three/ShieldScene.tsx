@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Line } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useInView } from "./useInView";
 
 const TEAL = new THREE.Color("#48b8b1");
 const TEAL_BRIGHT = new THREE.Color("#7fd5cf");
@@ -400,8 +401,11 @@ function HUDReadouts({ progress }: { progress: number }) {
 }
 
 export default function ShieldScene({ progress }: { progress: number }) {
+  const [canvasRef, inView] = useInView<HTMLCanvasElement>();
   return (
     <Canvas
+      ref={canvasRef}
+      frameloop={inView ? "always" : "never"}
       dpr={[1, 1.75]}
       camera={{ position: [0, 0, 6.5], fov: 50 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}

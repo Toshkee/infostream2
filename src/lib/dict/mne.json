@@ -64,6 +64,11 @@
   "clients": {
     "eyebrow": "Vjeruju nam",
     "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
+    "lead": "Malo klijenata, duboke saradnje — i sistemi koji pokreću državu, u produkciji.",
+    "count": "60+",
+    "colOrg": "Institucija",
+    "colSystem": "Sistem",
+    "more": "sistema u produkciji",
     "list": [
       "Ministarstvo finansija",
       "Centralna banka Crne Gore",
@@ -71,6 +76,28 @@
       "Ministarstvo unutrašnjih poslova",
       "Poreska uprava",
       "Ministarstvo odbrane"
+    ],
+    "projects": [
+      { "org": "Fond PIO Crne Gore", "system": "Nacionalni informacioni sistem" },
+      { "org": "Poreska uprava Crne Gore", "system": "Centralni registar privrednih subjekata" },
+      { "org": "Ministarstvo odbrane", "system": "INFODMS upravljanje dokumentima" },
+      { "org": "Agencija za nacionalnu bezbjednost", "system": "ERP sistem" },
+      { "org": "Skupština Crne Gore", "system": "ERPStream platforma" },
+      { "org": "Ministarstvo unutrašnjih poslova", "system": "Licenciranje zaštitarske djelatnosti" },
+      { "org": "Adresni registar Crne Gore", "system": "Nacionalni adresni IT sistem" },
+      { "org": "Službeni list Crne Gore", "system": "Registar propisa i akata" },
+      { "org": "Ministarstvo finansija", "system": "Unapređenje REES sistema" },
+      { "org": "Vojnoobavještajna služba", "system": "Sistem za upravljanje dokumentima" },
+      { "org": "Fond za inovacije Crne Gore", "system": "Informacioni sistem" },
+      { "org": "einovacije.gov.me", "system": "Nacionalni portal za inovacije" },
+      { "org": "Ministarstvo evropskih poslova", "system": "SPRINTgov ERP" },
+      { "org": "Ministarstvo energetike i rudarstva", "system": "SPRINTgov ERP" },
+      { "org": "Uprava pomorske sigurnosti", "system": "SPRINTgov ERP" },
+      { "org": "Delegacija EU u Crnoj Gori", "system": "Sistem za slobodan pristup informacijama" },
+      { "org": "Fondovi EU pomoći — CFCU", "system": "eCES sistem za izvršenje ugovora" },
+      { "org": "Uprava za kadrove", "system": "Informacioni sistem za upravljanje kadrovima" },
+      { "org": "Vlada Crne Gore", "system": "Platforma za COVID-19 subvencije" },
+      { "org": "Erste banka", "system": "ERPStream na Oracle 12c platformi" }
     ]
   },
   "projects": {
