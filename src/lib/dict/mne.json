@@ -181,6 +181,24 @@
       }
     ]
   },
+  "assistant": {
+    "eyebrow": "Asistent",
+    "title": "Pitajte Infostream",
+    "tag": "AI · odgovara samo o Infostreamu",
+    "greeting": "Zdravo — ja sam Infostream asistent. Pitajte me o našim sistemima, bezbjednosti, tehnologiji, klijentima ili kako da nas kontaktirate.",
+    "placeholder": "Pitajte o Infostreamu…",
+    "send": "Pošalji",
+    "launch": "Otvorite Infostream asistenta",
+    "close": "Zatvorite asistenta",
+    "thinking": "Razmišlja…",
+    "error": "Došlo je do greške. Pokušajte ponovo.",
+    "suggestions": [
+      "Čime se Infostream bavi?",
+      "Kako se čuvaju podaci?",
+      "Koje tehnologije koristite?",
+      "Kako da vas kontaktiram?"
+    ]
+  },
   "footer": {
     "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
     "rights": "Sva prava zadržana.",

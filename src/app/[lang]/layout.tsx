@@ -5,6 +5,7 @@ import "../globals.css";
 import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import ScrollProgress from "@/components/layout/ScrollProgress";
+import Assistant from "@/components/assistant/Assistant";
 
 const SITE = "https://infostream.me";
 
@@ -118,6 +119,7 @@ export default async function RootLayout({
           <ScrollProgress />
           {children}
         </SmoothScroll>
+        <Assistant dict={dict} lang={lang} />
         <div className="grain-overlay" aria-hidden />
         <script
           type="application/ld+json"

@@ -181,6 +181,24 @@
       }
     ]
   },
+  "assistant": {
+    "eyebrow": "Assistant",
+    "title": "Ask Infostream",
+    "tag": "AI · answers about Infostream only",
+    "greeting": "Hi — I'm the Infostream assistant. Ask me about our systems, security, technology, clients, or how to reach the team.",
+    "placeholder": "Ask about Infostream…",
+    "send": "Send",
+    "launch": "Open the Infostream assistant",
+    "close": "Close assistant",
+    "thinking": "Thinking…",
+    "error": "Something went wrong. Please try again.",
+    "suggestions": [
+      "What does Infostream do?",
+      "How is data kept secure?",
+      "Which technologies do you use?",
+      "How do I get in touch?"
+    ]
+  },
   "footer": {
     "tagline": "National financial infrastructure, built in Podgorica.",
     "rights": "All rights reserved.",
