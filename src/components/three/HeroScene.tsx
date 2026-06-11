@@ -147,11 +147,11 @@ function FlowingPackets({ count = 60 }: { count?: number }) {
 
 function NodeMesh({
   index,
-  phase,
+  phaseRef,
   position,
 }: {
   index: number;
-  phase: number;
+  phaseRef: { current: number };
   position: THREE.Vector3;
 }) {
   const group = useRef<THREE.Group>(null);
@@ -162,7 +162,7 @@ function NodeMesh({
   useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
-    const a = activationFor(phase, index);
+    const a = activationFor(phaseRef.current, index);
     g.rotation.y += delta * (0.18 + a * 0.5);
     g.rotation.x += delta * 0.08;
     const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + index) * 0.04 * a;
@@ -196,7 +196,7 @@ function NodeMesh({
   );
 }
 
-function CameraRig({ phase }: { phase: number }) {
+function CameraRig({ phaseRef }: { phaseRef: { current: number } }) {
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const desired = useMemo(() => new THREE.Vector3(), []);
   const lookAt = useMemo(() => new THREE.Vector3(), []);
@@ -204,6 +204,9 @@ function CameraRig({ phase }: { phase: number }) {
   useFrame((state, delta) => {
     const cam = state.camera;
     const t = state.clock.elapsedTime;
+    // Scroll progress is read from a mutable ref written by the parent's
+    // ScrollTrigger — keeps the whole R3F tree out of React's render loop.
+    const phase = phaseRef.current;
 
     // Wide overview during the intro scene (phase 0); transitions to node-tracking by phase 1.
     const intro = Math.max(0, 1 - phase / 1);
@@ -236,7 +239,7 @@ function CameraRig({ phase }: { phase: number }) {
   return null;
 }
 
-export default function HeroScene({ phase }: { phase: number }) {
+export default function HeroScene({ phaseRef }: { phaseRef: { current: number } }) {
   const [canvasRef, inView] = useInView<HTMLCanvasElement>();
   return (
     <Canvas
@@ -247,12 +250,12 @@ export default function HeroScene({ phase }: { phase: number }) {
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ position: "absolute", inset: 0 }}
     >
-      <CameraRig phase={phase} />
+      <CameraRig phaseRef={phaseRef} />
       <AmbientCloud />
       <PipelineTube />
       <FlowingPackets />
       {NODES.map((pos, i) => (
-        <NodeMesh key={i} index={i} phase={phase} position={pos} />
+        <NodeMesh key={i} index={i} phaseRef={phaseRef} position={pos} />
       ))}
     </Canvas>
   );

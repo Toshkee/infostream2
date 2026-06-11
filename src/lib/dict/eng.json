@@ -30,7 +30,13 @@
     "ctaSecondary": "Read the brief",
     "exitTitle": "Four stages. One accountable team.",
     "exitAccent": "Fifteen years of staying on the line.",
-    "exitScrollHint": "scroll to see who's connected"
+    "exitScrollHint": "scroll to see who's connected",
+    "meta": [
+      { "k": "uptime", "v": "99.99%" },
+      { "k": "volume / yr", "v": "€14.2B" },
+      { "k": "in service", "v": "15+ yrs" },
+      { "k": "audited", "v": "ISO 27001" }
+    ]
   },
   "stats": {
     "uptime": { "value": "99.99%", "label": "Sustained uptime across treasury workloads" },
@@ -42,22 +48,85 @@
     "eyebrow": "Process",
     "title": "Four stages. One accountable team.",
     "body": "Every engagement runs through the same four stages — no handoffs to subcontractors, no surprises after sign-off.",
+    "metaLabels": { "deliverable": "Deliverable", "signoff": "Sign-off", "owner": "Owner" },
+    "stageLabel": "stage",
+    "authorisation": "Authorisation",
+    "dossier": [
+      {
+        "tab": "01 · BRIEF",
+        "title": "Engagement brief",
+        "basis": "origin · procurement",
+        "rows": [
+          { "k": "parties", "v": "contracting authority · infostream", "tick": false },
+          { "k": "scope", "v": "treasury settlement estate", "tick": false },
+          { "k": "constraints", "v": "iso 27001 · zero downtime", "tick": false },
+          { "k": "success", "v": "criteria agreed in writing", "tick": true }
+        ],
+        "gateK": "", "gatePre": "", "gatePost": "",
+        "stamp": "scope agreed",
+        "open": ""
+      },
+      {
+        "tab": "02 · SPEC",
+        "title": "System specification",
+        "basis": "basis · IS-ENG-26/041-D",
+        "rows": [
+          { "k": "data model", "v": "entities · retention · lineage", "tick": true },
+          { "k": "boundaries", "v": "identity · audit · settlement", "tick": true },
+          { "k": "failure modes", "v": "mapped and rehearsed", "tick": true }
+        ],
+        "gateK": "", "gatePre": "", "gatePost": "",
+        "stamp": "signed off",
+        "open": ""
+      },
+      {
+        "tab": "03 · RELEASE",
+        "title": "Release record",
+        "basis": "basis · IS-ENG-26/041-A",
+        "rows": [
+          { "k": "ac-01", "v": "settlement round-trip", "tick": true },
+          { "k": "ac-02", "v": "immutable audit trail", "tick": true },
+          { "k": "ac-03", "v": "zero-downtime deploy", "tick": true }
+        ],
+        "gateK": "red team", "gatePre": "awaiting sign-off", "gatePost": "passed",
+        "stamp": "release approved",
+        "open": ""
+      },
+      {
+        "tab": "04 · OPS LOG",
+        "title": "Operations log",
+        "basis": "basis · IS-ENG-26/041-B",
+        "rows": [
+          { "k": "t+0", "v": "go-live · accepted into service", "tick": true },
+          { "k": "t+90", "v": "first failover drill · passed", "tick": true },
+          { "k": "t+365", "v": "iso 27001 annual audit · passed", "tick": true },
+          { "k": "t+5478", "v": "fifteen years in service", "tick": false }
+        ],
+        "gateK": "", "gatePre": "", "gatePost": "",
+        "stamp": "",
+        "open": "open · continuous"
+      }
+    ],
     "items": [
       {
         "name": "Discovery",
-        "description": "We sit with stakeholders, map constraints, and write down what success looks like before a single line of code is committed."
+        "description": "We sit with stakeholders, map constraints, and write down what success looks like before a single line of code is committed.",
+        "meta": { "deliverable": "Engagement brief", "signoff": "Stakeholders", "owner": "Lead architect" }
       },
       {
         "name": "Architecture",
-        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build."
+        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build.",
+        "meta": { "deliverable": "System specification", "signoff": "CTO · Security", "owner": "2× architects" }
       },
       {
         "name": "Build",
-        "description": "Engineering measured against acceptance criteria, hardened against the threat model, reviewed by an internal red team before release."
+        "description": "Engineering measured against acceptance criteria, hardened against the threat model, reviewed by an internal red team before release.",
+        "meta": { "deliverable": "Release candidate", "signoff": "Internal red team", "owner": "Engineering" }
       },
       {
         "name": "Operate",
-        "description": "Deployment, monitoring, training and ongoing partnership — fifteen years of running critical systems means we know what 3 a.m. looks like."
+        "description": "Deployment, monitoring, training and ongoing partnership — fifteen years of running critical systems means we know what 3 a.m. looks like.",
+        "meta": { "deliverable": "Runbook + on-call", "signoff": "Infostream SRE", "owner": "24/7 rotation" }
       }
     ]
   },

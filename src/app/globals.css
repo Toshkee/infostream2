@@ -180,6 +180,60 @@ body {
 .viz-chart-draw { stroke-dasharray: 1000; animation: chartDraw 3.4s ease-out forwards; }
 .logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
 
+/* Process section — every motion-OK visitor (desktop and mobile) gets the
+   pinned scroll-scrubbed experience; reduced-motion users get the static
+   stacked variant. Gated purely in CSS so the correct layout paints first,
+   with no JS race and no hydration/layout shift. The media query is the exact
+   string MOTION_QUERY in PinnedHero.tsx uses to start ScrollTrigger — same
+   query, so there is no client where the pinned variant shows without its JS
+   (no-JS clients see the static variant, which needs none). */
+.process-pinned { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
+  .process-pinned { display: block; }
+  .process-static { display: none; }
+}
+
+/* On shorter viewports (1366×768 / 1280×800 laptops) the stream stepper
+   shrinks and hugs the bottom edge so it stays clear of the dossier column.
+   Unlayered on purpose — it must beat the max-w/bottom utilities. */
+@media (max-height: 899.98px) {
+  .process-stepper { max-width: 520px; bottom: 1rem; }
+}
+
+/* Dossier panel — document texture: faint diagonal security-print hatching
+   plus an inner vignette, so each stage's "case file" reads like printed
+   matter instead of a flat box. Both layers ignore pointer events and sit
+   between the panel background and its content. */
+.dossier-panel::before,
+.dossier-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.dossier-panel::before {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(122, 216, 210, 0.04) 0px,
+    rgba(122, 216, 210, 0.04) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+  opacity: 0.7;
+}
+.dossier-panel::after {
+  background: radial-gradient(
+    ellipse 85% 85% at 50% 40%,
+    transparent 60%,
+    rgba(7, 9, 15, 0.4) 100%
+  );
+}
+/* Content children carry their own `relative z-[2]` / `z-[2]` utilities to sit
+   above the texture layers — no child selector here: an unlayered
+   `position: relative` would beat the .absolute utility on the corner ticks
+   (unlayered author CSS wins over @layer utilities) and break them. */
+
 /* Instrument-panel texture — fine teal scanlines + corner darkening so the stage
    diagrams read like a CRT/oscilloscope readout rather than a flat SVG on a box.
    Both layers are pointer-events:none and sit above the panel bg but below content. */

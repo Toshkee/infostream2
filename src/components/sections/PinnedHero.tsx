@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,51 +13,98 @@ const HeroScene = dynamic(() => import("@/components/three/HeroScene"), { ssr: f
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+// Must be the exact string the CSS gate in globals.css uses — the pinned
+// variant displays iff this matches, so the pin always has its JS. The height
+// floor sends landscape phones / very short windows to the static variant,
+// where a 100svh pinned scene could never fit its content.
+const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px)";
+// Desktop-only extras — currently just the cursor parallax, which is
+// meaningless on touch devices.
+const ENHANCED_QUERY = "(min-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
+
+type StageItem = Dict["platform"]["items"][number];
+type MetaLabels = Dict["platform"]["metaLabels"];
+
+// CSSProperties widened to accept custom properties (--vars).
+type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
+
+/* ── Scroll-driven reveal helpers ──
+   The pinned container carries a --ph CSS variable (0..5) written once per
+   scrubbed frame by ScrollTrigger. Each stage wrapper derives --u = --ph - stage
+   (so --u is 0 exactly when that stage is centered). Every entrance below is a
+   pure function of those variables — deterministic, replays in reverse when
+   scrolling back, and needs no timers. The static variant sets --u: 1 so
+   everything renders in its final, settled state. */
+
+// Maps --u onto a 0..1 reveal var --r starting at `start` over `len`, applied
+// as opacity + a small lift. lift=0 keeps the transform free for SVG nodes.
+const rev = (start: number, len = 0.1, lift = 6): CSSVars => ({
+  "--r": `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
+  opacity: "var(--r)",
+  transform: lift ? `translateY(calc((1 - var(--r)) * ${lift}px))` : undefined,
+});
+
+// Trapezoid opacity around `target`: full within ±0.35, crossing 0.5 exactly at
+// the midpoint between adjacent scenes — a true crossfade, so transitions hand
+// off without the old fade-through-black moment.
+const sceneStyle = (target: number): CSSVars => ({
+  "--so": `clamp(0, min(calc((var(--ph) - ${target - 0.65}) / 0.3), calc((${target + 0.65} - var(--ph)) / 0.3)), 1)`,
+  opacity: "var(--so)",
+  // Directional drift: the outgoing scene slides up while the incoming one
+  // rises from below, so adjacent scenes never superimpose at the same y
+  // during the crossfade — the 50/50 moment reads as travel, not ghosting.
+  transform: `translateY(clamp(-20px, calc((var(--ph) - ${target}) * -24px), 20px))`,
+});
+
+// Stage description — clip-path wipe (top to bottom) in place of the old
+// timer-driven typewriter, so the text is always exactly as revealed as the
+// scroll position says it should be.
+const descStyle: CSSVars = {
+  "--r": "clamp(0, calc((var(--u) + 0.42) / 0.22), 1)",
+  clipPath: "inset(0 0 calc((1 - var(--r)) * 100%) 0)",
+  opacity: "calc(0.25 + 0.75 * var(--r))",
+};
+
+type PhaseHandle = { update: (phase: number) => void };
+
 export default function PinnedHero({ dict }: { dict: Dict }) {
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
-  const [tx, setTx] = useState(1284);
-  const [activeScene, setActiveScene] = useState(0);
-  const [phase, setPhase] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(() =>
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-  // Parallax wrapper — receives CSS variables driven imperatively from a rAF loop.
-  // Keeping cursor state out of React avoids a re-render of the entire hero on every frame.
   const parallax = useRef<HTMLDivElement>(null);
+  const phaseRef = useRef(0);
+  const constellation = useRef<PhaseHandle | null>(null);
+  const stepper = useRef<PhaseHandle | null>(null);
+  const [activeScene, setActiveScene] = useState(0);
+  const [exitActive, setExitActive] = useState(false);
+  // True while the pinned variant is the one displayed — gates the WebGL
+  // canvas so the hidden static variant never pays for it.
+  const [motionOk, setMotionOk] = useState(false);
+  // Desktop only — gates the cursor-parallax rAF loop.
+  const [enhanced, setEnhanced] = useState(false);
 
-  // Fake live throughput ticker. Gated on reduced-motion and viewport visibility
-  // so it doesn't re-render the whole hero tree forever while scrolled off-screen.
   useEffect(() => {
-    if (reducedMotion) return;
-    const el = outer.current;
-    let visible = true;
-    const io = el
-      ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: "300px" })
-      : null;
-    if (el && io) io.observe(el);
-    const id = window.setInterval(() => {
-      if (visible) setTx((v) => v + Math.floor(Math.random() * 7) + 1);
-    }, 220);
-    return () => {
-      window.clearInterval(id);
-      io?.disconnect();
+    const motion = window.matchMedia(MOTION_QUERY);
+    const desktop = window.matchMedia(ENHANCED_QUERY);
+    const apply = () => {
+      setMotionOk(motion.matches);
+      setEnhanced(desktop.matches);
     };
-  }, [reducedMotion]);
+    apply();
+    motion.addEventListener("change", apply);
+    desktop.addEventListener("change", apply);
+    return () => {
+      motion.removeEventListener("change", apply);
+      desktop.removeEventListener("change", apply);
+    };
+  }, []);
 
+  // Cursor parallax on the constellation layer — imperative rAF loop, kept out
+  // of React state so it never re-renders the tree.
   useEffect(() => {
+    if (!enhanced) return;
     const el = pin.current;
     const layer = parallax.current;
     if (!el || !layer) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
     const target = { x: 0, y: 0 };
     const current = { x: 0, y: 0 };
@@ -69,7 +116,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
     const tick = () => {
       current.x += (target.x - current.x) * 0.08;
       current.y += (target.y - current.y) * 0.08;
-      // Small px-space offset applied via CSS transform on the parallax wrapper
       layer.style.transform = `translate3d(${(-current.x * 14).toFixed(2)}px, ${(-current.y * 10).toFixed(2)}px, 0)`;
       raf = requestAnimationFrame(tick);
     };
@@ -79,262 +125,640 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [enhanced]);
 
   useGSAP(
     () => {
-      // Skip pinning on small screens or when user prefers reduced motion —
-      // both fall back to scene 0 displayed statically with no scroll-coupled work.
-      const mq = window.matchMedia("(max-width: 900px)");
-      const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (mq.matches || rm.matches) return;
+      // Pins recalculate badly when the mobile URL bar shows/hides — ignore
+      // those height-only resizes (standard ScrollTrigger mobile practice).
+      ScrollTrigger.config({ ignoreMobileResize: true });
+      const mm = gsap.matchMedia();
+      // Mirrors the CSS gate: the trigger exists exactly while the pinned
+      // variant is displayed, and gsap.matchMedia reverts it if that changes.
+      mm.add(MOTION_QUERY, () => {
+        if (!pin.current) return;
+        const stops = 5; // scenes 0..4 + exit pull-back (4..5)
 
-      // 5 content scenes (0..4) + exit pull-back (4..5) = 5 transitions
-      const stops = 5;
-      // Pin length multiplier — higher = slower scroll between scenes (more time to read animations)
-      const pinDuration = stops * window.innerHeight * 1.7;
+        ScrollTrigger.create({
+          trigger: pin.current,
+          start: "top top",
+          // Phones get a shorter swipe per scene — 8.5 viewports of thumb
+          // scrolling reads as broken; 6.5 keeps the choreography legible.
+          end: () => `+=${stops * window.innerHeight * (window.innerWidth < 900 ? 1.3 : 1.7)}`,
+          pin: pin.current,
+          pinSpacing: true,
+          scrub: 0.6,
+          onUpdate: (self) => {
+            const p = self.progress * stops; // 0..5
+            // One CSS variable drives every scroll-coupled style below; the
+            // imperative handles cover the SVG attributes CSS can't reach.
+            pin.current?.style.setProperty("--ph", p.toFixed(4));
+            phaseRef.current = p;
+            constellation.current?.update(p);
+            stepper.current?.update(p);
+            // Discrete state — React only re-renders on scene boundaries.
+            setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
+            setExitActive(p > 4.55);
+          },
+        });
 
-      ScrollTrigger.create({
-        trigger: outer.current,
-        start: "top top",
-        end: `+=${pinDuration}`,
-        pin: pin.current,
-        pinSpacing: true,
-        scrub: 0.6,
-        onUpdate: (self) => {
-          const p = self.progress * stops; // 0..5
-          setPhase(p);
-          setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
-        },
+        // Intro entry animation (runs once per activation)
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        tl.from(".hero-eyebrow", { opacity: 0, y: 14, duration: 0.7 })
+          .from(".hero-title-word", { opacity: 0, y: 44, duration: 1.0, stagger: 0.07 }, "-=0.4")
+          .from(".hero-body", { opacity: 0, y: 18, duration: 0.7 }, "-=0.6")
+          .from(".hero-cta", { opacity: 0, y: 14, duration: 0.55, stagger: 0.08 }, "-=0.4")
+          .from(".hero-meta-row", { opacity: 0, y: 10, duration: 0.5, stagger: 0.08 }, "-=0.5");
       });
-
-      // Intro entry animation (runs once on mount)
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.from(".hero-eyebrow", { opacity: 0, y: 14, duration: 0.7 })
-        .from(".hero-title-word", { opacity: 0, y: 44, duration: 1.0, stagger: 0.07 }, "-=0.4")
-        .from(".hero-body", { opacity: 0, y: 18, duration: 0.7 }, "-=0.6")
-        .from(".hero-cta", { opacity: 0, y: 14, duration: 0.55, stagger: 0.08 }, "-=0.4")
-        .from(".hero-meta-row", { opacity: 0, y: 10, duration: 0.5, stagger: 0.08 }, "-=0.5");
     },
     { scope: outer }
   );
 
   const titleWords = dict.hero.title.split(" ");
   const modules = dict.platform.items;
-
-  // Exit fade — scene 4 holds until 4.45 so the user can read it, then fades out by 4.75
-  const exitFade = phase <= 4.45 ? 1 : Math.max(0, 1 - (phase - 4.45) / 0.3);
-  const contentOpacity = exitFade;
-  // Stepper progress — 0 at scene 1 start, 1 at scene 4 (fills the connecting line)
-  const stepProgress = Math.max(0, Math.min(1, (phase - 1) / 3));
-  // Stepper visibility — fades out alongside scene 4 content
-  const stepperOpacity = phase < 0.6
-    ? Math.max(0, (phase - 0.3) / 0.3)
-    : phase > 4.45
-    ? Math.max(0, 1 - (phase - 4.45) / 0.3)
-    : 1;
-  // Exit overlay — fades in 4.6 → 4.9 (after scene 4 has had time on screen)
-  const exitOpacity = Math.max(0, Math.min(1, (phase - 4.6) / 0.3));
-  // Backdrop darken — gentle wash to separate the closing message from the field
-  const exitDarken = Math.max(0, Math.min(1, (phase - 4.55) / 0.4));
+  const labels = dict.platform.metaLabels;
 
   return (
     <div id="platform" ref={outer} className="relative bg-[var(--bg-inset)]">
-      <div
-        ref={pin}
-        className="relative h-[100svh] w-full overflow-hidden text-white"
-      >
-        {/* Dark backdrop + constellation network on top.
-           As phase advances 0→4, the SVG viewBox pans toward the next cluster
-           (the "dive" between bubbles). */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-[var(--bg-inset)]">
-          {/* Deep radial vignette for depth */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
-            }}
-          />
-          {/* 3D process pipeline — centerpiece of stages 1..4. Camera dollies between
-             four nodes laid out in 3D space and the active node pulses as you scroll. */}
-          {!reducedMotion && (
-            <div className="absolute inset-0 pointer-events-none opacity-[0.12] lg:opacity-100">
-              <HeroScene phase={phase} />
+      {/* ════ Pinned scroll-scrubbed variant (all motion-OK visitors — gated in CSS) ════ */}
+      <div className="process-pinned">
+        <div
+          ref={pin}
+          className="relative h-[100svh] w-full overflow-hidden text-white"
+          style={{ "--ph": 0 } as CSSVars}
+        >
+          {/* Dark backdrop + constellation network. The SVG viewBox pans toward
+             the next cluster as --ph advances (the "dive" between bubbles). */}
+          <div className="absolute inset-0 z-0 overflow-hidden bg-[var(--bg-inset)]">
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
+              }}
+            />
+            {/* 3D process pipeline — mounted whenever the pinned variant is
+               live, phones included, at the same full treatment as desktop. */}
+            {motionOk && (
+              <div className="absolute inset-0 pointer-events-none">
+                <HeroScene phaseRef={phaseRef} />
+              </div>
+            )}
+            {/* 2D constellation backdrop — strong during the intro, fades back as
+               the 3D pipeline takes over. */}
+            <div
+              ref={parallax}
+              className="absolute inset-0 will-change-transform"
+              style={{ opacity: "clamp(0.2, calc(1 - var(--ph) * 0.55), 1)" }}
+            >
+              {/* Full strength on every screen size — the "planets" are the
+                 backdrop's identity, same on a phone as on a desktop. */}
+              <div className="absolute inset-0">
+                <Constellation handleRef={constellation} />
+              </div>
             </div>
-          )}
-          {/* 2D constellation backdrop — strong during the intro, fades back as the
-             3D pipeline takes over to avoid competing with it. */}
-          <div
-            ref={parallax}
-            className="absolute inset-0 will-change-transform"
-            style={{ opacity: Math.max(0.2, 1 - phase * 0.55) }}
-          >
-            {/* On mobile (below lg) the layout is single-column, so this "planet"
-               sits directly behind the stage text/diagram. Fade it well back there
-               — compounds with the phase fade above, so it recedes as you move
-               between stages and the content reads cleanly. Full strength on the
-               lg+ two-column layout where it sits beside the text, not behind it. */}
-            <div className="absolute inset-0 opacity-40 lg:opacity-100">
-              <Constellation phase={phase} />
-            </div>
+            {/* Left-side wash so the constellation never fights the text column */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--bg-inset)] to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
+            {/* Exit darken — fades the scene before unpin */}
+            <div
+              className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none"
+              style={{ opacity: "calc(clamp(0, calc((var(--ph) - 4.55) / 0.4), 1) * 0.75)" }}
+            />
           </div>
-          {/* Left-side wash — stronger now so the constellation behind text fades out and doesn't fight content */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
-          {/* Top + bottom soft edges */}
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--bg-inset)] to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
-          {/* Exit darken — fades the scene before unpin */}
-          <div
-            className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none"
-            style={{ opacity: exitDarken * 0.75 }}
-          />
-        </div>
 
-        {/* corner ticks */}
-        {["top-6 left-6", "top-6 right-6", "bottom-6 left-6", "bottom-6 right-6"].map((c, i) => (
-          <span
-            key={i}
-            className={`absolute ${c} h-3 w-3 z-10`}
-            style={{
-              borderTopWidth: c.includes("top") ? 1 : 0,
-              borderBottomWidth: c.includes("bottom") ? 1 : 0,
-              borderLeftWidth: c.includes("left") ? 1 : 0,
-              borderRightWidth: c.includes("right") ? 1 : 0,
-              borderColor: "rgba(255,255,255,0.3)",
-            }}
-          />
-        ))}
-
-        {/* Scene progress indicator */}
-        <div className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 flex flex-col gap-3">
-          {[0, 1, 2, 3, 4].map((i) => (
+          {/* corner ticks */}
+          {["top-6 left-6", "top-6 right-6", "bottom-6 left-6", "bottom-6 right-6"].map((c, i) => (
             <span
               key={i}
-              className={`block h-px transition-all duration-500 ${
-                i === activeScene ? "w-10 bg-[var(--brand-teal-bright)]" : "w-5 bg-white/25"
-              }`}
+              aria-hidden
+              className={`absolute ${c} h-3 w-3 z-10`}
+              style={{
+                borderTopWidth: c.includes("top") ? 1 : 0,
+                borderBottomWidth: c.includes("bottom") ? 1 : 0,
+                borderLeftWidth: c.includes("left") ? 1 : 0,
+                borderRightWidth: c.includes("right") ? 1 : 0,
+                borderColor: "rgba(255,255,255,0.3)",
+              }}
             />
           ))}
+
+          {/* Scene progress indicator */}
+          <div aria-hidden className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 flex flex-col gap-3">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <span
+                key={i}
+                className={`block h-px transition-all duration-500 ${
+                  i === activeScene ? "w-10 bg-[var(--brand-teal-bright)]" : "w-5 bg-white/25"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* All content scenes — wrapper fades everything out together on exit. */}
+          <div
+            className="absolute inset-0 z-10 pointer-events-none"
+            style={{ opacity: "clamp(0, calc((4.78 - var(--ph)) / 0.33), 1)" }}
+          >
+            <div className="absolute inset-0 pointer-events-auto">
+              {/* Scene 0 — Intro */}
+              <Scene target={0} interactive={activeScene === 0}>
+                <div className="hero-eyebrow mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
+                  <EyebrowBars />
+                  {dict.hero.eyebrow}
+                </div>
+                {/* Visual title only — the document's h1 lives in the sr-only
+                   block below so it never drops out of the accessibility tree
+                   when this scene goes inert mid-scroll. */}
+                <p aria-hidden className="mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
+                  {titleWords.map((w, i) => (
+                    <span key={i} className="hero-title-word inline-block mr-[0.22em]">{w}</span>
+                  ))}
+                </p>
+                <p className="hero-body mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
+                <div className="mt-9 flex flex-wrap gap-3">
+                  <Magnetic>
+                    <a href="#clients" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors inline-block">
+                      {dict.hero.ctaPrimary}
+                    </a>
+                  </Magnetic>
+                  <Magnetic>
+                    <a href="#security" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full border border-white/25 text-white hover:bg-white/10 transition-colors inline-block">
+                      {dict.hero.ctaSecondary}
+                    </a>
+                  </Magnetic>
+                </div>
+
+                {/* Audited figures — the same claims the Stats section substantiates */}
+                <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-3xl">
+                  {dict.hero.meta.map((m, i) => (
+                    <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3">
+                      <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
+                      <div className="mono text-base mt-1 text-white/90">{m.v}</div>
+                    </div>
+                  ))}
+                </div>
+              </Scene>
+
+              {/* Scenes 1–4 — process stages. Visual layer is decorative; the
+                 canonical, screen-reader-facing copy lives in the sr-only block
+                 below (and in the static variant on small screens). */}
+              {modules.map((mod, i) => (
+                <Scene key={i} target={i + 1} interactive={false} decorative>
+                  {/* pb biases the centered column upward, away from the stepper
+                     band (the stepper is hidden below sm, so no bias needed there) */}
+                  <div className="w-full sm:pb-8" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
+                    <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
+                      <div className="lg:col-span-6">
+                        <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} />
+                        <div className="mt-3 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+                          {mod.name}
+                        </div>
+                        <p className="mt-4 max-w-md text-white/70 text-[15.5px] leading-relaxed" style={descStyle}>
+                          {mod.description}
+                        </p>
+                        <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} />
+                      </div>
+                    </div>
+                  </div>
+                </Scene>
+              ))}
+            </div>
+          </div>
+
+          {/* Stream stepper — visible across all four stages. Hidden on phones:
+             scaled to a phone width its labels drop below legibility. */}
+          <div
+            aria-hidden
+            className="process-stepper absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[88vw] max-w-[760px] hidden sm:block"
+            style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((4.75 - var(--ph)) / 0.3)), 1)" }}
+          >
+            <HexStepper
+              labels={modules.map((m) => ({ name: m.name }))}
+              activeIndex={Math.max(0, activeScene - 1)}
+              handleRef={stepper}
+            />
+          </div>
+
+          {/* Exit overlay — Infostream lockup on the dark backdrop */}
+          <div
+            aria-hidden
+            className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
+            style={{ opacity: "clamp(0, calc((var(--ph) - 4.6) / 0.3), 1)" }}
+          >
+            <div className="text-center px-6">
+              <div className="relative mx-auto flex items-center justify-center">
+                {/* Mount only once the exit actually begins so the lockup plays
+                   its entrance exactly once, here. */}
+                {exitActive && <LogoLockup />}
+              </div>
+              <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
+                {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
+              </div>
+              <div className="mt-7 mono text-[11px] tracking-[0.25em] uppercase text-white/55">
+                ↓ {dict.hero.exitScrollHint}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* All content scenes — fade out together on exit. Each scene's own opacity
-           is a smooth bell around its target phase (no snap between layers). */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ opacity: contentOpacity }}>
-        <div className="absolute inset-0 pointer-events-auto">
-        {/* Scene 0 — Intro */}
-        <Scene opacity={sceneOpacity(phase, 0)} interactive={activeScene === 0}>
-          <div className="hero-eyebrow mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
-            <span className="flex items-end gap-[3px] h-3">
-              <span className="bar-pulse inline-block w-[3px] h-full bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0s" }} />
-              <span className="bar-pulse inline-block w-[3px] h-2 bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.15s" }} />
-              <span className="bar-pulse inline-block w-[3px] h-full bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.3s" }} />
-              <span className="bar-pulse inline-block w-[3px] h-1.5 bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.45s" }} />
-            </span>
+        {/* Canonical process content for assistive tech — the animated scenes
+           above are aria-hidden decoration. Hidden with the pinned variant, so
+           small screens never get duplicate content. */}
+        <div className="sr-only">
+          <h1>{dict.hero.title}</h1>
+          <p>{dict.hero.body}</p>
+          <h2>{dict.platform.title}</h2>
+          <p>{dict.platform.body}</p>
+          {modules.map((mod, i) => (
+            <section key={i}>
+              <h3>{mod.name}</h3>
+              <p>{mod.description}</p>
+              <dl>
+                <dt>{labels.deliverable}</dt>
+                <dd>{mod.meta.deliverable}</dd>
+                <dt>{labels.signoff}</dt>
+                <dd>{mod.meta.signoff}</dd>
+                <dt>{labels.owner}</dt>
+                <dd>{mod.meta.owner}</dd>
+              </dl>
+            </section>
+          ))}
+        </div>
+      </div>
+
+      {/* ════ Static stacked variant (reduced-motion + no-JS fallback — gated in CSS) ════ */}
+      <section className="process-static relative overflow-hidden text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 120% 60% at 50% 0%, #19223a 0%, #0d111c 60%, #0d111c 100%)",
+          }}
+        />
+
+        {/* Hero */}
+        <div className="relative mx-auto max-w-[1280px] px-6 pt-32 pb-16">
+          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
+            <EyebrowBars />
             {dict.hero.eyebrow}
           </div>
           <h1 className="mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
-            {titleWords.map((w, i) => (
-              <span key={i} className="hero-title-word inline-block mr-[0.22em]">{w}</span>
-            ))}
+            {dict.hero.title}
           </h1>
-          <p className="hero-body mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
+          <p className="mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Magnetic>
-              <a href="#clients" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors inline-block">
-                {dict.hero.ctaPrimary}
-              </a>
-            </Magnetic>
-            <Magnetic>
-              <a href="#security" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full border border-white/25 text-white hover:bg-white/10 transition-colors inline-block">
-                {dict.hero.ctaSecondary}
-              </a>
-            </Magnetic>
+            <a href="#clients" className="mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors inline-block">
+              {dict.hero.ctaPrimary}
+            </a>
+            <a href="#security" className="mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full border border-white/25 text-white hover:bg-white/10 transition-colors inline-block">
+              {dict.hero.ctaSecondary}
+            </a>
           </div>
-
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-3xl">
-            {[
-              { k: "nodes", v: "6" },
-              { k: "edges", v: "9" },
-              { k: "uptime", v: "99.99%" },
-              { k: "tx/s", v: tx.toLocaleString("en-US") },
-            ].map((m, i) => (
-              <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3">
-                <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/40">{m.k}</div>
-                <div className={`mono text-base mt-1 ${m.k === "tx/s" ? "text-[var(--brand-teal-bright)]" : "text-white/90"}`}>
-                  {m.v}
-                </div>
+            {dict.hero.meta.map((m, i) => (
+              <div key={i} className="bg-[var(--bg-inset-elev)] px-4 py-3">
+                <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
+                <div className="mono text-base mt-1 text-white/90">{m.v}</div>
               </div>
             ))}
           </div>
-        </Scene>
+        </div>
 
-        {/* Scenes 1–4 — Process stages. Text card on the left; the 3D pipeline
-           in the backdrop takes the right half of the frame. */}
-        {modules.map((mod, i) => (
-          <Scene key={i} opacity={sceneOpacity(phase, i + 1)} interactive={activeScene === i + 1}>
-            <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
-              <div className="lg:col-span-6">
-                <StageHeader index={i} eyebrow={dict.platform.eyebrow} total={modules.length} />
-                <h2 className="mt-4 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+        {/* Process stages, stacked. --u: 1 renders every dossier fully settled. */}
+        <div className="relative mx-auto max-w-[1280px] px-6 pb-20">
+          <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">{dict.platform.eyebrow}</div>
+          <h2 className="mt-3 text-[clamp(1.8rem,6vw,2.6rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
+            {dict.platform.title}
+          </h2>
+          <p className="mt-4 max-w-xl text-white/70 text-[15.5px] leading-relaxed">{dict.platform.body}</p>
+
+          <div className="mt-12 space-y-14">
+            {modules.map((mod, i) => (
+              <article key={i} style={{ "--u": 1 } as CSSVars}>
+                <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} />
+                <h3 className="mt-3 text-[clamp(1.6rem,5.5vw,2.2rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
                   {mod.name}
-                </h2>
-                <p className="mt-5 max-w-md text-white/70 text-[15.5px] leading-relaxed">
-                  <Typewriter text={mod.description} active={activeScene === i + 1} />
-                </p>
-                <StageDiagram stage={i} active={activeScene === i + 1} />
-                <StageMeta stage={i} active={activeScene === i + 1} />
-              </div>
-            </div>
-          </Scene>
-        ))}
-        </div>
-        </div>
-
-        {/* Hexagon stepper — visible across all four stages, line fills with progress */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[88vw] max-w-[760px]"
-          style={{ opacity: stepperOpacity }}
-        >
-          {/* Responsive: the stepper fills the viewport width (capped at its natural
-             760px) and its SVG viewBox scales the whole diagram to fit — so the
-             first and last stages stay visible even on narrow screens. */}
-          <HexStepper
-            labels={modules.map((m) => ({ name: m.name }))}
-            activeIndex={Math.max(0, activeScene - 1)}
-            progress={stepProgress}
-          />
-        </div>
-
-        {/* Exit overlay — Infostream lockup on the dark backdrop */}
-        <div
-          className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-          style={{ opacity: exitOpacity }}
-        >
-          <div className="text-center px-6">
-            <div className="relative mx-auto flex items-center justify-center">
-              {/* Mount only once the exit actually begins, so the logo plays its
-                 entrance a single time here — not pre-played (hidden) at page
-                 load and then restarted, which read as a double appearance. */}
-              {exitOpacity > 0.02 && <LogoLockup />}
-            </div>
-            <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
-              {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
-            </div>
-            <div className="mt-7 mono text-[11px] tracking-[0.25em] uppercase text-white/45">
-              ↓ {dict.hero.exitScrollHint}
-            </div>
+                </h3>
+                <p className="mt-3 max-w-md text-white/70 text-[15px] leading-relaxed">{mod.description}</p>
+                <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} />
+              </article>
+            ))}
           </div>
+
+          <p className="mt-16 text-[clamp(1.3rem,4.5vw,1.8rem)] leading-[1.15] tracking-[-0.02em] font-medium text-white max-w-2xl">
+            {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// Pulsing signal bars used in the hero eyebrow (both variants).
+function EyebrowBars() {
+  return (
+    <span aria-hidden className="flex items-end gap-[3px] h-3">
+      <span className="bar-pulse inline-block w-[3px] h-full bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0s" }} />
+      <span className="bar-pulse inline-block w-[3px] h-2 bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.15s" }} />
+      <span className="bar-pulse inline-block w-[3px] h-full bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.3s" }} />
+      <span className="bar-pulse inline-block w-[3px] h-1.5 bg-[var(--brand-teal-bright)]" style={{ animationDelay: "0.45s" }} />
+    </span>
+  );
+}
+
+function Scene({
+  target,
+  interactive,
+  decorative = false,
+  children,
+}: {
+  target: number;
+  interactive: boolean;
+  decorative?: boolean;
+  children: React.ReactNode;
+}) {
+  // Opacity/lift are CSS functions of --ph; React only flips the discrete
+  // interaction state. Non-interactive layers are inert so nothing hidden can
+  // be tabbed into or read mid-animation.
+  return (
+    <div
+      className="absolute inset-0 z-10"
+      style={{
+        ...sceneStyle(target),
+        pointerEvents: interactive ? "auto" : "none",
+        willChange: "opacity, transform",
+      }}
+      aria-hidden={decorative || !interactive}
+      inert={!interactive}
+    >
+      <div className="mx-auto max-w-[1280px] h-full px-6 lg:px-10 flex flex-col justify-center pt-20 pb-8 md:pt-24 md:pb-12">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Stage header ───
+function StageHeader({ index, eyebrow, stageLabel, total }: { index: number; eyebrow: string; stageLabel: string; total: number }) {
+  const num = String(index + 1).padStart(2, "0");
+  const tot = String(total).padStart(2, "0");
+  return (
+    <div className="flex items-end gap-5">
+      <div className="leading-none">
+        <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">
+          {eyebrow} / {stageLabel}
+        </div>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span
+            className="font-medium text-[clamp(2.2rem,3.6vw,3.2rem)] leading-none tracking-[-0.04em] text-transparent"
+            style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
+          >
+            {num}
+          </span>
+          <span className="mono text-[11px] tracking-[0.22em] text-white/50">/ {tot}</span>
+        </div>
+      </div>
+      <span className="hidden sm:block flex-1 h-px bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent mb-2" />
+    </div>
+  );
+}
+
+/* ─────────── Stage dossier ───────────
+   Each stage's panel is the artifact that stage actually produces — one case
+   file per stage, advancing through the same engagement (IS-ENG-26/041). Rows
+   reveal as the scroll approaches the stage's center; the sign-off stamp lands
+   just past it. Stage 3 cites stage 2, stage 2 cites stage 1 — and the
+   operations log never gets a closing stamp. */
+// File references stay constant across locales — the rest of the dossier copy
+// lives in the dictionaries (platform.dossier) so both languages read whole.
+const FILE_REFS = ["IS-ENG-26/041-D", "IS-ENG-26/041-A", "IS-ENG-26/041-B", "IS-ENG-26/041-O"];
+
+type DossierDoc = Dict["platform"]["dossier"][number];
+
+function StageDossier({
+  stage,
+  doc,
+  meta,
+  labels,
+  authLabel,
+}: {
+  stage: number;
+  doc: DossierDoc;
+  meta: StageItem["meta"];
+  labels: MetaLabels;
+  authLabel: string;
+}) {
+  // The 60svh term keeps the panel inside short pinned viewports; the 19rem
+  // floor stops it collapsing on landscape phones / very short windows.
+  return (
+    <div className="mt-5" style={{ width: "min(100%, 28rem, max(19rem, 60svh))" }}>
+      {/* Folder tab + file reference */}
+      <div className="flex items-end justify-between">
+        <div
+          className="mono text-[9.5px] tracking-[0.22em] text-[var(--brand-teal-bright)] border border-white/15 border-b-0 rounded-t-md px-3.5 py-1.5 bg-[rgba(19,26,42,0.85)]"
+          style={rev(-0.42, 0.08)}
+          aria-hidden
+        >
+          {doc.tab}
+        </div>
+        <div className="mono text-[9px] tracking-[0.18em] uppercase text-white/55 px-1 pb-1.5" style={rev(-0.38, 0.08)} aria-hidden>
+          {FILE_REFS[stage]}
+        </div>
+      </div>
+
+      {/* Document body — the frame itself is reveal-gated so no empty
+         rectangle ghosts in during the scene crossfade. */}
+      <div
+        className="dossier-panel relative border border-white/15 rounded-b-md rounded-tr-md overflow-hidden px-4 pt-3 pb-3.5"
+        style={{
+          ...rev(-0.46, 0.12, 4),
+          background: "linear-gradient(180deg, rgba(19,26,42,0.6), rgba(13,17,28,0.6))",
+          boxShadow: "inset 0 0 40px -18px rgba(72,184,177,0.15)",
+        }}
+      >
+        {/* corner ticks — z-[2] lifts them above the panel texture layers */}
+        {[[6, 6], [null, 6], [6, null], [null, null]].map((c, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className="absolute z-[2] h-1.5 w-1.5 border-[var(--brand-teal-bright)]/60"
+            style={{
+              top: c[1] === 6 ? 6 : undefined,
+              bottom: c[1] === null ? 6 : undefined,
+              left: c[0] === 6 ? 6 : undefined,
+              right: c[0] === null ? 6 : undefined,
+              borderTopWidth: c[1] === 6 ? 1 : 0,
+              borderBottomWidth: c[1] === null ? 1 : 0,
+              borderLeftWidth: c[0] === 6 ? 1 : 0,
+              borderRightWidth: c[0] === null ? 1 : 0,
+            }}
+          />
+        ))}
+
+        {/* Header — document title + cross-citation of the previous stage's file */}
+        <div className="relative z-[2] flex items-baseline justify-between gap-3 border-b border-white/10 pb-2" style={rev(-0.34, 0.08)}>
+          <span className="mono text-[10.5px] tracking-[0.22em] uppercase text-white/90">{doc.title}</span>
+          <span className="mono text-[8.5px] tracking-[0.16em] uppercase text-white/45 truncate" aria-hidden>{doc.basis}</span>
+        </div>
+
+        {stage === 1 && <SpecSchematic />}
+
+        {/* Rows — pb-12 clears a landing zone so the stamp/badge never sits on
+           top of row text or ticks. */}
+        <div className="relative z-[2] mt-1 pb-12">
+          {doc.rows.map((r, i) => {
+            const start = -0.28 + i * 0.07;
+            return (
+              <div
+                key={r.k}
+                className="flex items-baseline gap-3 py-1 border-b border-white/[0.06] last:border-0"
+                style={rev(start, 0.07)}
+              >
+                <span className="mono text-[10px] tracking-[0.18em] uppercase text-white/55 w-[96px] shrink-0">{r.k}</span>
+                <span className="mono text-[10.5px] tracking-[0.08em] uppercase text-white/85 flex-1 truncate">{r.v}</span>
+                {r.tick && (
+                  <span className="mono text-[10px] text-[var(--signal-ok)]" style={rev(start + 0.05, 0.05, 0)} aria-hidden>
+                    ✓
+                  </span>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Red-team gate (Build) — flips from AWAITING to PASSED just before the stamp lands */}
+          {doc.gateK && (
+            <div
+              className="flex items-baseline gap-3 py-1"
+              style={{ ...rev(-0.06, 0.07), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
+            >
+              <span className="mono text-[10px] tracking-[0.18em] uppercase text-white/55 w-[96px] shrink-0">{doc.gateK}</span>
+              <span className="relative flex-1">
+                {/* The settled state for AT is the passed value — the pre state
+                   is animation-only, so it never reads as a contradiction. */}
+                <span aria-hidden className="mono text-[10.5px] tracking-[0.1em] uppercase text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>
+                  {doc.gatePre}
+                </span>
+                <span
+                  className="absolute inset-0 mono text-[10.5px] tracking-[0.1em] uppercase text-[var(--signal-ok)]"
+                  style={{ opacity: "var(--g)" }}
+                >
+                  {doc.gatePost}
+                </span>
+              </span>
+            </div>
+          )}
+
+          {/* Ink stamp — lands just past the stage's center, lifts if you scroll back */}
+          {doc.stamp && (
+            <div
+              aria-hidden
+              className="absolute right-1 bottom-0 mono uppercase pointer-events-none select-none"
+              style={{
+                "--r": "clamp(0, calc((var(--u) - 0.06) / 0.07), 1)",
+                opacity: "var(--r)",
+                transform: "rotate(-7deg) scale(calc(1.7 - 0.7 * var(--r)))",
+              } as CSSVars}
+            >
+              <span
+                className="block border-2 border-[var(--brand-teal-bright)] rounded-[3px] px-2.5 py-1 text-center"
+                style={{ boxShadow: "inset 0 0 0 1px rgba(72,184,177,0.35)" }}
+              >
+                <span className="block text-[10px] tracking-[0.3em] text-[var(--brand-teal-bright)]">{doc.stamp}</span>
+                <span className="block text-[6.5px] tracking-[0.24em] text-[var(--brand-teal-bright)]/80 mt-0.5">
+                  infostream · podgorica
+                </span>
+              </span>
+            </div>
+          )}
+
+          {/* The operations log never seals — it stays open */}
+          {doc.open && (
+            <div className="absolute right-1 bottom-1" style={rev(0.04, 0.07, 0)}>
+              <span className="flex items-center gap-1.5 mono text-[9.5px] tracking-[0.22em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/40 rounded-full px-2.5 py-1">
+                <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
+                {doc.open}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Authorisation block — the former 8.5px meta strip, promoted to the
+           document's signature area at readable size and contrast. */}
+        <div className="relative z-[2] mt-2 border-t border-white/[0.12] pt-2" style={rev(-0.08, 0.1)}>
+          <div className="mono text-[9px] tracking-[0.26em] uppercase text-white/45">{authLabel}</div>
+          <dl className="mt-1.5 grid grid-cols-3 gap-3">
+            {[
+              [labels.deliverable, meta.deliverable],
+              [labels.signoff, meta.signoff],
+              [labels.owner, meta.owner],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt className="mono text-[10px] tracking-[0.18em] uppercase text-white/55">{k}</dt>
+                <dd className="mono text-[11px] tracking-[0.04em] text-white/90 mt-0.5 break-words">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </div>
   );
 }
 
-// Stage stream — gentle wave curve connecting 4 nodes, animated dashes flow
-// along it, and a teal droplet "packet" rides the curve at `progress`.
-// Echoes the company name and the constellation road in the backdrop.
+// Architecture mini-schematic — the signed drawing inside the spec document.
+function SpecSchematic() {
+  const boxes = [
+    { x: 8, label: "CITIZENS" },
+    { x: 106, label: "GATEWAY" },
+    { x: 204, label: "SERVICE" },
+    { x: 302, label: "LEDGER" },
+  ];
+  return (
+    <svg viewBox="0 0 392 56" className="relative z-[2] w-full h-auto mt-2" aria-hidden>
+      <defs>
+        <marker id="specArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--brand-teal-soft)" />
+        </marker>
+      </defs>
+      {boxes.map((b, i) => (
+        <g key={b.label} style={rev(-0.3 + i * 0.04, 0.06, 4)}>
+          <rect x={b.x} y={12} width={82} height={32} fill="rgba(72,184,177,0.07)" stroke="var(--brand-teal-soft)" strokeWidth="1" />
+          <text
+            x={b.x + 41}
+            y={31.5}
+            textAnchor="middle"
+            fill="rgba(255,255,255,0.85)"
+            fontSize="9"
+            fontFamily="var(--font-mono-stack), ui-monospace, monospace"
+            letterSpacing="0.16em"
+          >
+            {b.label}
+          </text>
+        </g>
+      ))}
+      {[90, 188, 286].map((x, i) => (
+        <path
+          key={x}
+          d={`M${x},28 L${x + 16},28`}
+          stroke="var(--brand-teal-soft)"
+          strokeWidth="1.2"
+          fill="none"
+          markerEnd="url(#specArrow)"
+          style={rev(-0.26 + i * 0.04, 0.05, 0)}
+        />
+      ))}
+    </svg>
+  );
+}
+
+/* ─────────── Stream stepper ───────────
+   Gentle wave curve connecting the 4 stage nodes; dashes flow along it and a
+   teal droplet rides the curve. Continuous progress (fill + droplet) is written
+   imperatively through `handle` by the ScrollTrigger; React only re-renders the
+   node/label states on scene changes. */
 const STREAM_W = 760;
 const STREAM_H = 72;
 const STREAM_NODES_X = [40, 280, 480, 720];
@@ -353,8 +777,7 @@ function buildStreamPath(): string {
   return d;
 }
 
-// Cubic bezier evaluation — the path is a chain of cubics with control points
-// pulled along x only (so the y of each control matches its endpoint).
+// Cubic bezier evaluation — control points are pulled along x only.
 function streamPoint(progress: number): { x: number; y: number } {
   const segs = STREAM_NODES_X.length - 1;
   const clamped = Math.max(0, Math.min(1, progress));
@@ -373,15 +796,34 @@ function streamPoint(progress: number): { x: number; y: number } {
 function HexStepper({
   labels,
   activeIndex,
-  progress,
+  handleRef,
 }: {
   labels: { name: string }[];
   activeIndex: number;
-  progress: number;
+  handleRef: React.MutableRefObject<PhaseHandle | null>;
 }) {
+  const fillRef = useRef<SVGPathElement>(null);
+  const dropRef = useRef<SVGCircleElement>(null);
+  const glowRef = useRef<SVGCircleElement>(null);
   const path = buildStreamPath();
-  const packet = streamPoint(progress);
+  const start = streamPoint(0);
   const teal = "var(--brand-teal-bright)";
+
+  useEffect(() => {
+    handleRef.current = {
+      update(phase: number) {
+        const progress = Math.max(0, Math.min(1, (phase - 1) / 3));
+        fillRef.current?.setAttribute("stroke-dasharray", `${progress} 1`);
+        const pt = streamPoint(progress);
+        const cx = pt.x.toFixed(1), cy = pt.y.toFixed(1);
+        glowRef.current?.setAttribute("cx", cx);
+        glowRef.current?.setAttribute("cy", cy);
+        dropRef.current?.setAttribute("cx", cx);
+        dropRef.current?.setAttribute("cy", cy);
+      },
+    };
+    return () => { handleRef.current = null; };
+  }, [handleRef]);
 
   return (
     <svg
@@ -417,15 +859,16 @@ function HexStepper({
         style={{ animation: "roadFlow 6s linear infinite" }}
       />
 
-      {/* Progress fill — draws the first `progress` portion of the path */}
+      {/* Progress fill — dasharray written imperatively on scroll */}
       <path
+        ref={fillRef}
         d={path}
         stroke="url(#streamFill)"
         strokeWidth="2"
         fill="none"
         strokeLinecap="round"
         pathLength={1}
-        strokeDasharray={`${Math.max(0, Math.min(1, progress))} 1`}
+        strokeDasharray="0 1"
         style={{ filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" }}
       />
 
@@ -470,11 +913,12 @@ function HexStepper({
         );
       })}
 
-      {/* Traveling droplet — soft halo + bright core */}
-      <circle cx={packet.x} cy={packet.y} r={14} fill="url(#packetGlow)" />
+      {/* Traveling droplet — soft halo + bright core, positioned imperatively */}
+      <circle ref={glowRef} cx={start.x} cy={start.y} r={14} fill="url(#packetGlow)" />
       <circle
-        cx={packet.x}
-        cy={packet.y}
+        ref={dropRef}
+        cx={start.x}
+        cy={start.y}
         r={4}
         fill={teal}
         style={{ filter: "drop-shadow(0 0 8px var(--brand-teal-bright))" }}
@@ -485,14 +929,12 @@ function HexStepper({
 
 function LogoLockup() {
   // Same asset as the navbar, rendered at its native 301×49 so it's pixel-sharp.
-  // Teal corner brackets give it presence without upscaling.
   const accent = "var(--brand-teal-bright)";
   return (
     <div
       className="logo-hold relative inline-flex items-center justify-center"
       style={{ animationDelay: "0.2s", padding: "24px 36px" }}
     >
-      {/* Corner brackets */}
       {[
         { top: 0, left: 0, borderTop: 1, borderLeft: 1 },
         { top: 0, right: 0, borderTop: 1, borderRight: 1 },
@@ -525,474 +967,11 @@ function LogoLockup() {
   );
 }
 
-
-// Per-stage typewriter — retypes the description char-by-char each time its scene
-// becomes active. Full text is rendered invisibly behind the typed substring so
-// the paragraph reserves its final height and there's no reflow.
-function Typewriter({ text, active, speed = 22 }: { text: string; active: boolean; speed?: number }) {
-  const reduce =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const [shown, setShown] = useState(active && reduce ? text : "");
-  // Reset the typed text on each activation edge during render (the React-blessed
-  // "adjust state while rendering" pattern) rather than synchronously inside an
-  // effect — the effect below only schedules async updates from a timer.
-  const [prevActive, setPrevActive] = useState(active);
-  if (active !== prevActive) {
-    setPrevActive(active);
-    setShown(active && reduce ? text : "");
-  }
-
-  useEffect(() => {
-    if (!active || reduce) return;
-    let i = 0;
-    const id = window.setInterval(() => {
-      i += 1;
-      setShown(text.slice(0, i));
-      if (i >= text.length) window.clearInterval(id);
-    }, speed);
-    return () => window.clearInterval(id);
-  }, [active, text, speed, reduce]);
-
-  return (
-    <span className="relative block">
-      <span className="invisible" aria-hidden>{text}</span>
-      <span className="absolute inset-0">
-        {shown}
-        <span
-          className="viz-caret inline-block w-[2px] h-[0.95em] align-[-0.12em] ml-[2px] bg-[var(--brand-teal-bright)]"
-          aria-hidden
-        />
-      </span>
-    </span>
-  );
-}
-
-// ─── Stage header ───
-// Eyebrow + giant stage numeral + total-count indicator. Replaces the plain
-// "PROCESS · stage 02" line with something that anchors the card visually.
-function StageHeader({ index, eyebrow, total }: { index: number; eyebrow: string; total: number }) {
-  const num = String(index + 1).padStart(2, "0");
-  const tot = String(total).padStart(2, "0");
-  return (
-    <div className="flex items-end gap-5">
-      <div className="leading-none">
-        <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/45">
-          {eyebrow} / stage
-        </div>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span
-            className="font-medium text-[clamp(2.2rem,3.6vw,3.2rem)] leading-none tracking-[-0.04em] text-transparent"
-            style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
-          >
-            {num}
-          </span>
-          <span className="mono text-[11px] tracking-[0.22em] text-white/35">/ {tot}</span>
-        </div>
-      </div>
-      <span className="hidden sm:block flex-1 h-px bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent mb-2" />
-    </div>
-  );
-}
-
-// ─── Stage meta footer ───
-// Three short mono columns under the diagram — anchors the card with editorial
-// "spec-sheet" detail (deliverable, sign-off, owner) rather than a "· ok" repeat.
-const STAGE_META: { k: string; v: string }[][] = [
-  [
-    { k: "deliverable", v: "brief.md" },
-    { k: "sign-off",    v: "stakeholders" },
-    { k: "owner",       v: "lead architect" },
-  ],
-  [
-    { k: "deliverable", v: "system-context" },
-    { k: "sign-off",    v: "cto · security" },
-    { k: "owner",       v: "2× architects" },
-  ],
-  [
-    { k: "deliverable", v: "release candidate" },
-    { k: "sign-off",    v: "internal red team" },
-    { k: "owner",       v: "engineering" },
-  ],
-  [
-    { k: "deliverable", v: "runbook + on-call" },
-    { k: "sign-off",    v: "infostream sre" },
-    { k: "owner",       v: "24 / 7 rotation" },
-  ],
-];
-function StageMeta({ stage, active }: { stage: number; active: boolean }) {
-  const items = STAGE_META[stage] ?? [];
-  return (
-    <div className="mt-7 grid grid-cols-3 gap-px bg-white/10 border-y border-white/10 max-w-md">
-      {items.map((m, i) => (
-        <div
-          key={m.k}
-          className="bg-[var(--bg-inset)]/60 px-3 py-2.5 viz-fade"
-          style={{ animationDelay: active ? `${1.5 + i * 0.08}s` : "0s" }}
-        >
-          <div className="mono text-[8.5px] tracking-[0.22em] uppercase text-white/35">{m.k}</div>
-          <div className="mono text-[10.5px] tracking-[0.14em] uppercase text-white/85 mt-1">{m.v}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Stage diagram ───
-// Inline animated mini-diagram. Each stage gets its own visualization that
-// draws / pops / fades into view via the existing viz-* CSS animations.
-function StageDiagram({ stage, active }: { stage: number; active: boolean }) {
-  // Replay the diagram animation each time the scene (re)activates. Bump the
-  // remount key on the active false→true edge during render — no setState inside
-  // an effect (which would cascade renders).
-  const [prevActive, setPrevActive] = useState(active);
-  const [runId, setRunId] = useState(0);
-  if (active !== prevActive) {
-    setPrevActive(active);
-    if (active) setRunId((r) => r + 1);
-  }
-  const Inner = [DiscoveryDiagram, ArchitectureDiagram, BuildDiagram, OperateDiagram][stage] ?? DiscoveryDiagram;
-  return (
-    <div className="mt-7 max-w-md">
-      <div
-        className="viz-panel relative w-full rounded-md border border-white/10 overflow-hidden"
-        style={{
-          background: "linear-gradient(180deg, rgba(19,26,42,0.55), rgba(13,17,28,0.55))",
-          boxShadow: "inset 0 0 40px -20px rgba(72,184,177,0.18)",
-          aspectRatio: "16 / 9",
-        }}
-      >
-        {/* corner ticks */}
-        {[[6,6],[null,6],[6,null],[null,null]].map((c, i) => (
-          <span
-            key={i}
-            aria-hidden
-            className="absolute h-1.5 w-1.5 border-[var(--brand-teal-bright)]/60"
-            style={{
-              top: c[1] === 6 ? 6 : undefined,
-              bottom: c[1] === null ? 6 : undefined,
-              left: c[0] === 6 ? 6 : undefined,
-              right: c[0] === null ? 6 : undefined,
-              borderTopWidth: c[1] === 6 ? 1 : 0,
-              borderBottomWidth: c[1] === null ? 1 : 0,
-              borderLeftWidth: c[0] === 6 ? 1 : 0,
-              borderRightWidth: c[0] === null ? 1 : 0,
-            }}
-          />
-        ))}
-        {active && <Inner key={runId} />}
-      </div>
-    </div>
-  );
-}
-
-const D_TEAL = "var(--brand-teal-soft)";
-const D_DIM = "rgba(255,255,255,0.42)";
-
-// Discovery — central brief + satellite stakeholder dots being mapped.
-function DiscoveryDiagram() {
-  const nodes = [
-    { x: 70,  y: 50,  label: "STAKEHOLDERS" },
-    { x: 330, y: 48,  label: "CONSTRAINTS" },
-    { x: 50,  y: 165, label: "USERS" },
-    { x: 350, y: 168, label: "RISK" },
-    { x: 200, y: 195, label: "COMPLIANCE" },
-  ];
-  return (
-    <svg viewBox="0 0 400 225" className="absolute inset-0 w-full h-full">
-      <defs>
-        <pattern id="dGrid2" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
-          <circle cx="1" cy="1" r="0.55" fill="rgba(255,255,255,0.08)" />
-        </pattern>
-      </defs>
-      <rect width="400" height="225" fill="url(#dGrid2)" />
-
-      {nodes.map((n, i) => (
-        <line
-          key={`l-${i}`}
-          x1={200} y1={112} x2={n.x} y2={n.y}
-          stroke={D_TEAL} strokeOpacity={0.45} strokeWidth={1}
-          className="viz-draw"
-          style={{ ["--dash" as never]: 200, animationDelay: `${0.25 + i * 0.09}s` }}
-        />
-      ))}
-      {nodes.map((n, i) => (
-        <g key={`n-${i}`} className="viz-pop" style={{ animationDelay: `${0.4 + i * 0.09}s` }}>
-          <circle cx={n.x} cy={n.y} r={5} fill={D_TEAL} />
-          <circle cx={n.x} cy={n.y} r={10} fill="none" stroke={D_TEAL} strokeOpacity={0.35} />
-        </g>
-      ))}
-      {nodes.map((n, i) => (
-        <text
-          key={`t-${i}`}
-          x={n.x} y={n.y - 16}
-          textAnchor="middle"
-          fill="rgba(255,255,255,0.58)"
-          fontSize="8"
-          fontFamily="ui-monospace, monospace"
-          letterSpacing="0.18em"
-          className="viz-fade"
-          style={{ animationDelay: `${0.6 + i * 0.09}s` }}
-        >
-          {n.label}
-        </text>
-      ))}
-      <g className="viz-pop" style={{ animationDelay: "0.1s" }}>
-        <circle cx={200} cy={112} r={24} fill="none" stroke="var(--brand-red)" strokeWidth={1.4} />
-        <circle cx={200} cy={112} r={11} fill="var(--brand-red)" />
-        <text x={200} y={115} textAnchor="middle" fill="white" fontSize="7.5" fontFamily="ui-monospace, monospace" letterSpacing="0.22em">BRIEF</text>
-      </g>
-    </svg>
-  );
-}
-
-// Architecture — blueprint of services + integration boundaries being drawn.
-function ArchitectureDiagram() {
-  const boxes = [
-    { x: 22,  y: 95,  w: 72, h: 38, label: "CITIZENS" },
-    { x: 122, y: 95,  w: 72, h: 38, label: "GATEWAY" },
-    { x: 222, y: 95,  w: 72, h: 38, label: "SERVICE" },
-    { x: 322, y: 95,  w: 60, h: 38, label: "LEDGER" },
-    { x: 172, y: 18,  w: 72, h: 32, label: "IDENTITY" },
-    { x: 172, y: 178, w: 72, h: 32, label: "AUDIT" },
-  ];
-  const wires = [
-    { d: "M94,114 L122,114",  delay: 0.85 },
-    { d: "M194,114 L222,114", delay: 1.0  },
-    { d: "M294,114 L322,114", delay: 1.15 },
-    { d: "M208,50 L256,95",   delay: 1.3  },
-    { d: "M256,133 L208,178", delay: 1.45 },
-  ];
-  return (
-    <svg viewBox="0 0 400 225" className="absolute inset-0 w-full h-full">
-      <defs>
-        <pattern id="aGrid2" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
-          <path d="M18 0 L0 0 0 18" fill="none" stroke="rgba(122,216,210,0.055)" strokeWidth="0.5" />
-        </pattern>
-        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill={D_TEAL} />
-        </marker>
-      </defs>
-      <rect width="400" height="225" fill="url(#aGrid2)" />
-
-      {boxes.map((b, i) => (
-        <g
-          key={i}
-          className="viz-pop"
-          style={{ animationDelay: `${0.2 + i * 0.1}s`, transformOrigin: `${b.x + b.w/2}px ${b.y + b.h/2}px` }}
-        >
-          <rect x={b.x} y={b.y} width={b.w} height={b.h} fill="rgba(72,184,177,0.08)" stroke={D_TEAL} strokeWidth={1} />
-          <text x={b.x + b.w/2} y={b.y + b.h/2 + 3} textAnchor="middle" fill="white" fontSize="8" fontFamily="ui-monospace, monospace" letterSpacing="0.18em">
-            {b.label}
-          </text>
-        </g>
-      ))}
-      {wires.map((w, i) => (
-        <path
-          key={i}
-          d={w.d}
-          stroke={D_TEAL} strokeWidth={1.2} fill="none"
-          markerEnd="url(#arrow2)"
-          className="viz-draw"
-          style={{ ["--dash" as never]: 100, animationDelay: `${w.delay}s` }}
-        />
-      ))}
-    </svg>
-  );
-}
-
-// Build — commit log streaming in, compile bar fills, "PASS" badge on the right.
-const BUILD_COMMITS = [
-  { hash: "7f2a091", msg: "feat: settlement service" },
-  { hash: "a14de6c", msg: "audit: chain trail" },
-  { hash: "be0d2f1", msg: "harden: idp boundary" },
-  { hash: "c39ab50", msg: "test: red-team batch" },
-];
-function BuildDiagram() {
-  const [shown, setShown] = useState(0);
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const timers: number[] = [];
-    BUILD_COMMITS.forEach((_, i) => {
-      timers.push(window.setTimeout(() => setShown((n) => Math.max(n, i + 1)), 260 + i * 260));
-    });
-    const start = 260 + BUILD_COMMITS.length * 260 + 80;
-    const steps = 24;
-    for (let s = 0; s <= steps; s++) {
-      timers.push(window.setTimeout(() => setProgress(s / steps), start + s * 26));
-    }
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, []);
-
-  const passed = progress >= 0.999;
-  return (
-    <div className="absolute inset-0 px-4 py-3 text-[10px]" style={{ fontFamily: "ui-monospace, monospace" }}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-white/40 text-[8.5px] tracking-[0.22em] uppercase">main · 4 commits</span>
-        <span className="flex items-center gap-1.5 text-white/45 text-[8.5px] tracking-[0.18em] uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" /> .net 8
-        </span>
-      </div>
-      <div className="relative pl-3 border-l border-white/15 space-y-1.5">
-        {BUILD_COMMITS.map((c, i) => {
-          const visible = i < shown;
-          return (
-            <div
-              key={c.hash}
-              className="flex items-center gap-2 transition-all duration-300"
-              style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(4px)" }}
-            >
-              <span className="absolute -left-[3.5px] w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)]" style={{ marginTop: i * 16 }} />
-              <span className="text-[var(--brand-teal-bright)]">{c.hash}</span>
-              <span className="text-white/70 truncate">{c.msg}</span>
-              {visible && <span className="ml-auto text-[var(--signal-ok)] text-[9px]">✓</span>}
-            </div>
-          );
-        })}
-      </div>
-      <div className="absolute left-4 right-4 bottom-3">
-        <div className="flex items-center justify-between text-[8.5px] tracking-[0.22em] uppercase">
-          <span className="text-white/40">{passed ? "build passed" : "compiling"}</span>
-          <span className={passed ? "text-[var(--signal-ok)]" : "text-white/55"}>{Math.round(progress * 100)}%</span>
-        </div>
-        <div className="mt-1 h-[3px] bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full"
-            style={{
-              width: `${progress * 100}%`,
-              background: passed ? "var(--signal-ok)" : "var(--brand-teal-bright)",
-              transition: "width 60ms linear",
-              boxShadow: "0 0 8px var(--brand-teal-bright)",
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Operate — heartbeat sparkline draws across, status pills pulse below.
-function OperateDiagram() {
-  const W = 380, H = 140;
-  const samples = 48;
-  const points: number[] = [];
-  let s = 0x7a91 >>> 0;
-  const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-  for (let i = 0; i < samples; i++) {
-    const t = i / (samples - 1);
-    const base = 60 + Math.sin(t * Math.PI * 1.5) * 18;
-    const wave = Math.sin(t * Math.PI * 7) * 8;
-    const noise = (rand() - 0.5) * 6;
-    points.push(base + wave + noise);
-  }
-  const minV = Math.min(...points) - 4;
-  const maxV = Math.max(...points) + 4;
-  const PAD_L = 26, PAD_R = 10, PAD_T = 14, PAD_B = 28;
-  const innerW = W - PAD_L - PAD_R;
-  const innerH = H - PAD_T - PAD_B;
-  const xAt = (i: number) => PAD_L + (i / (samples - 1)) * innerW;
-  const yAt = (v: number) => PAD_T + (1 - (v - minV) / (maxV - minV)) * innerH;
-  const linePath = "M " + points.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" L ");
-  const areaPath = `${linePath} L ${xAt(samples - 1).toFixed(1)},${(PAD_T + innerH).toFixed(1)} L ${xAt(0).toFixed(1)},${(PAD_T + innerH).toFixed(1)} Z`;
-  const services = ["api", "oracle", "queue", "idp"];
-
-  return (
-    <div className="absolute inset-0 px-3 py-2.5" style={{ fontFamily: "ui-monospace, monospace" }}>
-      <div className="flex items-center justify-between mb-1 text-[8.5px] tracking-[0.22em] uppercase">
-        <span className="text-white/45">throughput · last 60m</span>
-        <span className="text-[var(--brand-teal-bright)] viz-fade" style={{ animationDelay: "0.2s" }}>uptime 99.99%</span>
-      </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[70%]" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="opsAreaMini" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={D_TEAL} stopOpacity="0.32" />
-            <stop offset="100%" stopColor={D_TEAL} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {[0, 0.5, 1].map((t) => (
-          <line key={t} x1={PAD_L} y1={PAD_T + t * innerH} x2={W - PAD_R} y2={PAD_T + t * innerH} stroke="rgba(255,255,255,0.06)" />
-        ))}
-        <path d={areaPath} fill="url(#opsAreaMini)" className="viz-fade" style={{ animationDelay: "0.5s" }} />
-        <path
-          d={linePath}
-          stroke={D_TEAL} strokeWidth={1.3} fill="none"
-          className="viz-chart-draw"
-          style={{ animationDelay: "0.2s" }}
-        />
-        <circle
-          cx={xAt(samples - 1)}
-          cy={yAt(points[points.length - 1])}
-          r={2.6}
-          fill={D_TEAL}
-          style={{ filter: "drop-shadow(0 0 4px var(--brand-teal-bright))" }}
-        />
-        <text x={PAD_L - 4} y={yAt(maxV) + 9} textAnchor="end" fontSize="7" fill={D_DIM}>{Math.round(maxV)}</text>
-        <text x={PAD_L - 4} y={yAt(minV) + 3} textAnchor="end" fontSize="7" fill={D_DIM}>{Math.round(minV)}</text>
-        <text x={PAD_L} y={H - 10} fontSize="7" fill={D_DIM}>-60m</text>
-        <text x={W - PAD_R} y={H - 10} textAnchor="end" fontSize="7" fill={D_DIM}>now</text>
-      </svg>
-      <div className="absolute left-3 right-3 bottom-2 flex items-center gap-3 text-[9px]">
-        {services.map((sv, i) => (
-          <span
-            key={sv}
-            className="viz-fade flex items-center gap-1.5 text-white/65"
-            style={{ animationDelay: `${0.6 + i * 0.1}s` }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" style={{ animationDelay: `${i * 0.18}s` }} />
-            {sv}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Scene({
-  opacity,
-  interactive,
-  children,
-}: {
-  opacity: number;
-  interactive: boolean;
-  children: React.ReactNode;
-}) {
-  // Continuous opacity driven by phase distance — no snap between scenes.
-  // Below the activation threshold the layer is taken out of hit-testing.
-  const hidden = opacity < 0.02;
-  return (
-    <div
-      className="absolute inset-0 z-10"
-      style={{
-        opacity,
-        pointerEvents: interactive && !hidden ? "auto" : "none",
-        // Soft lift as a scene approaches its target — gives a parallax sense
-        transform: `translateY(${(1 - opacity) * 10}px)`,
-        willChange: "opacity, transform",
-      }}
-      aria-hidden={hidden}
-    >
-      <div className="mx-auto max-w-[1280px] h-full px-6 lg:px-10 flex flex-col justify-center pt-24 pb-12">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// Smooth bell around `target` phase. Tighter half-width = scene only appears
-// when you're close to arrival. 0.4 means scenes start cross-fading at ~half
-// way and the previous one is mostly gone by 70% of the transition.
-function sceneOpacity(phase: number, target: number): number {
-  const d = Math.abs(phase - target);
-  const half = 0.4;
-  if (d >= half) return 0;
-  const t = 1 - d / half;
-  return t * t * (3 - 2 * t); // smoothstep
-}
-
 /* ─────────── Constellation backdrop ───────────
-   Wide virtual canvas with 6 clusters of dots+lines (one per scene).
-   The SVG viewBox pans toward the cluster matching `phase`, so scrolling
-   feels like flying between bubbles. Generated once with a seeded RNG. */
+   Wide virtual canvas with 6 clusters of dots+lines (one per scene). The
+   viewBox pans toward the cluster matching the scroll phase. All per-frame
+   updates (pan, zoom, cluster fades, bubble activation) are written through
+   `handle` directly to the DOM — React renders this SVG exactly once. */
 function seededRand(seed: number) {
   let s = seed >>> 0 || 1;
   return () => {
@@ -1017,7 +996,6 @@ function buildCluster(seed: number, cx: number, cy: number, count: number, sprea
       red: rand() < 0.22,
     });
   }
-  // Edges: connect each node to its 1–2 nearest neighbors
   const edges: [number, number][] = [];
   const seen = new Set<string>();
   for (let i = 0; i < nodes.length; i++) {
@@ -1039,14 +1017,14 @@ function buildCluster(seed: number, cx: number, cy: number, count: number, sprea
 }
 
 const CLUSTER_X = [400, 1200, 2000, 2800, 3600, 4400]; // phase 0..5
-// Pronounced zigzag — alternates high/low so the road feels like a winding path,
-// not a near-straight line. Each bubble is on a different vertical band than its neighbors.
+// Pronounced zigzag — each bubble sits on a different vertical band.
 const CLUSTER_Y = [300, 480, 200, 500, 220, 380];
+const VIEW_W = 1800;
+const VIEW_H = 900;
+const BUBBLE_R = 38;
 
-// Smooth Catmull-Rom-ish path through all bubble centers — the "road"
 function buildRoadPath(): string {
   const pts = CLUSTER_X.map((x, i) => [x, CLUSTER_Y[i]] as [number, number]);
-  // Cubic bezier with control points offset along x for smooth S-curve
   let d = `M ${pts[0][0]} ${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const [x1, y1] = pts[i];
@@ -1058,27 +1036,63 @@ function buildRoadPath(): string {
   return d;
 }
 
-function Constellation({ phase }: { phase: number }) {
+function clusterOpacityAt(ci: number, cx: number): number {
+  const dx = (CLUSTER_X[ci] - cx) / 1200;
+  return Math.max(0.18, 1 - Math.abs(dx) * 0.55);
+}
+
+function bubbleActivationAt(i: number, phase: number): number {
+  const d = Math.abs(phase - i);
+  const a = Math.max(0, 1 - d / 0.35);
+  return a * a * (3 - 2 * a);
+}
+
+function Constellation({ handleRef }: { handleRef: React.MutableRefObject<PhaseHandle | null> }) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const clusterRefs = useRef<(SVGGElement | null)[]>([]);
+  const bubbleRefs = useRef<(SVGGElement | null)[]>([]);
   const clusters = useConstellationClusters();
   const road = useRoadPath();
-  const lo = Math.max(0, Math.min(4, Math.floor(phase)));
-  const hi = Math.min(5, lo + 1);
-  const f = phase - lo;
-  const fs = f * f * (3 - 2 * f); // smoothstep for camera motion
-  const cx = CLUSTER_X[lo] + (CLUSTER_X[hi] - CLUSTER_X[lo]) * fs;
-  const cy = CLUSTER_Y[lo] + (CLUSTER_Y[hi] - CLUSTER_Y[lo]) * fs;
-  const zoom = 1 + Math.sin(f * Math.PI) * 0.18;
-  const vw = 1800 * zoom;
-  const vh = 900 * zoom;
-  // Bias the viewBox so the active bubble sits ~70% from the left of the screen
-  // (right side, behind the StageViz card). This keeps it out of the text column.
-  const bubbleScreenX = 0.7;
-  const viewLeft = cx - vw * bubbleScreenX;
-  const viewTop = cy - vh / 2;
+
+  useEffect(() => {
+    handleRef.current = {
+      update(phase: number) {
+        const svg = svgRef.current;
+        if (!svg) return;
+        const lo = Math.max(0, Math.min(4, Math.floor(phase)));
+        const hi = Math.min(5, lo + 1);
+        const f = phase - lo;
+        const fs = f * f * (3 - 2 * f); // smoothstep camera motion
+        const cx = CLUSTER_X[lo] + (CLUSTER_X[hi] - CLUSTER_X[lo]) * fs;
+        const cy = CLUSTER_Y[lo] + (CLUSTER_Y[hi] - CLUSTER_Y[lo]) * fs;
+        const zoom = 1 + Math.sin(f * Math.PI) * 0.18;
+        const vw = VIEW_W * zoom;
+        const vh = VIEW_H * zoom;
+        // Active bubble sits ~70% from the left, clear of the text column.
+        svg.setAttribute("viewBox", `${cx - vw * 0.7} ${cy - vh / 2} ${vw} ${vh}`);
+        clusterRefs.current.forEach((g, ci) => {
+          if (g) g.style.opacity = String(clusterOpacityAt(ci, cx));
+        });
+        bubbleRefs.current.forEach((g, i) => {
+          if (!g) return;
+          const ea = bubbleActivationAt(i, phase);
+          g.style.opacity = String(ea);
+          g.style.transform = `scale(${(1 + ea * 0.45).toFixed(3)})`;
+        });
+      },
+    };
+    return () => { handleRef.current = null; };
+  }, [handleRef]);
+
+  // Initial attributes match phase 0 so the first paint (and any pre-scroll
+  // frame) is already correct without a JS pass.
+  const initLeft = CLUSTER_X[0] - VIEW_W * 0.7;
+  const initTop = CLUSTER_Y[0] - VIEW_H / 2;
 
   return (
     <svg
-      viewBox={`${viewLeft} ${viewTop} ${vw} ${vh}`}
+      ref={svgRef}
+      viewBox={`${initLeft} ${initTop} ${VIEW_W} ${VIEW_H}`}
       preserveAspectRatio="xMidYMid slice"
       className="absolute inset-0 w-full h-full"
       aria-hidden
@@ -1095,14 +1109,8 @@ function Constellation({ phase }: { phase: number }) {
         </radialGradient>
       </defs>
 
-      {/* The road — full continuous path connecting all bubbles */}
-      <path
-        d={road}
-        fill="none"
-        stroke="rgba(72,184,177,0.18)"
-        strokeWidth="1.5"
-      />
-      {/* Flowing dashes along the road (animated) */}
+      {/* The road — continuous path connecting all bubbles */}
+      <path d={road} fill="none" stroke="rgba(72,184,177,0.18)" strokeWidth="1.5" />
       <path
         d={road}
         fill="none"
@@ -1113,88 +1121,69 @@ function Constellation({ phase }: { phase: number }) {
         style={{ animation: "roadFlow 8s linear infinite" }}
       />
 
-      {/* Satellite dots + intra-cluster edges (constellation accent) */}
-      {clusters.map((cl, ci) => {
-        const dx = (CLUSTER_X[ci] - cx) / 1200;
-        const distOpacity = Math.max(0.18, 1 - Math.abs(dx) * 0.55);
-        return (
-          <g key={ci} style={{ opacity: distOpacity }}>
-            {cl.edges.map(([a, b], i) => (
-              <line
-                key={`e-${ci}-${i}`}
-                x1={cl.nodes[a].x}
-                y1={cl.nodes[a].y}
-                x2={cl.nodes[b].x}
-                y2={cl.nodes[b].y}
-                stroke="rgba(72,184,177,0.35)"
-                strokeWidth="0.6"
-              />
-            ))}
-            {cl.nodes.map((n, i) => (
-              <circle
-                key={`n-${ci}-${i}`}
-                cx={n.x}
-                cy={n.y}
-                r={n.r}
-                fill={n.red ? "var(--brand-red)" : "var(--brand-teal-bright)"}
-                opacity={n.red ? 0.85 : 0.7}
-              />
-            ))}
-          </g>
-        );
-      })}
+      {/* Satellite dots + intra-cluster edges */}
+      {clusters.map((cl, ci) => (
+        <g
+          key={ci}
+          ref={(el) => { clusterRefs.current[ci] = el; }}
+          style={{ opacity: clusterOpacityAt(ci, CLUSTER_X[0]) }}
+        >
+          {cl.edges.map(([a, b], i) => (
+            <line
+              key={`e-${ci}-${i}`}
+              x1={cl.nodes[a].x}
+              y1={cl.nodes[a].y}
+              x2={cl.nodes[b].x}
+              y2={cl.nodes[b].y}
+              stroke="rgba(72,184,177,0.35)"
+              strokeWidth="0.6"
+            />
+          ))}
+          {cl.nodes.map((n, i) => (
+            <circle
+              key={`n-${ci}-${i}`}
+              cx={n.x}
+              cy={n.y}
+              r={n.r}
+              fill={n.red ? "var(--brand-red)" : "var(--brand-teal-bright)"}
+              opacity={n.red ? 0.85 : 0.7}
+            />
+          ))}
+        </g>
+      ))}
 
-      {/* Process bubbles — one per phase stop. The bubble nearest the current
-         phase "pops" (scales + glows). */}
+      {/* Process bubbles — a static base plus an "active" overlay whose
+         opacity/scale are driven imperatively as the camera arrives. */}
       {CLUSTER_X.map((bx, i) => {
         const by = CLUSTER_Y[i];
-        // Activation strength — 1.0 when phase exactly matches this stop, 0 when far away
-        const d = Math.abs(phase - i);
-        // Tighter window so the bubble only pops as you arrive at this stop,
-        // not several scenes ahead.
-        const active = Math.max(0, 1 - d / 0.35);
-        const easedActive = active * active * (3 - 2 * active);
-        const baseR = 38;
-        const r = baseR + easedActive * 28; // grows when active
-        const ringR = r + 10 + easedActive * 14;
+        const initEa = bubbleActivationAt(i, 0);
         return (
           <g key={`b-${i}`}>
-            {/* Outer pulse ring (only when active) */}
-            {easedActive > 0.05 && (
+            <circle cx={bx} cy={by} r={BUBBLE_R} fill="url(#bubbleFill)" />
+            <circle cx={bx} cy={by} r={BUBBLE_R} fill="none" stroke="var(--brand-teal-bright)" strokeWidth="1" opacity="0.55" />
+            <g
+              ref={(el) => { bubbleRefs.current[i] = el; }}
+              style={{
+                opacity: initEa,
+                transform: `scale(${1 + initEa * 0.45})`,
+                transformBox: "fill-box",
+                transformOrigin: "center",
+              }}
+            >
+              <circle cx={bx} cy={by} r={BUBBLE_R} fill="url(#bubbleFillActive)" />
               <circle
                 cx={bx}
                 cy={by}
-                r={ringR}
+                r={BUBBLE_R}
                 fill="none"
                 stroke="var(--brand-teal-bright)"
-                strokeWidth="1"
-                opacity={easedActive * 0.6}
+                strokeWidth="1.6"
+                opacity="0.9"
+                style={{ filter: "drop-shadow(0 0 12px var(--brand-teal-bright))" }}
               />
-            )}
-            {/* Bubble body */}
-            <circle
-              cx={bx}
-              cy={by}
-              r={r}
-              fill={`url(#${easedActive > 0.5 ? "bubbleFillActive" : "bubbleFill"})`}
-            />
-            {/* Bubble border */}
-            <circle
-              cx={bx}
-              cy={by}
-              r={r}
-              fill="none"
-              stroke="var(--brand-teal-bright)"
-              strokeWidth={1 + easedActive * 0.8}
-              opacity={0.55 + easedActive * 0.4}
-              style={{
-                filter: easedActive > 0.4 ? "drop-shadow(0 0 12px var(--brand-teal-bright))" : "none",
-              }}
-            />
-            {/* Traveling marker — small dot above the bubble when fully active */}
-            {easedActive > 0.7 && (
-              <circle cx={bx} cy={by - r - 4} r="3" fill="var(--brand-red)" opacity={easedActive} />
-            )}
+              <circle cx={bx} cy={by} r={BUBBLE_R + 14} fill="none" stroke="var(--brand-teal-bright)" strokeWidth="1" opacity="0.5" />
+              <circle cx={bx} cy={by - BUBBLE_R - 8} r="3" fill="var(--brand-red)" />
+            </g>
           </g>
         );
       })}
@@ -1205,7 +1194,6 @@ function Constellation({ phase }: { phase: number }) {
 let _clusterCache: CCluster[] | null = null;
 function useConstellationClusters(): CCluster[] {
   if (_clusterCache) return _clusterCache;
-  // Smaller satellite halo around each bubble (the bubble itself is drawn over them)
   _clusterCache = CLUSTER_X.map((x, i) =>
     buildCluster(0x9e37 + i * 7919, x, CLUSTER_Y[i], 9 + (i % 3), 260)
   );
