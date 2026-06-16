@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -39,18 +40,30 @@ export default function Projects({ dict }: { dict: Dict }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const reducedMotion = usePrefersReducedMotion();
 
+  // Touch / non-pinned (<1024px): play the most-visible card's video and pause
+  // the rest. The desktop (≥1024px, motion-OK) pinned ScrollTrigger drives
+  // playback itself, so we bow out there; reduced-motion users stay on posters.
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+    if (reducedMotion) return;
+    const vp = viewportRef.current;
+    if (!vp || window.matchMedia("(min-width: 1024px)").matches) return;
+    const vids = Array.from(vp.querySelectorAll<HTMLVideoElement>("video[data-pj-video]"));
+    if (!vids.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          const v = e.target as HTMLVideoElement;
+          if (e.isIntersecting && e.intersectionRatio > 0.6) v.play().catch(() => {});
+          else v.pause();
+        });
+      },
+      { root: vp, threshold: [0, 0.6, 1] }
+    );
+    vids.forEach((v) => io.observe(v));
+    return () => io.disconnect();
+  }, [reducedMotion]);
 
   // Mobile / reduced-motion: progress bar tracks native horizontal scroll.
   useEffect(() => {
@@ -294,6 +307,7 @@ function ProjectVisual({
     return (
       <video
         data-pj-video
+        aria-label={name}
         className="pj-media-inner absolute inset-[-7%] h-[114%] w-[114%] object-cover"
         src={media.video}
         poster={media.poster}

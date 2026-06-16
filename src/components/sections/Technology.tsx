@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, useGSAP);
@@ -68,19 +69,8 @@ export default function Technology({ dict }: { dict: Dict }) {
   const tech = dict.technology;
   const tiers = tech.tiers;
   const ref = useRef<HTMLDivElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const reducedMotion = usePrefersReducedMotion();
   const [activeTier, setActiveTier] = useState(0);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   // Cycle the live layer, but only while on-screen and in motion.
   useEffect(() => {
@@ -265,7 +255,7 @@ export default function Technology({ dict }: { dict: Dict }) {
               fill={secLive ? RED : "rgba(122,216,210,0.7)"}
               style={{ transition: "fill 0.5s ease" }}
             >
-              SECURE PERIMETER
+              {tech.perimeterLabel}
             </text>
 
             {/* Connections (drawn before nodes so nodes sit on top) */}

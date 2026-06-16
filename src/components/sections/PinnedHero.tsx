@@ -7,9 +7,14 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Magnetic from "@/components/ui/Magnetic";
+import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
+import { seededRng } from "@/lib/rng";
 import type { Dict } from "@/lib/dictionaries";
 
-const HeroScene = dynamic(() => import("@/components/three/HeroScene"), { ssr: false });
+const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
+  ssr: false,
+  loading: () => null,
+});
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -124,6 +129,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
     return () => {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf);
+      // Clear the residual parallax offset so a later non-enhanced layout
+      // doesn't keep the last cursor-driven translate.
+      layer.style.transform = "";
     };
   }, [enhanced]);
 
@@ -202,7 +210,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                live, phones included, at the same full treatment as desktop. */}
             {motionOk && (
               <div className="absolute inset-0 pointer-events-none">
-                <HeroScene phaseRef={phaseRef} />
+                <CanvasErrorBoundary>
+                  <HeroScene phaseRef={phaseRef} />
+                </CanvasErrorBoundary>
               </div>
             )}
             {/* 2D constellation backdrop — strong during the intro, fades back as
@@ -972,19 +982,11 @@ function LogoLockup() {
    viewBox pans toward the cluster matching the scroll phase. All per-frame
    updates (pan, zoom, cluster fades, bubble activation) are written through
    `handle` directly to the DOM — React renders this SVG exactly once. */
-function seededRand(seed: number) {
-  let s = seed >>> 0 || 1;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
-
 type CNode = { x: number; y: number; r: number; red: boolean };
 type CCluster = { nodes: CNode[]; edges: [number, number][] };
 
 function buildCluster(seed: number, cx: number, cy: number, count: number, spread: number): CCluster {
-  const rand = seededRand(seed);
+  const rand = seededRng(seed);
   const nodes: CNode[] = [];
   for (let i = 0; i < count; i++) {
     const angle = rand() * Math.PI * 2;

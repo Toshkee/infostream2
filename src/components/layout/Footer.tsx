@@ -51,16 +51,16 @@ export default function Footer({ dict }: { dict: Dict }) {
                 <span className="absolute inset-0 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--brand-teal-bright)]" />
               </span>
-              All systems · operational
+              {dict.footer.status}
             </div>
           </div>
 
           {/* Credentials column */}
           <div className="mono text-[11px] tracking-[0.18em] uppercase text-white/55 space-y-3">
-            <div className="text-white/35 text-[10px]">Certifications</div>
+            <div className="text-white/35 text-[10px]">{dict.footer.certifications}</div>
             <div className="text-white/80">ISO 27001 · ISO 9001</div>
             <div className="text-white/80">Bitdefender Enterprise</div>
-            <div className="text-white/80">15+ years · critical state systems</div>
+            <div className="text-white/80">{dict.footer.experience}</div>
           </div>
 
           {/* Contact / legal column */}
@@ -77,7 +77,7 @@ export default function Footer({ dict }: { dict: Dict }) {
           <div>© {new Date().getFullYear()} Infostream — {dict.footer.rights}</div>
           <div className="flex items-center gap-3">
             <span className="h-px w-6 bg-white/20" />
-            <span>secure · accountable · on the line</span>
+            <span>{dict.footer.ethos}</span>
           </div>
         </div>
       </div>

@@ -6,17 +6,10 @@ import { Html, Line } from "@react-three/drei";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useInView } from "./useInView";
+import { seededRng } from "@/lib/rng";
 
 const TEAL = new THREE.Color("#48b8b1");
 const TEAL_BRIGHT = new THREE.Color("#7fd5cf");
-
-function makeRng(seed: number) {
-  let s = seed >>> 0 || 1;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
 
 // Heater-shield perimeter: rounded top + curved sides tapering to a point.
 function shieldPerimeter(t: number): THREE.Vector3 {
@@ -126,7 +119,7 @@ function HexInterior({ progress }: { progress: number }) {
   const cells = useMemo(() => {
     // Hex tiling: rows of points with offset on alternating rows.
     const out: { x: number; y: number; t: number }[] = [];
-    const rng = makeRng(0xbeef);
+    const rng = seededRng(0xbeef);
     const size = 0.16;
     const xStep = size * Math.sqrt(3);
     const yStep = size * 1.5;
@@ -217,7 +210,7 @@ function AssemblingParticles({
   const ref = useRef<THREE.Points>(null);
 
   const data = useMemo(() => {
-    const rng = makeRng(0x5e1d);
+    const rng = seededRng(0x5e1d);
     const targets = new Float32Array(count * 3);
     const starts = new Float32Array(count * 3);
     const arrival = new Float32Array(count);
@@ -250,8 +243,9 @@ function AssemblingParticles({
       positions[i * 3 + 2] = starts[i * 3 + 2] * (1 - eased) + targets[i * 3 + 2] * eased;
     }
     if (ref.current) {
+      // `positions` is the same Float32Array bound to the attribute below, so
+      // we only need to flag it dirty — no reassignment of attr.array.
       const attr = ref.current.geometry.attributes.position as THREE.BufferAttribute;
-      attr.array = positions;
       attr.needsUpdate = true;
     }
   });
@@ -278,7 +272,7 @@ function IncomingStream({ count = 90 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
 
   const data = useMemo(() => {
-    const rng = makeRng(0xcafe);
+    const rng = seededRng(0xcafe);
     const positions = new Float32Array(count * 3);
     const velocity = new Float32Array(count * 3);
     const life = new Float32Array(count);

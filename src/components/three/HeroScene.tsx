@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useInView } from "./useInView";
+import { seededRng } from "@/lib/rng";
 
 const TEAL = new THREE.Color("#48b8b1");
 const RED = new THREE.Color("#d8413a");
@@ -20,14 +21,6 @@ const NODES: THREE.Vector3[] = [
 
 const CURVE = new THREE.CatmullRomCurve3(NODES, false, "catmullrom", 0.4);
 
-function makeRng(seed: number) {
-  let s = seed >>> 0 || 1;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
-
 function activationFor(phase: number, index: number): number {
   // Smooth bell around phase = index + 1; ~0 when more than 0.7 phases away.
   const d = Math.abs(phase - (index + 1));
@@ -41,7 +34,7 @@ function AmbientCloud({ count = 1100 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
 
   const { positions, colors } = useMemo(() => {
-    const rand = makeRng(0xa3f1);
+    const rand = seededRng(0xa3f1);
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -104,16 +97,18 @@ function FlowingPackets({ count = 60 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
 
   const { positions, offsets } = useMemo(() => {
-    const rng = makeRng(0xbeef);
+    const rng = seededRng(0xbeef);
     const positions = new Float32Array(count * 3);
     const offsets = new Float32Array(count);
     for (let i = 0; i < count; i++) offsets[i] = rng();
     return { positions, offsets };
   }, [count]);
 
+  // Scratch vector reused across frames — avoids 60 allocations/frame.
+  const p = useMemo(() => new THREE.Vector3(), []);
+
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const p = new THREE.Vector3();
     for (let i = 0; i < count; i++) {
       const u = (t * 0.05 + offsets[i]) % 1;
       CURVE.getPointAt(u, p);

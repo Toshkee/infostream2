@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
@@ -130,6 +130,6 @@ export default async function RootLayout({
   );
 }
 
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: "#0d111c",
 };

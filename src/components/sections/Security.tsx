@@ -4,30 +4,23 @@ import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
+import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const ShieldScene = dynamic(() => import("@/components/three/ShieldScene"), {
   ssr: false,
+  loading: () => null,
 });
 
 export default function Security({ dict }: { dict: Dict }) {
   const ref = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [buildProgress, setBuildProgress] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(() =>
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const reducedMotion = usePrefersReducedMotion();
 
   useGSAP(
     () => {
@@ -86,7 +79,11 @@ export default function Security({ dict }: { dict: Dict }) {
 
           {/* 3D shield — assembles from particles as you scroll. */}
           <div ref={stage} className="lg:col-span-7 relative h-[420px] lg:h-[520px]">
-            {!reducedMotion && <ShieldScene progress={buildProgress} />}
+            {!reducedMotion && (
+              <CanvasErrorBoundary>
+                <ShieldScene progress={buildProgress} />
+              </CanvasErrorBoundary>
+            )}
           </div>
         </div>
 

@@ -12,16 +12,6 @@
     "description": "Infostream builds and runs Montenegro's core public-finance systems — tax, treasury and central-bank settlement — audited to ISO 27001, with 15+ years of uninterrupted uptime.",
     "ogTagline": "National financial infrastructure"
   },
-  "notFound": {
-    "title": "Page not found",
-    "body": "The page you're looking for doesn't exist or has moved.",
-    "cta": "Back to home"
-  },
-  "error": {
-    "title": "Something went wrong",
-    "body": "An unexpected error interrupted this page. You can try again.",
-    "retry": "Try again"
-  },
   "hero": {
     "eyebrow": "Infostream / National financial infrastructure",
     "title": "The data spine behind Montenegro's public finance.",
@@ -133,19 +123,8 @@
   "clients": {
     "eyebrow": "Trusted by",
     "title": "We do not have many clients. We have the right ones.",
-    "lead": "Few clients, deep relationships — and the systems that run a country in production.",
-    "count": "60+",
     "colOrg": "Institution",
-    "colSystem": "System",
     "more": "more systems in production",
-    "list": [
-      "Ministry of Finance",
-      "Central Bank of Montenegro",
-      "Parliament of Montenegro",
-      "Ministry of Interior",
-      "Tax Authority",
-      "Ministry of Defense"
-    ],
     "projects": [
       { "org": "Pension & Disability Insurance Fund", "system": "National information system" },
       { "org": "Tax Administration of Montenegro", "system": "Central Register of Business Entities" },
@@ -231,6 +210,7 @@
     "eyebrow": "Technology",
     "title": "The stack underneath.",
     "builtOn": "Built on",
+    "perimeterLabel": "SECURE PERIMETER",
     "body": "Stable, well-understood tooling — chosen for longevity, audit-trail and operational predictability over novelty.",
     "tiers": [
       {
@@ -271,6 +251,10 @@
   "footer": {
     "tagline": "National financial infrastructure, built in Podgorica.",
     "rights": "All rights reserved.",
-    "location": "Podgorica · Montenegro"
+    "location": "Podgorica · Montenegro",
+    "certifications": "Certifications",
+    "experience": "15+ years · critical state systems",
+    "status": "All systems · operational",
+    "ethos": "secure · accountable · on the line"
   }
 }

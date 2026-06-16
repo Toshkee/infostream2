@@ -8,8 +8,6 @@
   --fg: #0a0e16;
   --fg-dim: #5a6477;
   --line: #d8dee8;
-  --line-strong: #c3cad6;
-  --line-dark: #1f273a;
   --brand-red: #d63b3b;
   --brand-red-deep: #b62e2e;
   --brand-teal: #3aa5a0;
@@ -25,8 +23,6 @@
   --color-fg: var(--fg);
   --color-fg-dim: var(--fg-dim);
   --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-line-dark: var(--line-dark);
   --color-brand-red: var(--brand-red);
   --color-brand-teal: var(--brand-teal);
   --color-brand-teal-bright: var(--brand-teal-bright);
@@ -52,8 +48,6 @@ body {
 .mono { font-family: var(--font-mono-stack), ui-monospace, monospace; letter-spacing: 0.02em; }
 
 .hairline { border-color: var(--line); }
-.hairline-strong { border-color: var(--line-strong); }
-.hairline-dark { border-color: var(--line-dark); }
 
 ::selection { background: var(--brand-red); color: #fff; }
 
@@ -90,9 +84,6 @@ body {
 }
 .bar-pulse { animation: barPulse 1.4s ease-in-out infinite; transform-origin: bottom; }
 
-/* Reveal helper used pre-GSAP hydration to avoid flash */
-.reveal-init { opacity: 0; transform: translateY(24px); }
-
 /* Hide scrollbar on swipe tracks (Projects horizontal gallery on touch) */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -106,34 +97,8 @@ body {
 /* Magnetic CTA wrapper */
 .magnet { display: inline-block; will-change: transform; }
 
-/* Stage visualization animations */
-@keyframes svgDraw { from { stroke-dashoffset: var(--dash, 200); } to { stroke-dashoffset: 0; } }
-@keyframes svgPop  { 0% { opacity: 0; transform: scale(0.6); } 70% { opacity: 1; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
-@keyframes svgFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes typeCaret { 50% { opacity: 0; } }
+/* Pulsing status dot — server/db nodes, footer "operational" pill, etc. */
 @keyframes pulseDot { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
-@keyframes chartDraw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
-@keyframes scanRow { from { transform: translateY(0); } to { transform: translateY(-100%); } }
-
-/* Drifting aurora blobs behind the pinned scene */
-@keyframes auroraA {
-  0%   { transform: translate3d(-12%, -8%, 0) scale(1); }
-  50%  { transform: translate3d(8%, 6%, 0) scale(1.15); }
-  100% { transform: translate3d(-12%, -8%, 0) scale(1); }
-}
-@keyframes auroraB {
-  0%   { transform: translate3d(20%, 10%, 0) scale(1.1); }
-  50%  { transform: translate3d(-10%, -6%, 0) scale(0.95); }
-  100% { transform: translate3d(20%, 10%, 0) scale(1.1); }
-}
-@keyframes auroraC {
-  0%   { transform: translate3d(-5%, 15%, 0) scale(1); }
-  50%  { transform: translate3d(12%, -10%, 0) scale(1.2); }
-  100% { transform: translate3d(-5%, 15%, 0) scale(1); }
-}
-.aurora-a { animation: auroraA 22s ease-in-out infinite; }
-.aurora-b { animation: auroraB 28s ease-in-out infinite; }
-.aurora-c { animation: auroraC 34s ease-in-out infinite; }
 
 /* Road dashes flowing along the constellation path */
 @keyframes roadFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -200; } }
@@ -160,11 +125,6 @@ body {
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.viz-draw { stroke-dasharray: var(--dash, 200); animation: svgDraw 1.8s ease-out forwards; }
-.viz-pop { transform-origin: center; opacity: 0; animation: svgPop 1.0s cubic-bezier(0.34,1.4,0.64,1) forwards; }
-.viz-fade { opacity: 0; animation: svgFade 0.9s ease-out forwards; }
-.viz-caret { animation: typeCaret 0.8s steps(1) infinite; }
-
 /* Assistant typewriter caret — blinks only a trailing border so the typed
    text itself never flickers (unlike .viz-caret, which fades the element). */
 @keyframes caretBlink { 0%, 49% { border-color: var(--brand-teal-bright); } 50%, 100% { border-color: transparent; } }
@@ -177,7 +137,6 @@ body {
   to   { clip-path: inset(0 0 0 0);    transform: translateY(0);      opacity: 1; }
 }
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.viz-chart-draw { stroke-dasharray: 1000; animation: chartDraw 3.4s ease-out forwards; }
 .logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
 
 /* Process section — every motion-OK visitor (desktop and mobile) gets the
@@ -233,40 +192,6 @@ body {
    above the texture layers — no child selector here: an unlayered
    `position: relative` would beat the .absolute utility on the corner ticks
    (unlayered author CSS wins over @layer utilities) and break them. */
-
-/* Instrument-panel texture — fine teal scanlines + corner darkening so the stage
-   diagrams read like a CRT/oscilloscope readout rather than a flat SVG on a box.
-   Both layers are pointer-events:none and sit above the panel bg but below content. */
-.viz-panel::before,
-.viz-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-/* Scanlines */
-.viz-panel::before {
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(122, 216, 210, 0.05) 0px,
-    rgba(122, 216, 210, 0.05) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  mix-blend-mode: overlay;
-  opacity: 0.6;
-}
-/* Inner vignette — darkens edges, lifts the center where the diagram sits */
-.viz-panel::after {
-  background: radial-gradient(
-    ellipse 75% 75% at 50% 50%,
-    transparent 55%,
-    rgba(7, 9, 15, 0.45) 100%
-  );
-}
-/* Keep diagram content + corner ticks above the texture (all are positioned) */
-.viz-panel > * { z-index: 2; }
 
 /* Film grain — fixed full-viewport noise overlay. SVG turbulence baked into a data URL
    so it costs nothing at runtime and tiles seamlessly. The animation jitters the layer

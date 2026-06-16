@@ -12,16 +12,6 @@
     "description": "Infostream gradi i održava ključne sisteme javnih finansija Crne Gore — poreske, trezorske i namirenja Centralne banke — revidirano po ISO 27001, uz 15+ godina neprekidnog rada.",
     "ogTagline": "Nacionalna finansijska infrastruktura"
   },
-  "notFound": {
-    "title": "Stranica nije pronađena",
-    "body": "Stranica koju tražite ne postoji ili je premještena.",
-    "cta": "Nazad na početnu"
-  },
-  "error": {
-    "title": "Došlo je do greške",
-    "body": "Neočekivana greška je prekinula ovu stranicu. Možete pokušati ponovo.",
-    "retry": "Pokušaj ponovo"
-  },
   "hero": {
     "eyebrow": "Infostream / Nacionalna finansijska infrastruktura",
     "title": "Kičma podataka iza javnih finansija Crne Gore.",
@@ -133,19 +123,8 @@
   "clients": {
     "eyebrow": "Vjeruju nam",
     "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
-    "lead": "Malo klijenata, duboke saradnje — i sistemi koji pokreću državu, u produkciji.",
-    "count": "60+",
     "colOrg": "Institucija",
-    "colSystem": "Sistem",
     "more": "sistema u produkciji",
-    "list": [
-      "Ministarstvo finansija",
-      "Centralna banka Crne Gore",
-      "Skupština Crne Gore",
-      "Ministarstvo unutrašnjih poslova",
-      "Poreska uprava",
-      "Ministarstvo odbrane"
-    ],
     "projects": [
       { "org": "Fond PIO Crne Gore", "system": "Nacionalni informacioni sistem" },
       { "org": "Poreska uprava Crne Gore", "system": "Centralni registar privrednih subjekata" },
@@ -231,6 +210,7 @@
     "eyebrow": "Tehnologija",
     "title": "Stek u osnovi.",
     "builtOn": "Građeno na",
+    "perimeterLabel": "BEZBJEDNI PERIMETAR",
     "body": "Stabilan, dobro poznat alat — biran zbog dugovječnosti, revizorskog traga i operativne predvidljivosti, ne zbog novosti.",
     "tiers": [
       {
@@ -271,6 +251,10 @@
   "footer": {
     "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
     "rights": "Sva prava zadržana.",
-    "location": "Podgorica · Crna Gora"
+    "location": "Podgorica · Crna Gora",
+    "certifications": "Sertifikati",
+    "experience": "15+ godina · kritični državni sistemi",
+    "status": "Svi sistemi · operativni",
+    "ethos": "bezbjedno · odgovorno · na liniji"
   }
 }

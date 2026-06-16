@@ -20,10 +20,20 @@ const endpoint = (model: string, key: string) =>
 // Per server instance (resets on cold start) — a soft guard against abuse of a
 // public, key-backed endpoint, not a hard quota.
 const RATE = { windowMs: 60_000, max: 20 };
+// Aggregate ceiling across ALL callers. The per-IP key can be sidestepped by
+// rotating a forged X-Forwarded-For, but every request still counts here, so
+// this caps total upstream Gemini calls (and spend) under a forged-IP flood.
+const GLOBAL = { windowMs: 60_000, max: 240 };
 const hits = new Map<string, number[]>();
+let globalHits: number[] = [];
 
 function rateLimited(ip: string): boolean {
   const now = Date.now();
+
+  globalHits = globalHits.filter((t) => now - t < GLOBAL.windowMs);
+  globalHits.push(now);
+  if (globalHits.length > GLOBAL.max) return true;
+
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE.windowMs);
   recent.push(now);
   hits.set(ip, recent);
@@ -105,10 +115,13 @@ export async function POST(request: Request) {
     return Response.json({ error }, { status });
   };
 
-  // Rate limit by client IP (first hop in x-forwarded-for).
+  // Rate limit by client IP. Prefer x-real-ip — the platform (e.g. Vercel) sets
+  // it to a single, non-client-controllable value; x-forwarded-for is a
+  // caller-influenceable list, so it's only a fallback. The aggregate ceiling
+  // in rateLimited() backstops whatever a forged header lets through.
   const ip =
+    request.headers.get("x-real-ip")?.trim() ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
     "anon";
   if (rateLimited(ip)) return fail(429, "Too many requests — please slow down.");
 
