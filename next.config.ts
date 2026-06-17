@@ -16,7 +16,6 @@ const nextConfig: NextConfig = {
     "172.*.*.*", // other private LANs
     "127.0.0.1", // loopback (when used in place of localhost)
     "*.local", // Bonjour / mDNS hostnames (e.g. macbook.local)
-    "*.trycloudflare.com", // cloudflared quick-tunnel previews (sharing dev over the internet)
   ],
 };
 
