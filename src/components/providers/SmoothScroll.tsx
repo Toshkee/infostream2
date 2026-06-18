@@ -22,7 +22,14 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+    // Keep GSAP's default lag smoothing on, rather than the usual Lenis recipe's
+    // lagSmoothing(0). A one-off main-thread stall on cold load — the lazy three.js
+    // chunk compiling/parsing + the first WebGL frame warming up — otherwise dumps
+    // its whole accumulated delta into the next scrubbed frame, which reads as the
+    // scroll lurching past the pinned process section instead of scrubbing it. The
+    // 500ms threshold only ever fires on exactly such a catastrophic stall; normal
+    // 16–33ms frames never trip it, so Lenis stays perfectly synced in regular use.
+    gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
       gsap.ticker.remove(raf);

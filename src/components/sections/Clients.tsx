@@ -178,9 +178,15 @@ export default function Clients({ dict }: { dict: Dict }) {
                 aria-label={current.org}
                 className="flex flex-wrap text-[clamp(1.7rem,4.4vw,3.4rem)] font-medium leading-[1.04] tracking-[-0.02em]"
               >
-                {Array.from(current.org).map((ch, j) => (
-                  <span key={j} aria-hidden className="stage-char inline-block will-change-transform">
-                    {ch === " " ? " " : ch}
+                {current.org.split(" ").map((word, wi) => (
+                  // Group by word so flex-wrap only breaks between words, never
+                  // mid-word ("Insu rance"); characters still cascade individually.
+                  <span key={wi} aria-hidden className="inline-flex whitespace-nowrap mr-[0.26em]">
+                    {Array.from(word).map((ch, j) => (
+                      <span key={j} className="stage-char inline-block will-change-transform">
+                        {ch}
+                      </span>
+                    ))}
                   </span>
                 ))}
               </h3>

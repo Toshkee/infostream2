@@ -159,39 +159,11 @@ body {
   .process-stepper { max-width: 520px; bottom: 1rem; }
 }
 
-/* Dossier panel — document texture: faint diagonal security-print hatching
-   plus an inner vignette, so each stage's "case file" reads like printed
-   matter instead of a flat box. Both layers ignore pointer events and sit
-   between the panel background and its content. */
-.dossier-panel::before,
-.dossier-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-.dossier-panel::before {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgba(122, 216, 210, 0.04) 0px,
-    rgba(122, 216, 210, 0.04) 1px,
-    transparent 1px,
-    transparent 7px
-  );
-  opacity: 0.7;
-}
-.dossier-panel::after {
-  background: radial-gradient(
-    ellipse 85% 85% at 50% 40%,
-    transparent 60%,
-    rgba(7, 9, 15, 0.4) 100%
-  );
-}
-/* Content children carry their own `relative z-[2]` / `z-[2]` utilities to sit
-   above the texture layers — no child selector here: an unlayered
-   `position: relative` would beat the .absolute utility on the corner ticks
-   (unlayered author CSS wins over @layer utilities) and break them. */
+/* The per-stage dossier is now a minimal, inline-styled "data card" (see
+   StageDossier in PinnedHero.tsx). The old printed-document texture layers —
+   diagonal security-print hatching + inner vignette — were removed in that
+   move; the card carries its own background, hairline border and inset
+   top-highlight inline, so no dedicated class is needed here anymore. */
 
 /* Film grain — fixed full-viewport noise overlay. SVG turbulence baked into a data URL
    so it costs nothing at runtime and tiles seamlessly. The animation jitters the layer

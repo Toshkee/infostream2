@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 type Stat = { key: keyof Dict["stats"]; value: string; label: string };
 
 export default function Stats({ dict }: { dict: Dict }) {
-  const items: Stat[] = (["uptime", "volume", "years", "iso"] as const).map((k) => ({
+  const items: Stat[] = (["iso", "apex", "years"] as const).map((k) => ({
     key: k,
     value: dict.stats[k].value,
     label: dict.stats[k].label,
@@ -35,13 +35,13 @@ export default function Stats({ dict }: { dict: Dict }) {
       );
 
       gsap.fromTo(
-        ".stats-divider",
-        { scaleY: 0, transformOrigin: "top center" },
+        ".stats-rule",
+        { scaleX: 0 },
         {
-          scaleY: 1,
+          scaleX: 1,
           duration: 0.9,
           ease: "power3.out",
-          stagger: 0.1,
+          stagger: 0.12,
           scrollTrigger: { trigger: ref.current, start: "top 80%", once: true },
         }
       );
@@ -82,7 +82,7 @@ export default function Stats({ dict }: { dict: Dict }) {
         }}
       />
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10 py-14 lg:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-12 sm:gap-x-10 lg:gap-x-16">
           {items.map((s, i) => (
             <StatCell key={s.key} value={s.value} label={s.label} index={i} />
           ))}
@@ -135,17 +135,13 @@ function StatCell({ value, label, index }: { value: string; label: string; index
   }, [inView, value, index]);
 
   return (
-    <div ref={ref} className="relative px-6 first:pl-0 md:first:pl-6 md:px-8 lg:px-10">
-      {index > 0 && (
-        <span
-          aria-hidden
-          className="stats-divider hidden md:block absolute left-0 top-0 bottom-0 w-px bg-white/10"
-        />
-      )}
-      <div className="stats-value mono text-[28px] md:text-[34px] lg:text-[42px] leading-none tracking-[-0.02em] text-white will-change-transform">
+    <div ref={ref} className="relative">
+      {/* Short teal rule — the card-system accent; drawn in left-to-right by GSAP */}
+      <span aria-hidden className="stats-rule block h-px w-10 origin-left bg-[var(--brand-teal-bright)]/70" />
+      <div className="stats-value mono text-[clamp(1.85rem,3.2vw,2.6rem)] leading-[1.05] tracking-[-0.02em] text-white mt-5 will-change-transform">
         {shown}
       </div>
-      <div className="mt-3 mono text-[10px] tracking-[0.22em] uppercase text-white/45 max-w-[18ch]">
+      <div className="mt-3 mono text-[10.5px] tracking-[0.22em] uppercase text-white/45 max-w-[24ch]">
         {label}
       </div>
     </div>
@@ -161,6 +157,9 @@ function parseFormattedNumber(
   const m = s.match(/^(\D*)([\d.,]+)(.*)$/);
   if (!m) return null;
   const [, prefix, raw, suffix] = m;
+  // A worded prefix (e.g. "ISO " in "ISO 27001") means this is a label, not a
+  // metric — leave it static instead of counting up to 27001.
+  if (/[A-Za-z]/.test(prefix)) return null;
   const lastDot = raw.lastIndexOf(".");
   const lastComma = raw.lastIndexOf(",");
   const decimalIdx = Math.max(lastDot, lastComma);

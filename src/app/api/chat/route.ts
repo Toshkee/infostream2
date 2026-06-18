@@ -98,8 +98,8 @@ function isChatMessage(m: unknown): m is ChatMessage {
 
 function fallbackReply(lang: Locale): string {
   return lang === "mne"
-    ? "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na contact@infostream.me."
-    : "Sorry, I couldn't answer that just now. Try rephrasing your question about Infostream, or reach us at contact@infostream.me.";
+    ? "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me."
+    : "Sorry, I couldn't answer that just now. Try rephrasing your question about Infostream, or reach us at info@infostream.co.me.";
 }
 
 // Markers from buildSystemPrompt — if any surfaces in a reply, the model has

@@ -6,7 +6,6 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Magnetic from "@/components/ui/Magnetic";
 import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
 import { seededRng } from "@/lib/rng";
 import type { Dict } from "@/lib/dictionaries";
@@ -15,6 +14,18 @@ const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
   loading: () => null,
 });
+
+// Warm the heavy three.js chunk as early as the client bundle evaluates, instead
+// of waiting for the motionOk effect to commit and mount <HeroScene/>. That chunk
+// plus its three.js graph (~3 MB) otherwise gets fetched — and, under `next dev`,
+// compiled on demand — exactly when the user first scrolls, which is the cold-start
+// jank window where the process-section animation stutters before settling. Same
+// literal path as the dynamic() import above so the bundler maps both to the one
+// chunk; client-only (three touches browser globals), fire-and-forget (the real
+// mount re-imports the same already-resolved module, so a failure here is harmless).
+if (typeof window !== "undefined") {
+  void import("@/components/three/HeroScene");
+}
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -175,7 +186,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
         tl.from(".hero-eyebrow", { opacity: 0, y: 14, duration: 0.7 })
           .from(".hero-title-word", { opacity: 0, y: 44, duration: 1.0, stagger: 0.07 }, "-=0.4")
           .from(".hero-body", { opacity: 0, y: 18, duration: 0.7 }, "-=0.6")
-          .from(".hero-cta", { opacity: 0, y: 14, duration: 0.55, stagger: 0.08 }, "-=0.4")
           .from(".hero-meta-row", { opacity: 0, y: 10, duration: 0.5, stagger: 0.08 }, "-=0.5");
       });
     },
@@ -288,21 +298,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                   ))}
                 </p>
                 <p className="hero-body mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  <Magnetic>
-                    <a href="#clients" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors inline-block">
-                      {dict.hero.ctaPrimary}
-                    </a>
-                  </Magnetic>
-                  <Magnetic>
-                    <a href="#security" className="hero-cta mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full border border-white/25 text-white hover:bg-white/10 transition-colors inline-block">
-                      {dict.hero.ctaSecondary}
-                    </a>
-                  </Magnetic>
-                </div>
 
                 {/* Audited figures — the same claims the Stats section substantiates */}
-                <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-3xl">
+                <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-2xl">
                   {dict.hero.meta.map((m, i) => (
                     <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3">
                       <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
@@ -420,15 +418,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             {dict.hero.title}
           </h1>
           <p className="mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <a href="#clients" className="mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors inline-block">
-              {dict.hero.ctaPrimary}
-            </a>
-            <a href="#security" className="mono text-[11px] tracking-[0.2em] uppercase px-5 py-3 rounded-full border border-white/25 text-white hover:bg-white/10 transition-colors inline-block">
-              {dict.hero.ctaSecondary}
-            </a>
-          </div>
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-3xl">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-2xl">
             {dict.hero.meta.map((m, i) => (
               <div key={i} className="bg-[var(--bg-inset-elev)] px-4 py-3">
                 <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
@@ -562,76 +552,61 @@ function StageDossier({
   labels: MetaLabels;
   authLabel: string;
 }) {
-  // The 60svh term keeps the panel inside short pinned viewports; the 19rem
+  const hasStamp = !!doc.stamp;
+  const hasOpen = !!doc.open;
+  // The 60svh term keeps the card inside short pinned viewports; the 19rem
   // floor stops it collapsing on landscape phones / very short windows.
   return (
-    <div className="mt-5" style={{ width: "min(100%, 28rem, max(19rem, 60svh))" }}>
-      {/* Folder tab + file reference */}
-      <div className="flex items-end justify-between">
-        <div
-          className="mono text-[9.5px] tracking-[0.22em] text-[var(--brand-teal-bright)] border border-white/15 border-b-0 rounded-t-md px-3.5 py-1.5 bg-[rgba(19,26,42,0.85)]"
-          style={rev(-0.42, 0.08)}
-          aria-hidden
-        >
-          {doc.tab}
-        </div>
-        <div className="mono text-[9px] tracking-[0.18em] uppercase text-white/55 px-1 pb-1.5" style={rev(-0.38, 0.08)} aria-hidden>
-          {FILE_REFS[stage]}
-        </div>
-      </div>
-
-      {/* Document body — the frame itself is reveal-gated so no empty
+    <div className="mt-6" style={{ width: "min(100%, 30rem, max(19rem, 60svh))" }}>
+      {/* Minimal data card — one hairline-bordered surface, no folder tab / corner
+         ticks / printed texture. The card frame itself is reveal-gated so no empty
          rectangle ghosts in during the scene crossfade. */}
       <div
-        className="dossier-panel relative border border-white/15 rounded-b-md rounded-tr-md overflow-hidden px-4 pt-3 pb-3.5"
+        className="relative rounded-2xl border border-white/10 px-6 py-5 sm:px-7"
         style={{
-          ...rev(-0.46, 0.12, 4),
-          background: "linear-gradient(180deg, rgba(19,26,42,0.6), rgba(13,17,28,0.6))",
-          boxShadow: "inset 0 0 40px -18px rgba(72,184,177,0.15)",
+          ...rev(-0.46, 0.14, 8),
+          background: "linear-gradient(180deg, rgba(17,23,38,0.82), rgba(11,15,25,0.82))",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 60px -34px rgba(0,0,0,0.85)",
         }}
       >
-        {/* corner ticks — z-[2] lifts them above the panel texture layers */}
-        {[[6, 6], [null, 6], [6, null], [null, null]].map((c, i) => (
-          <span
-            key={i}
-            aria-hidden
-            className="absolute z-[2] h-1.5 w-1.5 border-[var(--brand-teal-bright)]/60"
-            style={{
-              top: c[1] === 6 ? 6 : undefined,
-              bottom: c[1] === null ? 6 : undefined,
-              left: c[0] === 6 ? 6 : undefined,
-              right: c[0] === null ? 6 : undefined,
-              borderTopWidth: c[1] === 6 ? 1 : 0,
-              borderBottomWidth: c[1] === null ? 1 : 0,
-              borderLeftWidth: c[0] === 6 ? 1 : 0,
-              borderRightWidth: c[0] === null ? 1 : 0,
-            }}
-          />
-        ))}
-
-        {/* Header — document title + cross-citation of the previous stage's file */}
-        <div className="relative z-[2] flex items-baseline justify-between gap-3 border-b border-white/10 pb-2" style={rev(-0.34, 0.08)}>
-          <span className="mono text-[10.5px] tracking-[0.22em] uppercase text-white/90">{doc.title}</span>
-          <span className="mono text-[8.5px] tracking-[0.16em] uppercase text-white/45 truncate" aria-hidden>{doc.basis}</span>
+        {/* Reference line — stage tab + case-file id, both kept quiet */}
+        <div className="flex items-center justify-between" style={rev(-0.4, 0.1, 0)} aria-hidden>
+          <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{doc.tab}</span>
+          <span className="mono text-[9px] tracking-[0.2em] uppercase text-white/35">{FILE_REFS[stage]}</span>
         </div>
 
-        {stage === 1 && <SpecSchematic />}
+        {/* Headline — the document this stage produces. A short teal rule replaces
+           the old folder-tab as the card's accent. */}
+        <div className="mt-4" style={rev(-0.34, 0.12, 6)}>
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="h-4 w-px shrink-0 bg-[var(--brand-teal-bright)]/70" />
+            <div className="text-[clamp(1.05rem,1.5vw,1.35rem)] leading-tight tracking-[-0.01em] font-medium text-white">
+              {doc.title}
+            </div>
+          </div>
+          <div className="mt-1.5 pl-[15px] mono text-[9.5px] tracking-[0.18em] uppercase text-white/40" aria-hidden>
+            {doc.basis}
+          </div>
+        </div>
 
-        {/* Rows — pb-12 clears a landing zone so the stamp/badge never sits on
-           top of row text or ticks. */}
-        <div className="relative z-[2] mt-1 pb-12">
+        {/* Architecture schematic — only the spec stage carries one. Its own
+           per-shape reveal handles the fade, so no wrapper rev here. */}
+        {stage === 1 && (
+          <div className="mt-5">
+            <SpecSchematic />
+          </div>
+        )}
+
+        {/* Facts — airy key/value list, revealed row by row on approach */}
+        <dl className="mt-6 space-y-3">
           {doc.rows.map((r, i) => {
-            const start = -0.28 + i * 0.07;
+            const start = -0.26 + i * 0.06;
             return (
-              <div
-                key={r.k}
-                className="flex items-baseline gap-3 py-1 border-b border-white/[0.06] last:border-0"
-                style={rev(start, 0.07)}
-              >
-                <span className="mono text-[10px] tracking-[0.18em] uppercase text-white/55 w-[96px] shrink-0">{r.k}</span>
-                <span className="mono text-[10.5px] tracking-[0.08em] uppercase text-white/85 flex-1 truncate">{r.v}</span>
+              <div key={r.k} className="flex items-baseline gap-4" style={rev(start, 0.08, 4)}>
+                <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[108px] shrink-0">{r.k}</dt>
+                <dd className="flex-1 mono text-[12px] tracking-[0.02em] leading-snug text-white/80">{r.v}</dd>
                 {r.tick && (
-                  <span className="mono text-[10px] text-[var(--signal-ok)]" style={rev(start + 0.05, 0.05, 0)} aria-hidden>
+                  <span className="mono text-[11px] leading-none text-[var(--brand-teal-bright)]" style={rev(start + 0.04, 0.05, 0)} aria-hidden>
                     ✓
                   </span>
                 )}
@@ -639,76 +614,53 @@ function StageDossier({
             );
           })}
 
-          {/* Red-team gate (Build) — flips from AWAITING to PASSED just before the stamp lands */}
+          {/* Red-team gate (Build) — flips AWAITING → PASSED on approach */}
           {doc.gateK && (
             <div
-              className="flex items-baseline gap-3 py-1"
-              style={{ ...rev(-0.06, 0.07), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
+              className="flex items-baseline gap-4"
+              style={{ ...rev(-0.04, 0.08, 4), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
             >
-              <span className="mono text-[10px] tracking-[0.18em] uppercase text-white/55 w-[96px] shrink-0">{doc.gateK}</span>
-              <span className="relative flex-1">
-                {/* The settled state for AT is the passed value — the pre state
-                   is animation-only, so it never reads as a contradiction. */}
-                <span aria-hidden className="mono text-[10.5px] tracking-[0.1em] uppercase text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>
-                  {doc.gatePre}
-                </span>
-                <span
-                  className="absolute inset-0 mono text-[10.5px] tracking-[0.1em] uppercase text-[var(--signal-ok)]"
-                  style={{ opacity: "var(--g)" }}
-                >
-                  {doc.gatePost}
-                </span>
-              </span>
+              <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[108px] shrink-0">{doc.gateK}</dt>
+              <dd className="relative flex-1 mono text-[12px] tracking-[0.02em] leading-snug">
+                {/* The settled state is the passed value — the pre state is
+                   animation-only, so it never reads as a contradiction. */}
+                <span aria-hidden className="text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>{doc.gatePre}</span>
+                <span className="absolute inset-0 text-[var(--brand-teal-bright)]" style={{ opacity: "var(--g)" }}>{doc.gatePost}</span>
+              </dd>
             </div>
           )}
+        </dl>
 
-          {/* Ink stamp — lands just past the stage's center, lifts if you scroll back */}
-          {doc.stamp && (
-            <div
-              aria-hidden
-              className="absolute right-1 bottom-0 mono uppercase pointer-events-none select-none"
-              style={{
-                "--r": "clamp(0, calc((var(--u) - 0.06) / 0.07), 1)",
-                opacity: "var(--r)",
-                transform: "rotate(-7deg) scale(calc(1.7 - 0.7 * var(--r)))",
-              } as CSSVars}
-            >
-              <span
-                className="block border-2 border-[var(--brand-teal-bright)] rounded-[3px] px-2.5 py-1 text-center"
-                style={{ boxShadow: "inset 0 0 0 1px rgba(72,184,177,0.35)" }}
-              >
-                <span className="block text-[10px] tracking-[0.3em] text-[var(--brand-teal-bright)]">{doc.stamp}</span>
-                <span className="block text-[6.5px] tracking-[0.24em] text-[var(--brand-teal-bright)]/80 mt-0.5">
-                  infostream · podgorica
+        {/* Signature line — hairline divider, authorisation, and the stage's
+           status chip (a quiet pill that replaces the old rotated ink stamp). */}
+        <div className="mt-6 h-px bg-white/10" style={rev(-0.06, 0.1, 0)} aria-hidden />
+        <div className="mt-4" style={rev(-0.02, 0.12, 4)}>
+          {/* Label + status chip share the top line; sign-off/owner get the full
+             card width below so neither truncates against the chip. */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="mono text-[8.5px] tracking-[0.28em] uppercase text-white/30">{authLabel}</div>
+            {(hasStamp || hasOpen) && (
+              hasStamp ? (
+                <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1 whitespace-nowrap">
+                  <span aria-hidden>✓</span>
+                  {doc.stamp}
                 </span>
-              </span>
-            </div>
-          )}
-
-          {/* The operations log never seals — it stays open */}
-          {doc.open && (
-            <div className="absolute right-1 bottom-1" style={rev(0.04, 0.07, 0)}>
-              <span className="flex items-center gap-1.5 mono text-[9.5px] tracking-[0.22em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/40 rounded-full px-2.5 py-1">
-                <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
-                {doc.open}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Authorisation block — the former 8.5px meta strip, promoted to the
-           document's signature area at readable size and contrast. */}
-        <div className="relative z-[2] mt-2 border-t border-white/[0.12] pt-2" style={rev(-0.08, 0.1)}>
-          <div className="mono text-[9px] tracking-[0.26em] uppercase text-white/45">{authLabel}</div>
-          <dl className="mt-1.5 grid grid-cols-3 gap-3">
+              ) : (
+                <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/35 rounded-full px-3 py-1 whitespace-nowrap">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
+                  {doc.open}
+                </span>
+              )
+            )}
+          </div>
+          <dl className="mt-2.5 grid grid-cols-2 gap-x-6">
             {[
-              [labels.deliverable, meta.deliverable],
               [labels.signoff, meta.signoff],
               [labels.owner, meta.owner],
             ].map(([k, v]) => (
-              <div key={k}>
-                <dt className="mono text-[10px] tracking-[0.18em] uppercase text-white/55">{k}</dt>
-                <dd className="mono text-[11px] tracking-[0.04em] text-white/90 mt-0.5 break-words">{v}</dd>
+              <div key={k} className="min-w-0">
+                <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40">{k}</dt>
+                <dd className="mono text-[10.5px] tracking-[0.04em] text-white/85 mt-1 truncate">{v}</dd>
               </div>
             ))}
           </dl>

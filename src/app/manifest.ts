@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Infostream — National financial infrastructure",
     short_name: "Infostream",
     description:
-      "Infostream builds and runs Montenegro's core public-finance systems — tax, treasury and central-bank settlement.",
+      "Infostream builds and runs the systems behind Montenegro's public finance — tax, treasury, business and pension registers.",
     start_url: "/",
     display: "standalone",
     background_color: "#0d111c",

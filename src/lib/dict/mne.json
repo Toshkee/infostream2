@@ -1,6 +1,7 @@
 {
   "nav": {
     "platform": "Proces",
+    "services": "Usluge",
     "clients": "Klijenti",
     "technology": "Tehnologija",
     "projects": "Radovi",
@@ -9,30 +10,38 @@
     "cta": "Razgovarajmo"
   },
   "meta": {
-    "description": "Infostream gradi i održava ključne sisteme javnih finansija Crne Gore — poreske, trezorske i namirenja Centralne banke — revidirano po ISO 27001, uz 15+ godina neprekidnog rada.",
+    "description": "Infostream gradi i održava sisteme iza javnih finansija Crne Gore — poresku administraciju, trezorske budžete, registre privrednih subjekata i penzijske evidencije — revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
     "ogTagline": "Nacionalna finansijska infrastruktura"
   },
   "hero": {
     "eyebrow": "Infostream / Nacionalna finansijska infrastruktura",
     "title": "Kičma podataka iza javnih finansija Crne Gore.",
-    "body": "Petnaest godina naš softver prenosi poreske prihode, namirenja Centralne banke i ministarske budžete širom zemlje — mjereno u milijardama eura, revidirano po ISO 27001, bez ijednog prekida.",
-    "ctaPrimary": "Pogledajte sisteme",
-    "ctaSecondary": "Pročitajte sažetak",
+    "body": "Dvije decenije naš softver pokreće sisteme iza poreza, javnih budžeta i nacionalnih registara Crne Gore — od Poreske uprave do Fonda PIO — izgrađen na Oracle-u i .NET-u, revidiran po ISO 27001.",
     "exitTitle": "Četiri faze. Jedan odgovoran tim.",
-    "exitAccent": "Petnaest godina na liniji.",
+    "exitAccent": "Dvadeset godina na liniji.",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
-      { "k": "dostupnost", "v": "99,99%" },
-      { "k": "obim / god", "v": "€14,2 mlrd" },
-      { "k": "u službi", "v": "15+ god" },
-      { "k": "revizija", "v": "ISO 27001" }
+      { "k": "revizija", "v": "ISO 27001" },
+      { "k": "platforma", "v": "Oracle APEX" },
+      { "k": "u službi", "v": "20+ god" }
     ]
   },
   "stats": {
-    "uptime": { "value": "99,99%", "label": "Trajna dostupnost u trezorskim sistemima" },
-    "volume": { "value": "€14,2 mlrd", "label": "Godišnji obim namirenja kroz sistem" },
-    "years": { "value": "15+", "label": "Godina rada na kritičnim državnim sistemima" },
-    "iso": { "value": "ISO 27001", "label": "Informaciona bezbjednost, eksterno revidirana" }
+    "iso": { "value": "ISO 27001", "label": "Informaciona bezbjednost, eksterno revidirana" },
+    "apex": { "value": "Oracle APEX", "label": "Platforma na kojoj gradimo" },
+    "years": { "value": "20+", "label": "Godina rada na kritičnim državnim sistemima" }
+  },
+  "services": {
+    "eyebrow": "Čime se bavimo",
+    "title": "Gradimo sisteme na kojima počiva država.",
+    "body": "Od 2004. godine projektujemo, gradimo i održavamo sisteme javnih finansija i nacionalne registre — pet disciplina, isporučenih od početka do kraja i u potpunosti razvijenih u sopstvenoj režiji.",
+    "items": [
+      { "k": "Razvoj finansijskog softvera", "v": "Rješenja za trezor, budžetiranje, plaćanja i zakonski propisano izvještavanje — prilagođena načinu rada svake institucije, a potom dugoročno održavana u produkciji." },
+      { "k": "Registri", "v": "Vjerodostojni nacionalni registri kao završetak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa." },
+      { "k": "Digitalna transformacija", "v": "Institucije oslobađamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne." },
+      { "k": "IT infrastruktura", "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporučujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono opterećenje." },
+      { "k": "Konsalting", "v": "Pomažemo klijentima da odmjere mogućnosti i primijene tehnologiju koja zaista mijenja način na koji rade — praktične odluke, a ne pomodarstvo." }
+    ]
   },
   "platform": {
     "eyebrow": "Proces",
@@ -48,8 +57,8 @@
         "basis": "osnov · javna nabavka",
         "rows": [
           { "k": "strane", "v": "naručilac · infostream", "tick": false },
-          { "k": "obim", "v": "trezorski sistem namirenja", "tick": false },
-          { "k": "ograničenja", "v": "iso 27001 · bez prekida rada", "tick": false },
+          { "k": "obim", "v": "poreski i trezorski sistemi", "tick": false },
+          { "k": "ograničenja", "v": "iso 27001 · iso 9001", "tick": false },
           { "k": "uspjeh", "v": "kriterijumi dogovoreni pismeno", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
@@ -62,7 +71,7 @@
         "basis": "osnov · IS-ENG-26/041-D",
         "rows": [
           { "k": "model podataka", "v": "entiteti · retencija · porijeklo", "tick": true },
-          { "k": "granice", "v": "identitet · revizija · namirenje", "tick": true },
+          { "k": "granice", "v": "identitet · revizija · integracija", "tick": true },
           { "k": "scenariji otkaza", "v": "mapirani i provježbani", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
@@ -74,9 +83,9 @@
         "title": "Zapisnik izdanja",
         "basis": "osnov · IS-ENG-26/041-A",
         "rows": [
-          { "k": "kp-01", "v": "ciklus namirenja", "tick": true },
+          { "k": "kp-01", "v": "ciklus transakcije", "tick": true },
           { "k": "kp-02", "v": "nepromjenljiv revizorski trag", "tick": true },
-          { "k": "kp-03", "v": "deploy bez prekida", "tick": true }
+          { "k": "kp-03", "v": "fazni deploy · rollback", "tick": true }
         ],
         "gateK": "red tim", "gatePre": "čeka potvrdu", "gatePost": "prošlo",
         "stamp": "izdanje odobreno",
@@ -90,7 +99,7 @@
           { "k": "t+0", "v": "go-live · primljeno u rad", "tick": true },
           { "k": "t+90", "v": "prva failover vježba · prošla", "tick": true },
           { "k": "t+365", "v": "godišnja iso 27001 revizija · prošla", "tick": true },
-          { "k": "t+5478", "v": "petnaest godina u radu", "tick": false }
+          { "k": "t+7305", "v": "dvadeset godina u radu", "tick": false }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
@@ -115,8 +124,8 @@
       },
       {
         "name": "Eksploatacija",
-        "description": "Deployment, monitoring, obuka i kontinuirano partnerstvo — petnaest godina rada na kritičnim sistemima znači da znamo kako izgleda 3 ujutru.",
-        "meta": { "deliverable": "Runbook + dežurstvo", "signoff": "Infostream SRE", "owner": "Rotacija 24/7" }
+        "description": "Deployment, monitoring, obuka i dugoročno održavanje — dvije decenije rada na kritičnim sistemima znači da planiramo za dan kada nešto pođe naopako, ne samo za dan puštanja u rad.",
+        "meta": { "deliverable": "Runbook + održavanje", "signoff": "Infostream ops", "owner": "Podrška i održavanje" }
       }
     ]
   },
@@ -138,9 +147,9 @@
       { "org": "Vojnoobavještajna služba", "system": "Sistem za upravljanje dokumentima" },
       { "org": "Fond za inovacije Crne Gore", "system": "Informacioni sistem" },
       { "org": "einovacije.gov.me", "system": "Nacionalni portal za inovacije" },
-      { "org": "Ministarstvo evropskih poslova", "system": "SPRINTgov ERP" },
-      { "org": "Ministarstvo energetike i rudarstva", "system": "SPRINTgov ERP" },
-      { "org": "Uprava pomorske sigurnosti", "system": "SPRINTgov ERP" },
+      { "org": "Ministarstvo evropskih poslova", "system": "ERPStream" },
+      { "org": "Ministarstvo energetike i rudarstva", "system": "ERPStream" },
+      { "org": "Uprava pomorske sigurnosti", "system": "ERPStream" },
       { "org": "Delegacija EU u Crnoj Gori", "system": "Sistem za slobodan pristup informacijama" },
       { "org": "Fondovi EU pomoći — CFCU", "system": "eCES sistem za izvršenje ugovora" },
       { "org": "Uprava za kadrove", "system": "Informacioni sistem za upravljanje kadrovima" },
@@ -151,38 +160,38 @@
   "projects": {
     "eyebrow": "Izabrani radovi",
     "title": "Sistemi koje smo isporučili.",
-    "body": "Nekoliko platformi koje smo izgradili i održavamo u produkciji — za institucije koje ne smiju priuštiti prekid rada.",
+    "body": "Nekoliko sistema i alata koje smo izgradili i održavamo u produkciji — većina pokreće institucije javnog sektora Crne Gore.",
     "scrollHint": "Skrolujte za pregled",
     "items": [
       {
-        "name": "Nacionalni sistem poravnanja",
-        "summary": "Poravnanje i rekonsilijacija među bankama u realnom vremenu za centralnobankarski sistem.",
-        "tags": ["Oracle DB", ".NET", "APEX"],
+        "name": "Službeni list — Registar propisa",
+        "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list — pretraga punog teksta kroz sve objavljene akte.",
+        "tags": ["Oracle", ".NET", "Elasticsearch"],
+        "year": "2023"
+      },
+      {
+        "name": "DotBond",
+        "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine — front-end i API ugovori ostaju usklađeni.",
+        "tags": ["C#", ".NET", "TypeScript"],
         "year": "2024"
       },
       {
-        "name": "Trezor i izvršenje budžeta",
-        "summary": "Izvršenje budžeta, kontrola obaveza i zakonsko izvještavanje za Ministarstvo finansija.",
-        "tags": ["Oracle DB", "SQL", "Angular"],
-        "year": "2023"
-      },
-      {
-        "name": "Portal za poreske prijave",
-        "summary": "Elektronsko podnošenje i obrada poreskih prijava uz provjeru u realnom vremenu.",
-        "tags": [".NET", "SQL", "JavaScript"],
-        "year": "2023"
-      },
-      {
-        "name": "Registar predmeta i evidencija",
-        "summary": "Sigurno vođenje predmeta i dugoročno čuvanje evidencija za institucije javnog sektora.",
-        "tags": ["Oracle APEX", "Oracle DB"],
-        "year": "2022"
-      },
-      {
-        "name": "Konzola za reviziju i izvještavanje",
-        "summary": "Centralizovano izvještavanje, nepromjenljivi revizorski tragovi i nadzorne table.",
-        "tags": [".NET", "Angular", "SQL"],
+        "name": "Registar propisa",
+        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa — tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
+        "tags": ["Oracle", ".NET", "Angular"],
         "year": "2025"
+      },
+      {
+        "name": "Platforma Fonda za inovacije",
+        "summary": "Informacioni sistem Fonda za inovacije Crne Gore — upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
+        "tags": ["Oracle APEX", "Oracle", "JavaScript"],
+        "year": "2024"
+      },
+      {
+        "name": "Registar NVO i političkih partija",
+        "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me — vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
+        "tags": ["Oracle", "Angular", "JavaScript"],
+        "year": "2024"
       }
     ]
   },
@@ -199,12 +208,12 @@
   "contact": {
     "eyebrow": "Kontaktirajte nas",
     "title": "Ako vodite nešto kritično, treba da razgovaramo.",
-    "body": "Na upite za nabavku odgovaramo u roku od jednog radnog dana. Za incidente koristite dežurnu liniju.",
-    "office": "Bulevar Svetog Petra Cetinjskog, Podgorica, Crna Gora",
-    "emailLabel": "Nabavka",
-    "email": "contact@infostream.me",
-    "phoneLabel": "Operacije (24/7)",
-    "phone": "+382 20 000 000"
+    "body": "Na upite odgovaramo u roku od jednog radnog dana.",
+    "office": "Rista Dragićevića 4, 81000 Podgorica, Crna Gora",
+    "emailLabel": "Email",
+    "email": "info@infostream.co.me",
+    "phoneLabel": "Telefon",
+    "phone": "+382 20 664 808"
   },
   "technology": {
     "eyebrow": "Tehnologija",
@@ -215,13 +224,13 @@
     "tiers": [
       {
         "label": "Osnovna platforma",
-        "tech": ["Oracle Database", "Oracle APEX"],
-        "note": "Primarno skladište podataka i platforma za brzi razvoj — transakciona konzistentnost, oporavak u tački vremena, eksterno revidirano."
+        "tech": ["Oracle Database", "Oracle APEX", "PostgreSQL / PostGIS", "Elasticsearch"],
+        "note": "Oracle u osnovi za transakcionu konzistentnost, PL/SQL i oporavak u tački vremena — uz PostGIS za prostorne podatke i Elasticsearch za pretragu punog teksta."
       },
       {
         "label": "Aplikacija",
-        "tech": [".NET", "SQL", "JavaScript", "Angular"],
-        "note": "Serverska logika, pristup podacima i korisnički web interfejsi."
+        "tech": [".NET / C#", "Java / Spring", "Angular", "JavaScript", "Mikroservisi"],
+        "note": "Serverska logika i korisnički web interfejsi, građeni kao mikroservisi i isporučeni kroz kontinuiranu integraciju i automatsko testiranje."
       },
       {
         "label": "Bezbjednost",
@@ -253,7 +262,8 @@
     "rights": "Sva prava zadržana.",
     "location": "Podgorica · Crna Gora",
     "certifications": "Sertifikati",
-    "experience": "15+ godina · kritični državni sistemi",
+    "partner": "Oracle i Microsoft partner",
+    "experience": "20+ godina · kritični državni sistemi",
     "status": "Svi sistemi · operativni",
     "ethos": "bezbjedno · odgovorno · na liniji"
   }

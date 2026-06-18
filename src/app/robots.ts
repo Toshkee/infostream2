@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE = "https://infostream.me";
+const SITE = "https://infostream.co.me";
 
 export default function robots(): MetadataRoute.Robots {
   return {

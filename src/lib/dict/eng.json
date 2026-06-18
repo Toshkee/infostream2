@@ -1,6 +1,7 @@
 {
   "nav": {
     "platform": "Process",
+    "services": "Services",
     "clients": "Clients",
     "technology": "Tech",
     "projects": "Work",
@@ -9,30 +10,38 @@
     "cta": "Talk to us"
   },
   "meta": {
-    "description": "Infostream builds and runs Montenegro's core public-finance systems — tax, treasury and central-bank settlement — audited to ISO 27001, with 15+ years of uninterrupted uptime.",
+    "description": "Infostream builds and runs the systems behind Montenegro's public finance — tax administration, treasury budgets, business and pension registers — audited to ISO 27001 and ISO 9001, in production for over 20 years.",
     "ogTagline": "National financial infrastructure"
   },
   "hero": {
     "eyebrow": "Infostream / National financial infrastructure",
     "title": "The data spine behind Montenegro's public finance.",
-    "body": "For fifteen years our software has moved tax receipts, central-bank settlements and ministerial budgets across the country — measured in billions of euro, audited to ISO 27001, never down.",
-    "ctaPrimary": "See the systems",
-    "ctaSecondary": "Read the brief",
+    "body": "For two decades, our software has run the systems behind Montenegro's taxes, public budgets and national registers — from the Tax Administration to the Pension Fund — built on Oracle and .NET, audited to ISO 27001.",
     "exitTitle": "Four stages. One accountable team.",
-    "exitAccent": "Fifteen years of staying on the line.",
+    "exitAccent": "Twenty years of staying on the line.",
     "exitScrollHint": "scroll to see who's connected",
     "meta": [
-      { "k": "uptime", "v": "99.99%" },
-      { "k": "volume / yr", "v": "€14.2B" },
-      { "k": "in service", "v": "15+ yrs" },
-      { "k": "audited", "v": "ISO 27001" }
+      { "k": "audited", "v": "ISO 27001" },
+      { "k": "platform", "v": "Oracle APEX" },
+      { "k": "in service", "v": "20+ yrs" }
     ]
   },
   "stats": {
-    "uptime": { "value": "99.99%", "label": "Sustained uptime across treasury workloads" },
-    "volume": { "value": "€14.2B", "label": "Settlement volume routed annually" },
-    "years": { "value": "15+", "label": "Years operating critical state systems" },
-    "iso": { "value": "ISO 27001", "label": "Information security, externally audited" }
+    "iso": { "value": "ISO 27001", "label": "Information security, externally audited" },
+    "apex": { "value": "Oracle APEX", "label": "The platform we build on" },
+    "years": { "value": "20+", "label": "Years operating critical state systems" }
+  },
+  "services": {
+    "eyebrow": "What we do",
+    "title": "We build the systems a state runs on.",
+    "body": "Since 2004 we have designed, built and run public-finance systems and national registers — five disciplines, delivered end to end and kept entirely in house.",
+    "items": [
+      { "k": "Financial software development", "v": "Custom treasury, budgeting, payments and statutory reporting — built to fit how each institution operates, then run in production for the long term." },
+      { "k": "Registers", "v": "Authoritative national registers at the close of administrative procedure: we built the Central Register of Business Entities and the Digital Address Register." },
+      { "k": "Digital transformation", "v": "We move institutions off paper: unstructured documents are captured, digitised and centralised, so information stays secure and instantly available." },
+      { "k": "IT infrastructure", "v": "We match the right technology to each need, then deliver it as a flexible platform that holds steady under real production load." },
+      { "k": "Consulting", "v": "We help clients weigh their options and apply technology that genuinely reshapes how they work — practical decisions, not novelty." }
+    ]
   },
   "platform": {
     "eyebrow": "Process",
@@ -48,8 +57,8 @@
         "basis": "origin · procurement",
         "rows": [
           { "k": "parties", "v": "contracting authority · infostream", "tick": false },
-          { "k": "scope", "v": "treasury settlement estate", "tick": false },
-          { "k": "constraints", "v": "iso 27001 · zero downtime", "tick": false },
+          { "k": "scope", "v": "tax & treasury systems", "tick": false },
+          { "k": "constraints", "v": "iso 27001 · iso 9001", "tick": false },
           { "k": "success", "v": "criteria agreed in writing", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
@@ -62,7 +71,7 @@
         "basis": "basis · IS-ENG-26/041-D",
         "rows": [
           { "k": "data model", "v": "entities · retention · lineage", "tick": true },
-          { "k": "boundaries", "v": "identity · audit · settlement", "tick": true },
+          { "k": "boundaries", "v": "identity · audit · integration", "tick": true },
           { "k": "failure modes", "v": "mapped and rehearsed", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
@@ -74,9 +83,9 @@
         "title": "Release record",
         "basis": "basis · IS-ENG-26/041-A",
         "rows": [
-          { "k": "ac-01", "v": "settlement round-trip", "tick": true },
+          { "k": "ac-01", "v": "transaction round-trip", "tick": true },
           { "k": "ac-02", "v": "immutable audit trail", "tick": true },
-          { "k": "ac-03", "v": "zero-downtime deploy", "tick": true }
+          { "k": "ac-03", "v": "staged deploy · rollback", "tick": true }
         ],
         "gateK": "red team", "gatePre": "awaiting sign-off", "gatePost": "passed",
         "stamp": "release approved",
@@ -90,7 +99,7 @@
           { "k": "t+0", "v": "go-live · accepted into service", "tick": true },
           { "k": "t+90", "v": "first failover drill · passed", "tick": true },
           { "k": "t+365", "v": "iso 27001 annual audit · passed", "tick": true },
-          { "k": "t+5478", "v": "fifteen years in service", "tick": false }
+          { "k": "t+7305", "v": "twenty years in service", "tick": false }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
@@ -115,8 +124,8 @@
       },
       {
         "name": "Operate",
-        "description": "Deployment, monitoring, training and ongoing partnership — fifteen years of running critical systems means we know what 3 a.m. looks like.",
-        "meta": { "deliverable": "Runbook + on-call", "signoff": "Infostream SRE", "owner": "24/7 rotation" }
+        "description": "Deployment, monitoring, training and long-term maintenance — two decades of running critical systems means we plan for the day something goes wrong, not just the day it ships.",
+        "meta": { "deliverable": "Runbook + maintenance", "signoff": "Infostream ops", "owner": "Support & upkeep" }
       }
     ]
   },
@@ -138,9 +147,9 @@
       { "org": "Military Intelligence Department", "system": "Document management system" },
       { "org": "Innovation Fund of Montenegro", "system": "Information system" },
       { "org": "einovacije.gov.me", "system": "National innovation portal" },
-      { "org": "Ministry of European Affairs", "system": "SPRINTgov ERP" },
-      { "org": "Ministry of Energy & Mining", "system": "SPRINTgov ERP" },
-      { "org": "Maritime Security Administration", "system": "SPRINTgov ERP" },
+      { "org": "Ministry of European Affairs", "system": "ERPStream" },
+      { "org": "Ministry of Energy & Mining", "system": "ERPStream" },
+      { "org": "Maritime Security Administration", "system": "ERPStream" },
       { "org": "EU Delegation to Montenegro", "system": "Freedom-of-information system" },
       { "org": "EU Assistance Funds — CFCU", "system": "eCES contract execution system" },
       { "org": "Human Resources Management Authority", "system": "HR management information system" },
@@ -151,38 +160,38 @@
   "projects": {
     "eyebrow": "Selected work",
     "title": "Systems we've shipped.",
-    "body": "A few of the platforms we've built and run in production — for institutions that cannot afford downtime.",
+    "body": "A few of the systems and tools we've built and run in production — most of them powering Montenegro's public institutions.",
     "scrollHint": "Scroll to explore",
     "items": [
       {
-        "name": "National Settlement Ledger",
-        "summary": "Real-time interbank settlement and reconciliation across the central-bank estate.",
-        "tags": ["Oracle DB", ".NET", "APEX"],
+        "name": "Official Gazette — Legal Register",
+        "summary": "Register of the refined, consolidated texts of Montenegro's laws and regulations for the Official Gazette — full-text search across every published act.",
+        "tags": ["Oracle", ".NET", "Elasticsearch"],
+        "year": "2023"
+      },
+      {
+        "name": "DotBond",
+        "summary": "An open-source toolchain our engineers built to generate fully-typed TypeScript clients from C#/.NET back-ends — keeping front-end and API contracts in lockstep.",
+        "tags": ["C#", ".NET", "TypeScript"],
         "year": "2024"
       },
       {
-        "name": "Treasury & Budget Execution",
-        "summary": "Budget execution, commitment control and statutory reporting for the Ministry of Finance.",
-        "tags": ["Oracle DB", "SQL", "Angular"],
-        "year": "2023"
-      },
-      {
-        "name": "Tax Filing Portal",
-        "summary": "Electronic filing and processing of tax returns with real-time validation.",
-        "tags": [".NET", "SQL", "JavaScript"],
-        "year": "2023"
-      },
-      {
-        "name": "Case & Records Registry",
-        "summary": "Secure case management and long-term records keeping for public-sector institutions.",
-        "tags": ["Oracle APEX", "Oracle DB"],
-        "year": "2022"
-      },
-      {
-        "name": "Audit & Reporting Console",
-        "summary": "Centralised reporting, immutable audit trails and supervisory dashboards.",
-        "tags": [".NET", "Angular", "SQL"],
+        "name": "Regulations Register",
+        "summary": "Back-office register for classifying and publishing national regulations — issuer workflows, regulation metadata and EU-harmonisation chapter tracking.",
+        "tags": ["Oracle", ".NET", "Angular"],
         "year": "2025"
+      },
+      {
+        "name": "Innovation Fund Platform",
+        "summary": "The information system behind the Innovation Fund of Montenegro — managing funding programmes and applications, searchable by programme and year.",
+        "tags": ["Oracle APEX", "Oracle", "JavaScript"],
+        "year": "2024"
+      },
+      {
+        "name": "Register of NGOs & Political Parties",
+        "summary": "Online registration and records for Montenegro's NGOs and political parties at ngo.gov.me — guided submission, seat and membership data, document issuance.",
+        "tags": ["Oracle", "Angular", "JavaScript"],
+        "year": "2024"
       }
     ]
   },
@@ -199,12 +208,12 @@
   "contact": {
     "eyebrow": "Get in touch",
     "title": "If you run something critical, we should talk.",
-    "body": "We respond to procurement enquiries within one business day. For incident-related contact use the 24/7 line.",
-    "office": "Bulevar Svetog Petra Cetinjskog, Podgorica, Montenegro",
-    "emailLabel": "Procurement",
-    "email": "contact@infostream.me",
-    "phoneLabel": "Operations (24/7)",
-    "phone": "+382 20 000 000"
+    "body": "We reply to enquiries within one business day.",
+    "office": "Rista Dragićevića 4, 81000 Podgorica, Montenegro",
+    "emailLabel": "Email",
+    "email": "info@infostream.co.me",
+    "phoneLabel": "Phone",
+    "phone": "+382 20 664 808"
   },
   "technology": {
     "eyebrow": "Technology",
@@ -215,13 +224,13 @@
     "tiers": [
       {
         "label": "Core Platform",
-        "tech": ["Oracle Database", "Oracle APEX"],
-        "note": "Primary data store and rapid-development platform — transactional integrity, point-in-time recovery, externally audited."
+        "tech": ["Oracle Database", "Oracle APEX", "PostgreSQL / PostGIS", "Elasticsearch"],
+        "note": "Oracle at the core for transactional integrity, PL/SQL and point-in-time recovery — with PostGIS for spatial data and Elasticsearch for full-text search."
       },
       {
         "label": "Application",
-        "tech": [".NET", "SQL", "JavaScript", "Angular"],
-        "note": "Server-side logic, data access, and operator-facing web interfaces."
+        "tech": [".NET / C#", "Java / Spring", "Angular", "JavaScript", "Microservices"],
+        "note": "Server-side logic and operator-facing web interfaces, built as microservices and shipped through continuous integration and automated testing."
       },
       {
         "label": "Security",
@@ -253,7 +262,8 @@
     "rights": "All rights reserved.",
     "location": "Podgorica · Montenegro",
     "certifications": "Certifications",
-    "experience": "15+ years · critical state systems",
+    "partner": "Oracle & Microsoft Partner",
+    "experience": "20+ years · critical state systems",
     "status": "All systems · operational",
     "ethos": "secure · accountable · on the line"
   }

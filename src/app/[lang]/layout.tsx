@@ -7,7 +7,7 @@ import SmoothScroll from "@/components/providers/SmoothScroll";
 import ScrollProgress from "@/components/layout/ScrollProgress";
 import Assistant from "@/components/assistant/Assistant";
 
-const SITE = "https://infostream.me";
+const SITE = "https://infostream.co.me";
 
 const sans = Inter({
   variable: "--font-sans-stack",
@@ -43,8 +43,8 @@ export async function generateMetadata({
     applicationName: "Infostream",
     authors: [{ name: "Infostream", url: SITE }],
     keywords: lang === "mne"
-      ? ["Infostream", "Crna Gora", "finansijski softver", "ISO 27001", "Centralna banka", "Poreska uprava"]
-      : ["Infostream", "Montenegro", "financial software", "ISO 27001", "central bank", "treasury", "tax authority"],
+      ? ["Infostream", "Crna Gora", "finansijski softver", "ISO 27001", "Poreska uprava", "javni registri", "Fond PIO"]
+      : ["Infostream", "Montenegro", "financial software", "ISO 27001", "public registers", "treasury", "tax authority"],
     alternates: {
       canonical: url,
       languages: {
@@ -93,11 +93,12 @@ export default async function RootLayout({
     image: `${SITE}/${lang}/opengraph-image`,
     email: dict.contact.email,
     description: dict.meta.description,
-    foundingDate: "2009",
+    foundingDate: "2004",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Bulevar Svetog Petra Cetinjskog",
+      streetAddress: "Rista Dragićevića 4",
       addressLocality: "Podgorica",
+      postalCode: "81000",
       addressCountry: "ME",
     },
     areaServed: { "@type": "Country", name: "Montenegro" },

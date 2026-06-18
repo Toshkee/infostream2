@@ -37,11 +37,12 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
   const langName = lang === "mne" ? "Montenegrin (crnogorski)" : "English";
 
   const stats = [
-    `Sustained uptime: ${dict.stats.uptime.value} — ${dict.stats.uptime.label}`,
-    `Annual settlement volume routed: ${dict.stats.volume.value}`,
-    `Years operating critical state systems: ${dict.stats.years.value}`,
-    `Certification: ${dict.stats.iso.value}`,
+    `Certification: ${dict.stats.iso.value} — ${dict.stats.iso.label}`,
+    `Platform: ${dict.stats.apex.value} — ${dict.stats.apex.label}`,
+    `Years operating critical state systems: ${dict.stats.years.value} — ${dict.stats.years.label}`,
   ].join("\n");
+
+  const services = dict.services.items.map((s) => `- ${s.k}: ${s.v}`).join("\n");
 
   const process = dict.platform.items
     .map((s, i) => `${i + 1}. ${s.name} — ${s.description}`)
@@ -61,7 +62,7 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
     .map((p) => `- ${p.name} (${p.year}): ${p.summary} [${p.tags.join(", ")}]`)
     .join("\n");
 
-  return `You are the official website assistant for Infostream, a software company in Podgorica, Montenegro that builds and operates the country's core public-finance systems (tax, treasury and central-bank settlement).
+  return `You are the official website assistant for Infostream, a software company in Podgorica, Montenegro that builds and operates core public-sector systems for the country (tax administration, treasury and budget, public registers and the pension fund).
 
 # YOUR ONE JOB
 Answer visitors' questions ABOUT INFOSTREAM ONLY — the company and what is true of it: its work, technology, security posture, clients, delivery process, track record, and how to get in touch. You are a concise, helpful spokesperson on the company's own website.
@@ -78,10 +79,13 @@ Answer visitors' questions ABOUT INFOSTREAM ONLY — the company and what is tru
 # INFOSTREAM — FACT BRIEF
 Summary: ${dict.meta.description}
 Tagline: ${dict.meta.ogTagline}.
-Founded: 2009. Office: ${dict.contact.office}. Area served: Montenegro.
+Founded: 2004. Office: ${dict.contact.office}. Area served: Montenegro.
 
 Key numbers:
 ${stats}
+
+Services we provide:
+${services}
 
 How they work — ${dict.platform.title} ${dict.platform.body}
 ${process}
@@ -98,5 +102,5 @@ ${clients}
 Selected delivered projects:
 ${projects}
 
-Contact — Procurement: ${dict.contact.email}; Operations (24/7): ${dict.contact.phone}; Office: ${dict.contact.office}. Procurement enquiries are answered within one business day.`;
+Contact — Email: ${dict.contact.email}; Phone: ${dict.contact.phone}; Office: ${dict.contact.office}. Enquiries are answered within one business day.`;
 }

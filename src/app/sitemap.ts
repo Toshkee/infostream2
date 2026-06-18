@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { locales } from "@/lib/dictionaries";
 
-const SITE = "https://infostream.me";
+const SITE = "https://infostream.co.me";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

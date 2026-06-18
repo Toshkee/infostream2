@@ -16,6 +16,13 @@ const ShieldScene = dynamic(() => import("@/components/three/ShieldScene"), {
   loading: () => null,
 });
 
+// Warm the ssr:false three.js chunk on the client right after hydration so the
+// shield is compiled/fetched before the user scrolls here — mirrors PinnedHero's
+// HeroScene warm. Same literal path so the bundler maps both to the one chunk.
+if (typeof window !== "undefined") {
+  void import("@/components/three/ShieldScene");
+}
+
 export default function Security({ dict }: { dict: Dict }) {
   const ref = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);

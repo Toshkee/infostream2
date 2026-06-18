@@ -225,7 +225,7 @@ export default function Projects({ dict }: { dict: Dict }) {
                       <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
                       <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
                       <span className="ml-3 mono text-[10px] tracking-[0.15em] text-white/40 truncate">
-                        infostream.me / {item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}
+                        infostream.co.me / {item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}
                       </span>
                     </div>
 
