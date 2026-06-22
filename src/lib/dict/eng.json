@@ -50,6 +50,8 @@
     "metaLabels": { "deliverable": "Deliverable", "signoff": "Sign-off", "owner": "Owner" },
     "stageLabel": "stage",
     "authorisation": "Authorisation",
+    "framework": "Agile delivery framework",
+    "agileLabel": "Agile in action",
     "dossier": [
       {
         "tab": "01 · BRIEF",
@@ -63,7 +65,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "scope agreed",
-        "open": ""
+        "open": "",
+        "agile": "Scope and success criteria are agreed with stakeholders up front, then kept on a living backlog as priorities shift."
       },
       {
         "tab": "02 · SPEC",
@@ -76,7 +79,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "signed off",
-        "open": ""
+        "open": "",
+        "agile": "The specification is drawn up and signed off boundary by boundary — each one reviewed before the next, never invented mid-build."
       },
       {
         "tab": "03 · RELEASE",
@@ -89,7 +93,8 @@
         ],
         "gateK": "red team", "gatePre": "awaiting sign-off", "gatePost": "passed",
         "stamp": "release approved",
-        "open": ""
+        "open": "",
+        "agile": "Engineering runs in short iterations, demoed against acceptance criteria and re-prioritised on feedback each cycle."
       },
       {
         "tab": "04 · OPS LOG",
@@ -103,7 +108,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
-        "open": "open · continuous"
+        "open": "open · continuous",
+        "agile": "Delivery continues after go-live — small, reversible releases driven by what operations needs next."
       }
     ],
     "items": [

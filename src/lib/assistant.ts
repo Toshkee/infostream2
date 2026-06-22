@@ -87,7 +87,7 @@ ${stats}
 Services we provide:
 ${services}
 
-How they work — ${dict.platform.title} ${dict.platform.body}
+How they work — ${dict.platform.title} ${dict.platform.body} Delivery follows ${dict.platform.framework}: short cycles and regular feedback, with working software released and improved in small steps once build begins.
 ${process}
 
 Technology stack — chosen for longevity, audit-trail and operational predictability over novelty:

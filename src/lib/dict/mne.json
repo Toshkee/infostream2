@@ -50,6 +50,8 @@
     "metaLabels": { "deliverable": "Isporuka", "signoff": "Potvrda", "owner": "Nosilac" },
     "stageLabel": "faza",
     "authorisation": "Ovjera",
+    "framework": "Agile okvir isporuke",
+    "agileLabel": "Agile u praksi",
     "dossier": [
       {
         "tab": "01 · BRIEF",
@@ -63,7 +65,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "obim dogovoren",
-        "open": ""
+        "open": "",
+        "agile": "Obim i kriterijumi uspjeha dogovaraju se sa stejkholderima na početku, pa ostaju na živom backlogu kako se prioriteti mijenjaju."
       },
       {
         "tab": "02 · SPEC",
@@ -76,7 +79,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "potvrđeno",
-        "open": ""
+        "open": "",
+        "agile": "Specifikacija se izrađuje i ovjerava granicu po granicu — svaka se pregleda prije nego što se iscrta sljedeća, nikad se ne izmišlja usput."
       },
       {
         "tab": "03 · IZDANJE",
@@ -89,7 +93,8 @@
         ],
         "gateK": "red tim", "gatePre": "čeka potvrdu", "gatePost": "prošlo",
         "stamp": "izdanje odobreno",
-        "open": ""
+        "open": "",
+        "agile": "Inženjering teče u kratkim iteracijama — svaki ciklus se demonstrira prema kriterijumima prihvatanja i preuređuje po povratnim informacijama."
       },
       {
         "tab": "04 · DNEVNIK",
@@ -103,7 +108,8 @@
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
-        "open": "otvoren · kontinuirano"
+        "open": "otvoren · kontinuirano",
+        "agile": "Isporuka se nastavlja i nakon puštanja u rad — mala, reverzibilna izdanja vođena stvarnim potrebama eksploatacije."
       }
     ],
     "items": [

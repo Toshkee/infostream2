@@ -320,14 +320,14 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                   <div className="w-full sm:pb-8" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
                     <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
                       <div className="lg:col-span-6">
-                        <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} />
+                        <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} framework={dict.platform.framework} />
                         <div className="mt-3 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
                           {mod.name}
                         </div>
                         <p className="mt-4 max-w-md text-white/70 text-[15.5px] leading-relaxed" style={descStyle}>
                           {mod.description}
                         </p>
-                        <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} />
+                        <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} agileLabel={dict.platform.agileLabel} />
                       </div>
                     </div>
                   </div>
@@ -384,6 +384,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             <section key={i}>
               <h3>{mod.name}</h3>
               <p>{mod.description}</p>
+              <p>{dict.platform.agileLabel}: {dict.platform.dossier[i].agile}</p>
               <dl>
                 <dt>{labels.deliverable}</dt>
                 <dd>{mod.meta.deliverable}</dd>
@@ -439,12 +440,12 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           <div className="mt-12 space-y-14">
             {modules.map((mod, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
-                <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} />
+                <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} framework={dict.platform.framework} />
                 <h3 className="mt-3 text-[clamp(1.6rem,5.5vw,2.2rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
                   {mod.name}
                 </h3>
                 <p className="mt-3 max-w-md text-white/70 text-[15px] leading-relaxed">{mod.description}</p>
-                <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} />
+                <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} agileLabel={dict.platform.agileLabel} />
               </article>
             ))}
           </div>
@@ -503,11 +504,13 @@ function Scene({
 }
 
 // ─── Stage header ───
-function StageHeader({ index, eyebrow, stageLabel, total }: { index: number; eyebrow: string; stageLabel: string; total: number }) {
+function StageHeader({ index, eyebrow, stageLabel, total, framework }: { index: number; eyebrow: string; stageLabel: string; total: number; framework: string }) {
   const num = String(index + 1).padStart(2, "0");
   const tot = String(total).padStart(2, "0");
   return (
-    <div className="flex items-end gap-5">
+    // flex-wrap so the framework pill sits beside the stage number on wide
+    // layouts but drops below it on a phone instead of crowding the number.
+    <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
       <div className="leading-none">
         <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">
           {eyebrow} / {stageLabel}
@@ -522,8 +525,28 @@ function StageHeader({ index, eyebrow, stageLabel, total }: { index: number; eye
           <span className="mono text-[11px] tracking-[0.22em] text-white/50">/ {tot}</span>
         </div>
       </div>
+      {/* Framework tag on every stage header — a live badge for the Agile
+         delivery framework (animated sheen + diamond pulse, see globals.css). */}
+      <FrameworkPill label={framework} className="mb-1.5" />
       <span className="hidden sm:block flex-1 h-px bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent mb-2" />
     </div>
+  );
+}
+
+// Framework badge — the Agile delivery framework tag on each stage header. A
+// quiet hairline pill (reads as a tag, not a control) with a "live" animated
+// sheen sweep + diamond pulse. Decorative: the semantic Agile copy lives in the
+// "Agile in action" card block. overflow-hidden clips the sheen to the pill.
+function FrameworkPill({ label, className = "" }: { label: string; className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`framework-pill relative inline-flex items-center gap-2.5 overflow-hidden mono text-[11px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-4 py-1.5 whitespace-nowrap ${className}`}
+    >
+      <span className="pill-diamond inline-block w-2 h-2 rotate-45 bg-[var(--brand-teal-bright)]/80" />
+      {label}
+      <span className="pill-sheen" />
+    </span>
   );
 }
 
@@ -545,12 +568,14 @@ function StageDossier({
   meta,
   labels,
   authLabel,
+  agileLabel,
 }: {
   stage: number;
   doc: DossierDoc;
   meta: StageItem["meta"];
   labels: MetaLabels;
   authLabel: string;
+  agileLabel: string;
 }) {
   const hasStamp = !!doc.stamp;
   const hasOpen = !!doc.open;
@@ -630,6 +655,19 @@ function StageDossier({
             </div>
           )}
         </dl>
+
+        {/* Agile-in-action note — how the Agile delivery framework shows up at
+           this specific stage. Set apart by spacing and a diamond marker that
+           echoes the framework pill, no extra divider before the sign-off. */}
+        {doc.agile && (
+          <div className="mt-6" style={rev(-0.08, 0.14, 4)}>
+            <div className="flex items-center gap-2.5">
+              <span aria-hidden className="inline-block w-1.5 h-1.5 rotate-45 bg-[var(--brand-teal-bright)]/80" />
+              <span className="mono text-[8.5px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{agileLabel}</span>
+            </div>
+            <p className="mt-2.5 text-[12px] leading-relaxed text-white/65">{doc.agile}</p>
+          </div>
+        )}
 
         {/* Signature line — hairline divider, authorisation, and the stage's
            status chip (a quiet pill that replaces the old rotated ink stamp). */}

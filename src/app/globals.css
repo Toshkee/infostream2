@@ -139,6 +139,33 @@ body {
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
 
+/* Framework pill ("Agile delivery framework" tag on each process stage header).
+   Two decorative loops: the diamond marker breathes like the brand's status
+   dots, and a slow teal sheen glints across the badge (same idea as the footer
+   scopeSweep). Both rest in an off-screen / neutral base state so the global
+   reduced-motion rule below simply freezes them — no static highlight artifact. */
+@keyframes pillDiamond {
+  0%, 100% { opacity: 0.5; scale: 0.82; }
+  50%      { opacity: 1;   scale: 1.22; }
+}
+.pill-diamond { animation: pillDiamond 2.4s ease-in-out infinite; transform-origin: center; }
+
+@keyframes pillSheen {
+  0%        { transform: translateX(-130%); }
+  60%, 100% { transform: translateX(330%); }
+}
+.pill-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  pointer-events: none;
+  transform: translateX(-130%);
+  background: linear-gradient(100deg, transparent, rgba(122, 216, 210, 0.2), transparent);
+  animation: pillSheen 5s ease-in-out infinite;
+}
+
 /* Process section — every motion-OK visitor (desktop and mobile) gets the
    pinned scroll-scrubbed experience; reduced-motion users get the static
    stacked variant. Gated purely in CSS so the correct layout paints first,
