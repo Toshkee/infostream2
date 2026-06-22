@@ -385,6 +385,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
               <h3>{mod.name}</h3>
               <p>{mod.description}</p>
               <p>{dict.platform.agileLabel}: {dict.platform.dossier[i].agile}</p>
+              {(dict.platform.dossier[i].outcomes as { k: string; v: string }[]).map((o) => (
+                <p key={o.k}>{o.k}: {o.v}</p>
+              ))}
               <dl>
                 <dt>{labels.deliverable}</dt>
                 <dd>{mod.meta.deliverable}</dd>
@@ -526,9 +529,16 @@ function StageHeader({ index, eyebrow, stageLabel, total, framework }: { index: 
         </div>
       </div>
       {/* Framework tag on every stage header — a live badge for the Agile
-         delivery framework (animated sheen + diamond pulse, see globals.css). */}
-      <FrameworkPill label={framework} className="mb-1.5" />
-      <span className="hidden sm:block flex-1 h-px bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent mb-2" />
+         delivery framework (animated sheen + diamond pulse, see globals.css).
+         The header rule sits directly under the pill, matching the mockup. */}
+      <div className="flex flex-col items-start gap-2.5 mb-2 sm:flex-1">
+        <FrameworkPill label={framework} />
+        <span
+          aria-hidden
+          className="hidden sm:block h-px w-full bg-gradient-to-r from-[var(--brand-teal-bright)] via-[var(--brand-teal-bright)]/45 to-transparent"
+          style={{ boxShadow: "0 0 6px -1px var(--brand-teal-bright)" }}
+        />
+      </div>
     </div>
   );
 }
@@ -579,39 +589,50 @@ function StageDossier({
 }) {
   const hasStamp = !!doc.stamp;
   const hasOpen = !!doc.open;
-  // The 60svh term keeps the card inside short pinned viewports; the 19rem
-  // floor stops it collapsing on landscape phones / very short windows.
+  // Discovery lists the engagement's agreed outcomes in place of the
+  // authorisation / sign-off block; the other stages leave `outcomes` empty.
+  const outcomes = doc.outcomes as { k: string; v: string }[];
+  const hasOutcomes = outcomes.length > 0;
+  // Discovery shows only its agreed outcomes, so it takes a narrower fixed
+  // card. The other stages size to the viewport: the 60svh term keeps the card
+  // inside short pinned viewports; the 19rem floor stops it collapsing on
+  // landscape phones / very short windows.
   return (
-    <div className="mt-6" style={{ width: "min(100%, 30rem, max(19rem, 60svh))" }}>
+    <div className="mt-6" style={{ width: hasOutcomes ? "min(100%, 26rem)" : "min(100%, 30rem, max(19rem, 60svh))" }}>
       {/* Minimal data card — one hairline-bordered surface, no folder tab / corner
          ticks / printed texture. The card frame itself is reveal-gated so no empty
          rectangle ghosts in during the scene crossfade. */}
       <div
-        className="relative rounded-2xl border border-white/10 px-6 py-5 sm:px-7"
+        className={`relative rounded-2xl border border-white/10 ${hasOutcomes ? "px-5 py-5 sm:px-6" : "px-6 py-5 sm:px-7"}`}
         style={{
           ...rev(-0.46, 0.14, 8),
           background: "linear-gradient(180deg, rgba(17,23,38,0.82), rgba(11,15,25,0.82))",
           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 60px -34px rgba(0,0,0,0.85)",
         }}
       >
-        {/* Reference line — stage tab + case-file id, both kept quiet */}
-        <div className="flex items-center justify-between" style={rev(-0.4, 0.1, 0)} aria-hidden>
-          <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{doc.tab}</span>
-          <span className="mono text-[9px] tracking-[0.2em] uppercase text-white/35">{FILE_REFS[stage]}</span>
-        </div>
+        {/* Reference line — stage tab + case-file id. Discovery shows only the
+           docx-specified content, so it drops this decorative header. */}
+        {!hasOutcomes && (
+          <div className="flex items-center justify-between" style={rev(-0.4, 0.1, 0)} aria-hidden>
+            <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{doc.tab}</span>
+            <span className="mono text-[9px] tracking-[0.2em] uppercase text-white/35">{FILE_REFS[stage]}</span>
+          </div>
+        )}
 
         {/* Headline — the document this stage produces. A short teal rule replaces
            the old folder-tab as the card's accent. */}
-        <div className="mt-4" style={rev(-0.34, 0.12, 6)}>
+        <div className={hasOutcomes ? "" : "mt-4"} style={rev(-0.34, 0.12, 6)}>
           <div className="flex items-center gap-3">
             <span aria-hidden className="h-4 w-px shrink-0 bg-[var(--brand-teal-bright)]/70" />
             <div className="text-[clamp(1.05rem,1.5vw,1.35rem)] leading-tight tracking-[-0.01em] font-medium text-white">
               {doc.title}
             </div>
           </div>
-          <div className="mt-1.5 pl-[15px] mono text-[9.5px] tracking-[0.18em] uppercase text-white/40" aria-hidden>
-            {doc.basis}
-          </div>
+          {!hasOutcomes && (
+            <div className="mt-1.5 pl-[15px] mono text-[9.5px] tracking-[0.18em] uppercase text-white/40" aria-hidden>
+              {doc.basis}
+            </div>
+          )}
         </div>
 
         {/* Architecture schematic — only the spec stage carries one. Its own
@@ -628,7 +649,7 @@ function StageDossier({
             const start = -0.26 + i * 0.06;
             return (
               <div key={r.k} className="flex items-baseline gap-4" style={rev(start, 0.08, 4)}>
-                <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[108px] shrink-0">{r.k}</dt>
+                <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[128px] shrink-0">{r.k}</dt>
                 <dd className="flex-1 mono text-[12px] tracking-[0.02em] leading-snug text-white/80">{r.v}</dd>
                 {r.tick && (
                   <span className="mono text-[11px] leading-none text-[var(--brand-teal-bright)]" style={rev(start + 0.04, 0.05, 0)} aria-hidden>
@@ -645,7 +666,7 @@ function StageDossier({
               className="flex items-baseline gap-4"
               style={{ ...rev(-0.04, 0.08, 4), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
             >
-              <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[108px] shrink-0">{doc.gateK}</dt>
+              <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[128px] shrink-0">{doc.gateK}</dt>
               <dd className="relative flex-1 mono text-[12px] tracking-[0.02em] leading-snug">
                 {/* The settled state is the passed value — the pre state is
                    animation-only, so it never reads as a contradiction. */}
@@ -669,39 +690,54 @@ function StageDossier({
           </div>
         )}
 
-        {/* Signature line — hairline divider, authorisation, and the stage's
-           status chip (a quiet pill that replaces the old rotated ink stamp). */}
+        {/* Signature line — hairline divider, then either the agreed outcomes
+           (Discovery) or the authorisation + sign-off/owner block. */}
         <div className="mt-6 h-px bg-white/10" style={rev(-0.06, 0.1, 0)} aria-hidden />
         <div className="mt-4" style={rev(-0.02, 0.12, 4)}>
-          {/* Label + status chip share the top line; sign-off/owner get the full
-             card width below so neither truncates against the chip. */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="mono text-[8.5px] tracking-[0.28em] uppercase text-white/30">{authLabel}</div>
-            {(hasStamp || hasOpen) && (
-              hasStamp ? (
-                <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1 whitespace-nowrap">
-                  <span aria-hidden>✓</span>
-                  {doc.stamp}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/35 rounded-full px-3 py-1 whitespace-nowrap">
-                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
-                  {doc.open}
-                </span>
-              )
-            )}
-          </div>
-          <dl className="mt-2.5 grid grid-cols-2 gap-x-6">
-            {[
-              [labels.signoff, meta.signoff],
-              [labels.owner, meta.owner],
-            ].map(([k, v]) => (
-              <div key={k} className="min-w-0">
-                <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40">{k}</dt>
-                <dd className="mono text-[10.5px] tracking-[0.04em] text-white/85 mt-1 truncate">{v}</dd>
+          {hasOutcomes ? (
+            /* Discovery — the engagement's agreed outcomes take the place of the
+               authorisation / sign-off block. */
+            <dl className="space-y-2.5">
+              {outcomes.map((o) => (
+                <div key={o.k} className="flex items-baseline gap-4">
+                  <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40 w-[112px] shrink-0">{o.k}</dt>
+                  <dd className="flex-1 mono text-[10.5px] tracking-[0.04em] leading-snug text-white/85">{o.v}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <>
+              {/* Label + status chip share the top line; sign-off/owner get the
+                 full card width below so neither truncates against the chip. */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="mono text-[8.5px] tracking-[0.28em] uppercase text-white/30">{authLabel}</div>
+                {(hasStamp || hasOpen) && (
+                  hasStamp ? (
+                    <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1 whitespace-nowrap">
+                      <span aria-hidden>✓</span>
+                      {doc.stamp}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/35 rounded-full px-3 py-1 whitespace-nowrap">
+                      <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
+                      {doc.open}
+                    </span>
+                  )
+                )}
               </div>
-            ))}
-          </dl>
+              <dl className="mt-2.5 grid grid-cols-2 gap-x-6">
+                {[
+                  [labels.signoff, meta.signoff],
+                  [labels.owner, meta.owner],
+                ].map(([k, v]) => (
+                  <div key={k} className="min-w-0">
+                    <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40">{k}</dt>
+                    <dd className="mono text-[10.5px] tracking-[0.04em] text-white/85 mt-1 truncate">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            </>
+          )}
         </div>
       </div>
     </div>

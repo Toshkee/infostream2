@@ -54,19 +54,24 @@
     "agileLabel": "Agile u praksi",
     "dossier": [
       {
-        "tab": "01 · BRIEF",
-        "title": "Projektni brief",
+        "tab": "01 · ISHODI",
+        "title": "Ishodi otkrivanja",
         "basis": "osnov · javna nabavka",
         "rows": [
-          { "k": "strane", "v": "naručilac · infostream", "tick": false },
-          { "k": "obim", "v": "poreski i trezorski sistemi", "tick": false },
-          { "k": "ograničenja", "v": "iso 27001 · iso 9001", "tick": false },
-          { "k": "uspjeh", "v": "kriterijumi dogovoreni pismeno", "tick": true }
+          { "k": "poslovni ciljevi", "v": "usklađeni sa stejkholderima", "tick": true },
+          { "k": "zahtjevi", "v": "prikupljeni i prioritizovani", "tick": true },
+          { "k": "rizici", "v": "identifikovani i procijenjeni", "tick": true },
+          { "k": "kriterijumi", "v": "definisani i dogovoreni", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "obim dogovoren",
+        "stamp": "",
         "open": "",
-        "agile": "Obim i kriterijumi uspjeha dogovaraju se sa stejkholderima na početku, pa ostaju na živom backlogu kako se prioriteti mijenjaju."
+        "agile": "Prilagođavamo se promjenama ne gubeći iz vida ciljeve koji su važni.",
+        "outcomes": [
+          { "k": "saradnja", "v": "Stejkholderi usklađeni" },
+          { "k": "prioritizacija", "v": "Prioritizovan backlog projekta" },
+          { "k": "vidljivost", "v": "Jasni kriterijumi uspjeha" }
+        ]
       },
       {
         "tab": "02 · SPEC",
@@ -80,7 +85,8 @@
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "potvrđeno",
         "open": "",
-        "agile": "Specifikacija se izrađuje i ovjerava granicu po granicu — svaka se pregleda prije nego što se iscrta sljedeća, nikad se ne izmišlja usput."
+        "agile": "Specifikacija se izrađuje i ovjerava granicu po granicu — svaka se pregleda prije nego što se iscrta sljedeća, nikad se ne izmišlja usput.",
+        "outcomes": []
       },
       {
         "tab": "03 · IZDANJE",
@@ -94,7 +100,8 @@
         "gateK": "red tim", "gatePre": "čeka potvrdu", "gatePost": "prošlo",
         "stamp": "izdanje odobreno",
         "open": "",
-        "agile": "Inženjering teče u kratkim iteracijama — svaki ciklus se demonstrira prema kriterijumima prihvatanja i preuređuje po povratnim informacijama."
+        "agile": "Inženjering teče u kratkim iteracijama — svaki ciklus se demonstrira prema kriterijumima prihvatanja i preuređuje po povratnim informacijama.",
+        "outcomes": []
       },
       {
         "tab": "04 · DNEVNIK",
@@ -109,14 +116,15 @@
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
         "open": "otvoren · kontinuirano",
-        "agile": "Isporuka se nastavlja i nakon puštanja u rad — mala, reverzibilna izdanja vođena stvarnim potrebama eksploatacije."
+        "agile": "Isporuka se nastavlja i nakon puštanja u rad — mala, reverzibilna izdanja vođena stvarnim potrebama eksploatacije.",
+        "outcomes": []
       }
     ],
     "items": [
       {
         "name": "Otkrivanje",
-        "description": "Sjedimo sa stejkholderima, mapiramo ograničenja i zapisujemo kako izgleda uspjeh — prije nego što se napiše ijedna linija koda.",
-        "meta": { "deliverable": "Projektni brief", "signoff": "Stejkholderi", "owner": "Glavni arhitekta" }
+        "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
+        "meta": { "deliverable": "Ishodi otkrivanja", "signoff": "Stejkholderi", "owner": "Glavni arhitekta" }
       },
       {
         "name": "Arhitektura",

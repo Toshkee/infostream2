@@ -4,7 +4,7 @@ import type { Dict, Locale } from "@/lib/dictionaries";
 // This module holds NO secrets — it only shapes the request the server route
 // sends to Gemini. The API key lives in process.env and is read in route.ts.
 
-export type ChatRole = "user" | "assistant";
+type ChatRole = "user" | "assistant";
 
 export interface ChatMessage {
   role: ChatRole;
@@ -12,7 +12,7 @@ export interface ChatMessage {
 }
 
 // Default to a current fast Gemini model; overridable via env without a redeploy.
-export const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
 
 // Fallback chain tried in order. The primary can be overloaded (503) or hit a
 // per-model quota (429) — these alternates have independent capacity, so the

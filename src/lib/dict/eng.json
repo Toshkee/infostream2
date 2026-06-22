@@ -54,19 +54,24 @@
     "agileLabel": "Agile in action",
     "dossier": [
       {
-        "tab": "01 · BRIEF",
-        "title": "Engagement brief",
+        "tab": "01 · OUTCOMES",
+        "title": "Discovery outcomes",
         "basis": "origin · procurement",
         "rows": [
-          { "k": "parties", "v": "contracting authority · infostream", "tick": false },
-          { "k": "scope", "v": "tax & treasury systems", "tick": false },
-          { "k": "constraints", "v": "iso 27001 · iso 9001", "tick": false },
-          { "k": "success", "v": "criteria agreed in writing", "tick": true }
+          { "k": "business goals", "v": "aligned with stakeholders", "tick": true },
+          { "k": "requirements", "v": "captured and prioritised", "tick": true },
+          { "k": "risks", "v": "identified and assessed", "tick": true },
+          { "k": "success criteria", "v": "defined and agreed", "tick": true }
         ],
         "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "scope agreed",
+        "stamp": "",
         "open": "",
-        "agile": "Scope and success criteria are agreed with stakeholders up front, then kept on a living backlog as priorities shift."
+        "agile": "We adapt to change without losing sight of the goals that matter.",
+        "outcomes": [
+          { "k": "collaboration", "v": "Stakeholders aligned" },
+          { "k": "prioritisation", "v": "Prioritised project backlog" },
+          { "k": "visibility", "v": "Clear success criteria" }
+        ]
       },
       {
         "tab": "02 · SPEC",
@@ -80,7 +85,8 @@
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "signed off",
         "open": "",
-        "agile": "The specification is drawn up and signed off boundary by boundary — each one reviewed before the next, never invented mid-build."
+        "agile": "The specification is drawn up and signed off boundary by boundary — each one reviewed before the next, never invented mid-build.",
+        "outcomes": []
       },
       {
         "tab": "03 · RELEASE",
@@ -94,7 +100,8 @@
         "gateK": "red team", "gatePre": "awaiting sign-off", "gatePost": "passed",
         "stamp": "release approved",
         "open": "",
-        "agile": "Engineering runs in short iterations, demoed against acceptance criteria and re-prioritised on feedback each cycle."
+        "agile": "Engineering runs in short iterations, demoed against acceptance criteria and re-prioritised on feedback each cycle.",
+        "outcomes": []
       },
       {
         "tab": "04 · OPS LOG",
@@ -109,14 +116,15 @@
         "gateK": "", "gatePre": "", "gatePost": "",
         "stamp": "",
         "open": "open · continuous",
-        "agile": "Delivery continues after go-live — small, reversible releases driven by what operations needs next."
+        "agile": "Delivery continues after go-live — small, reversible releases driven by what operations needs next.",
+        "outcomes": []
       }
     ],
     "items": [
       {
         "name": "Discovery",
-        "description": "We sit with stakeholders, map constraints, and write down what success looks like before a single line of code is committed.",
-        "meta": { "deliverable": "Engagement brief", "signoff": "Stakeholders", "owner": "Lead architect" }
+        "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one.",
+        "meta": { "deliverable": "Discovery outcomes", "signoff": "Stakeholders", "owner": "Lead architect" }
       },
       {
         "name": "Architecture",

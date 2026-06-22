@@ -94,9 +94,6 @@ body {
   will-change: clip-path;
 }
 
-/* Magnetic CTA wrapper */
-.magnet { display: inline-block; will-change: transform; }
-
 /* Pulsing status dot — server/db nodes, footer "operational" pill, etc. */
 @keyframes pulseDot { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.25); } }
 
