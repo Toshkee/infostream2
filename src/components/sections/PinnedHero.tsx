@@ -569,6 +569,9 @@ function FrameworkPill({ label, className = "" }: { label: string; className?: s
 // File references stay constant across locales — the rest of the dossier copy
 // lives in the dictionaries (platform.dossier) so both languages read whole.
 const FILE_REFS = ["IS-ENG-26/041-D", "IS-ENG-26/041-A", "IS-ENG-26/041-B", "IS-ENG-26/041-O"];
+// The spec stage's system boundaries, as a plain typographic sequence in place
+// of the old boxes-and-arrows schematic. Constant across locales like FILE_REFS.
+const SPEC_FLOW = "citizens · gateway · service · ledger";
 
 type DossierDoc = Dict["platform"]["dossier"][number];
 
@@ -593,200 +596,128 @@ function StageDossier({
   // authorisation / sign-off block; the other stages leave `outcomes` empty.
   const outcomes = doc.outcomes as { k: string; v: string }[];
   const hasOutcomes = outcomes.length > 0;
-  // Discovery shows only its agreed outcomes, so it takes a narrower fixed
-  // card. The other stages size to the viewport: the 60svh term keeps the card
-  // inside short pinned viewports; the 19rem floor stops it collapsing on
-  // landscape phones / very short windows.
   return (
-    <div className="mt-6" style={{ width: hasOutcomes ? "min(100%, 26rem)" : "min(100%, 30rem, max(19rem, 60svh))" }}>
-      {/* Minimal data card — one hairline-bordered surface, no folder tab / corner
-         ticks / printed texture. The card frame itself is reveal-gated so no empty
-         rectangle ghosts in during the scene crossfade. */}
-      <div
-        className={`relative rounded-2xl border border-white/10 ${hasOutcomes ? "px-5 py-5 sm:px-6" : "px-6 py-5 sm:px-7"}`}
-        style={{
-          ...rev(-0.46, 0.14, 8),
-          background: "linear-gradient(180deg, rgba(17,23,38,0.82), rgba(11,15,25,0.82))",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 60px -34px rgba(0,0,0,0.85)",
-        }}
-      >
-        {/* Reference line — stage tab + case-file id. Discovery shows only the
-           docx-specified content, so it drops this decorative header. */}
+    // Pure editorial record — no card, no rail, no schematic. Just typeset
+    // hierarchy over the dark scene, so the 3D backdrop reads behind it. Mono
+    // micro-labels against sans values keep it a "record", not a data dump.
+    <div className="mt-7" style={{ width: hasOutcomes ? "min(100%, 27rem)" : "min(100%, 30rem)" }}>
+      {/* Deliverable kicker + case-file ref */}
+      <div className="flex items-baseline justify-between gap-4" style={rev(-0.42, 0.12, 6)}>
+        <span className="mono text-[10px] tracking-[0.3em] uppercase text-[var(--brand-teal-bright)]/85">
+          {hasOutcomes ? doc.tab : labels.deliverable}
+        </span>
         {!hasOutcomes && (
-          <div className="flex items-center justify-between" style={rev(-0.4, 0.1, 0)} aria-hidden>
-            <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{doc.tab}</span>
-            <span className="mono text-[9px] tracking-[0.2em] uppercase text-white/35">{FILE_REFS[stage]}</span>
-          </div>
+          <span aria-hidden className="mono text-[9px] tracking-[0.2em] uppercase text-white/30">{FILE_REFS[stage]}</span>
         )}
+      </div>
 
-        {/* Headline — the document this stage produces. A short teal rule replaces
-           the old folder-tab as the card's accent. */}
-        <div className={hasOutcomes ? "" : "mt-4"} style={rev(-0.34, 0.12, 6)}>
-          <div className="flex items-center gap-3">
-            <span aria-hidden className="h-4 w-px shrink-0 bg-[var(--brand-teal-bright)]/70" />
-            <div className="text-[clamp(1.05rem,1.5vw,1.35rem)] leading-tight tracking-[-0.01em] font-medium text-white">
-              {doc.title}
-            </div>
-          </div>
-          {!hasOutcomes && (
-            <div className="mt-1.5 pl-[15px] mono text-[9.5px] tracking-[0.18em] uppercase text-white/40" aria-hidden>
-              {doc.basis}
-            </div>
-          )}
-        </div>
+      {/* Artifact title — the block's lead */}
+      <div
+        className="mt-2.5 text-[clamp(1.2rem,1.8vw,1.6rem)] leading-[1.1] tracking-[-0.015em] font-medium text-white"
+        style={rev(-0.36, 0.12, 6)}
+      >
+        {doc.title}
+      </div>
 
-        {/* Architecture schematic — only the spec stage carries one. Its own
-           per-shape reveal handles the fade, so no wrapper rev here. */}
+      {/* Facts — definition list. Stagger reveals on approach. */}
+      <dl className="mt-7 space-y-3.5">
+        {doc.rows.map((r, i) => {
+          const start = -0.26 + i * 0.05;
+          return (
+            <div key={r.k} className="flex items-baseline gap-5" style={rev(start, 0.08, 4)}>
+              <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">{r.k}</dt>
+              <dd className="flex-1 text-[13.5px] leading-snug text-white/85">{r.v}</dd>
+              {r.tick && (
+                <span aria-hidden className="text-[10px] leading-none text-[var(--brand-teal-bright)]/80 pt-[2px]" style={rev(start + 0.04, 0.05, 0)}>
+                  ✓
+                </span>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Spec stage — system boundaries as a typographic sequence, no boxes,
+           no arrows. */}
         {stage === 1 && (
-          <div className="mt-5">
-            <SpecSchematic />
+          <div className="flex items-baseline gap-5" style={rev(-0.06, 0.08, 4)}>
+            <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">data flow</dt>
+            <dd className="flex-1 text-[13.5px] leading-snug text-white/85">{SPEC_FLOW}</dd>
           </div>
         )}
 
-        {/* Facts — airy key/value list, revealed row by row on approach */}
-        <dl className="mt-6 space-y-3">
-          {doc.rows.map((r, i) => {
-            const start = -0.26 + i * 0.06;
-            return (
-              <div key={r.k} className="flex items-baseline gap-4" style={rev(start, 0.08, 4)}>
-                <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[128px] shrink-0">{r.k}</dt>
-                <dd className="flex-1 mono text-[12px] tracking-[0.02em] leading-snug text-white/80">{r.v}</dd>
-                {r.tick && (
-                  <span className="mono text-[11px] leading-none text-[var(--brand-teal-bright)]" style={rev(start + 0.04, 0.05, 0)} aria-hidden>
-                    ✓
-                  </span>
-                )}
+        {/* Red-team gate (Build) — flips AWAITING → PASSED on approach */}
+        {doc.gateK && (
+          <div
+            className="flex items-baseline gap-5"
+            style={{ ...rev(-0.04, 0.08, 4), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
+          >
+            <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">{doc.gateK}</dt>
+            <dd className="relative flex-1 text-[13.5px] leading-snug">
+              {/* The settled state is the passed value — the pre state is
+                 animation-only, so it never reads as a contradiction. */}
+              <span aria-hidden className="text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>{doc.gatePre}</span>
+              <span className="absolute inset-0 text-[var(--brand-teal-bright)]" style={{ opacity: "var(--g)" }}>{doc.gatePost}</span>
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      {/* Agile-in-action note — diamond marker echoing the framework pill. */}
+      {doc.agile && (
+        <div className="mt-7" style={rev(-0.08, 0.14, 4)}>
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="inline-block w-1.5 h-1.5 rotate-45 border border-[var(--brand-teal-bright)]/80" />
+            <span className="mono text-[8.5px] tracking-[0.3em] uppercase text-[var(--brand-teal-bright)]/85">{agileLabel}</span>
+          </div>
+          <p className="mt-2.5 text-[13px] leading-relaxed text-white/65 max-w-md">{doc.agile}</p>
+        </div>
+      )}
+
+      {/* Sign-off / outcomes — a single fading hairline, then the closing block.
+         The stamp is plain coloured type, not a chip, to stay non-boxy. */}
+      <div className="mt-7 h-px w-full bg-gradient-to-r from-white/15 to-transparent" style={rev(-0.06, 0.1, 0)} aria-hidden />
+      <div className="mt-4" style={rev(-0.02, 0.12, 4)}>
+        {hasOutcomes ? (
+          /* Discovery — the engagement's agreed outcomes replace the sign-off. */
+          <dl className="space-y-2.5">
+            {outcomes.map((o) => (
+              <div key={o.k} className="flex items-baseline gap-5">
+                <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/35 w-[100px] shrink-0">{o.k}</dt>
+                <dd className="flex-1 text-[12.5px] leading-snug text-white/85">{o.v}</dd>
               </div>
-            );
-          })}
-
-          {/* Red-team gate (Build) — flips AWAITING → PASSED on approach */}
-          {doc.gateK && (
-            <div
-              className="flex items-baseline gap-4"
-              style={{ ...rev(-0.04, 0.08, 4), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
-            >
-              <dt className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/40 w-[128px] shrink-0">{doc.gateK}</dt>
-              <dd className="relative flex-1 mono text-[12px] tracking-[0.02em] leading-snug">
-                {/* The settled state is the passed value — the pre state is
-                   animation-only, so it never reads as a contradiction. */}
-                <span aria-hidden className="text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>{doc.gatePre}</span>
-                <span className="absolute inset-0 text-[var(--brand-teal-bright)]" style={{ opacity: "var(--g)" }}>{doc.gatePost}</span>
-              </dd>
+            ))}
+          </dl>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-4">
+              <span className="mono text-[8.5px] tracking-[0.3em] uppercase text-white/30">{authLabel}</span>
+              {hasStamp ? (
+                <span className="inline-flex items-center gap-2 mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)] whitespace-nowrap">
+                  <span aria-hidden>✓</span>
+                  {doc.stamp}
+                </span>
+              ) : hasOpen ? (
+                <span className="inline-flex items-center gap-2 mono text-[10px] tracking-[0.22em] uppercase text-[var(--signal-ok)] whitespace-nowrap">
+                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
+                  {doc.open}
+                </span>
+              ) : null}
             </div>
-          )}
-        </dl>
-
-        {/* Agile-in-action note — how the Agile delivery framework shows up at
-           this specific stage. Set apart by spacing and a diamond marker that
-           echoes the framework pill, no extra divider before the sign-off. */}
-        {doc.agile && (
-          <div className="mt-6" style={rev(-0.08, 0.14, 4)}>
-            <div className="flex items-center gap-2.5">
-              <span aria-hidden className="inline-block w-1.5 h-1.5 rotate-45 bg-[var(--brand-teal-bright)]/80" />
-              <span className="mono text-[8.5px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]/85">{agileLabel}</span>
-            </div>
-            <p className="mt-2.5 text-[12px] leading-relaxed text-white/65">{doc.agile}</p>
-          </div>
-        )}
-
-        {/* Signature line — hairline divider, then either the agreed outcomes
-           (Discovery) or the authorisation + sign-off/owner block. */}
-        <div className="mt-6 h-px bg-white/10" style={rev(-0.06, 0.1, 0)} aria-hidden />
-        <div className="mt-4" style={rev(-0.02, 0.12, 4)}>
-          {hasOutcomes ? (
-            /* Discovery — the engagement's agreed outcomes take the place of the
-               authorisation / sign-off block. */
-            <dl className="space-y-2.5">
-              {outcomes.map((o) => (
-                <div key={o.k} className="flex items-baseline gap-4">
-                  <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40 w-[112px] shrink-0">{o.k}</dt>
-                  <dd className="flex-1 mono text-[10.5px] tracking-[0.04em] leading-snug text-white/85">{o.v}</dd>
+            <dl className="mt-3 flex flex-wrap gap-x-10 gap-y-2">
+              {[
+                [labels.signoff, meta.signoff],
+                [labels.owner, meta.owner],
+              ].map(([k, v]) => (
+                <div key={k} className="min-w-0">
+                  <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/35">{k}</dt>
+                  <dd className="text-[12.5px] text-white/85 mt-1 truncate">{v}</dd>
                 </div>
               ))}
             </dl>
-          ) : (
-            <>
-              {/* Label + status chip share the top line; sign-off/owner get the
-                 full card width below so neither truncates against the chip. */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="mono text-[8.5px] tracking-[0.28em] uppercase text-white/30">{authLabel}</div>
-                {(hasStamp || hasOpen) && (
-                  hasStamp ? (
-                    <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1 whitespace-nowrap">
-                      <span aria-hidden>✓</span>
-                      {doc.stamp}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 mono text-[9px] tracking-[0.2em] uppercase text-[var(--signal-ok)] border border-[var(--signal-ok)]/35 rounded-full px-3 py-1 whitespace-nowrap">
-                      <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
-                      {doc.open}
-                    </span>
-                  )
-                )}
-              </div>
-              <dl className="mt-2.5 grid grid-cols-2 gap-x-6">
-                {[
-                  [labels.signoff, meta.signoff],
-                  [labels.owner, meta.owner],
-                ].map(([k, v]) => (
-                  <div key={k} className="min-w-0">
-                    <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/40">{k}</dt>
-                    <dd className="mono text-[10.5px] tracking-[0.04em] text-white/85 mt-1 truncate">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
-  );
-}
-
-// Architecture mini-schematic — the signed drawing inside the spec document.
-function SpecSchematic() {
-  const boxes = [
-    { x: 8, label: "CITIZENS" },
-    { x: 106, label: "GATEWAY" },
-    { x: 204, label: "SERVICE" },
-    { x: 302, label: "LEDGER" },
-  ];
-  return (
-    <svg viewBox="0 0 392 56" className="relative z-[2] w-full h-auto mt-2" aria-hidden>
-      <defs>
-        <marker id="specArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
-          <path d="M0,0 L10,5 L0,10 z" fill="var(--brand-teal-soft)" />
-        </marker>
-      </defs>
-      {boxes.map((b, i) => (
-        <g key={b.label} style={rev(-0.3 + i * 0.04, 0.06, 4)}>
-          <rect x={b.x} y={12} width={82} height={32} fill="rgba(72,184,177,0.07)" stroke="var(--brand-teal-soft)" strokeWidth="1" />
-          <text
-            x={b.x + 41}
-            y={31.5}
-            textAnchor="middle"
-            fill="rgba(255,255,255,0.85)"
-            fontSize="9"
-            fontFamily="var(--font-mono-stack), ui-monospace, monospace"
-            letterSpacing="0.16em"
-          >
-            {b.label}
-          </text>
-        </g>
-      ))}
-      {[90, 188, 286].map((x, i) => (
-        <path
-          key={x}
-          d={`M${x},28 L${x + 16},28`}
-          stroke="var(--brand-teal-soft)"
-          strokeWidth="1.2"
-          fill="none"
-          markerEnd="url(#specArrow)"
-          style={rev(-0.26 + i * 0.04, 0.05, 0)}
-        />
-      ))}
-    </svg>
   );
 }
 
