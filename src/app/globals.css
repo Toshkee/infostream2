@@ -163,31 +163,45 @@ body {
   animation: pillSheen 5s ease-in-out infinite;
 }
 
-/* Process section — every motion-OK visitor (desktop and mobile) gets the
-   pinned scroll-scrubbed experience; reduced-motion users get the static
-   stacked variant. Gated purely in CSS so the correct layout paints first,
-   with no JS race and no hydration/layout shift. The media query is the exact
-   string MOTION_QUERY in PinnedHero.tsx uses to start ScrollTrigger — same
-   query, so there is no client where the pinned variant shows without its JS
-   (no-JS clients see the static variant, which needs none). */
+/* Process section — desktops and large tablets (≥1024px wide, motion-OK) get
+   the pinned scroll-scrubbed experience; everyone else (phones, small tablets,
+   reduced-motion, no-JS) gets the static stacked variant, which is fully
+   scrollable and needs no JS. The dense two-column stages can't fit their
+   stacked single-column form into a phone's 100svh pinned scene, so routing
+   narrow/short viewports to the static variant prevents clipped, unreachable
+   content. Gated purely in CSS so the correct layout paints first, with no JS
+   race and no hydration/layout shift. The media query is the exact string
+   MOTION_QUERY in PinnedHero.tsx uses to start ScrollTrigger — same query, so
+   there is no client where the pinned variant shows without its JS. */
 .process-pinned { display: none; }
-@media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) and (min-height: 500px) {
   .process-pinned { display: block; }
   .process-static { display: none; }
 }
 
-/* On shorter viewports (1366×768 / 1280×800 laptops) the stream stepper
-   shrinks and hugs the bottom edge so it stays clear of the dossier column.
-   Unlayered on purpose — it must beat the max-w/bottom utilities. */
+/* On shorter laptops (1366×768 / 1280×800 / 1536×864) the pinned scene has
+   less vertical room, so two things compress so the dense stages clear the
+   stepper instead of clipping behind it: the stream stepper shrinks and hugs
+   the bottom edge, and the top-aligned stage scenes tighten their top/bottom
+   padding and card internals. Top padding stays ≥ the fixed navbar's ~66px
+   bottom edge; bottom padding stays above the (now smaller) stepper. Tall
+   desktops keep the roomier spacing that matches the mockups. Unlayered on
+   purpose — these must beat the Tailwind padding/max-width utilities. */
 @media (max-height: 899.98px) {
   .process-stepper { max-width: 520px; bottom: 1rem; }
+  .process-scene-top { padding-top: 4.75rem; padding-bottom: 6rem; }
+  .process-card { padding: 0.8rem 0.85rem 0.95rem; }
+  .process-listcard { padding: 0.9rem; }
+  .process-agile { padding: 1rem; }
 }
 
-/* The per-stage dossier is now a minimal, inline-styled "data card" (see
-   StageDossier in PinnedHero.tsx). The old printed-document texture layers —
-   diagonal security-print hatching + inner vignette — were removed in that
-   move; the card carries its own background, hairline border and inset
-   top-highlight inline, so no dedicated class is needed here anymore. */
+/* Per-stage blocks (grids, cards, list rails, the "Agile in action" panel) are
+   inline-styled in PinnedHero.tsx — each carries its own translucent fill,
+   hairline border and reveal, so no dedicated class is needed here. The one
+   exception is the Build "release approved" stamp, which needs a static tilt
+   the scroll-reveal inline style must not clobber (the reveal animates opacity
+   only, lift 0, leaving transform free for this rotation). */
+.release-stamp { transform: rotate(-6deg); transform-origin: center; }
 
 /* Film grain — fixed full-viewport noise overlay. SVG turbulence baked into a data URL
    so it costs nothing at runtime and tiles seamlessly. The animation jitters the layer

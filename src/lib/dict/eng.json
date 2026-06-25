@@ -47,99 +47,100 @@
     "eyebrow": "Process",
     "title": "Four stages. One accountable team.",
     "body": "Every engagement runs through the same four stages — no handoffs to subcontractors, no surprises after sign-off.",
-    "metaLabels": { "deliverable": "Deliverable", "signoff": "Sign-off", "owner": "Owner" },
-    "stageLabel": "stage",
-    "authorisation": "Authorisation",
     "framework": "Agile delivery framework",
     "agileLabel": "Agile in action",
-    "dossier": [
-      {
-        "tab": "01 · OUTCOMES",
-        "title": "Discovery outcomes",
-        "basis": "origin · procurement",
-        "rows": [
-          { "k": "business goals", "v": "aligned with stakeholders", "tick": true },
-          { "k": "requirements", "v": "captured and prioritised", "tick": true },
-          { "k": "risks", "v": "identified and assessed", "tick": true },
-          { "k": "success criteria", "v": "defined and agreed", "tick": true }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "",
-        "open": "",
-        "agile": "We adapt to change without losing sight of the goals that matter.",
-        "outcomes": [
-          { "k": "collaboration", "v": "Stakeholders aligned" },
-          { "k": "prioritisation", "v": "Prioritised project backlog" },
-          { "k": "visibility", "v": "Clear success criteria" }
-        ]
-      },
-      {
-        "tab": "02 · SPEC",
-        "title": "System specification",
-        "basis": "basis · IS-ENG-26/041-D",
-        "rows": [
-          { "k": "data model", "v": "entities · retention · lineage", "tick": true },
-          { "k": "boundaries", "v": "identity · audit · integration", "tick": true },
-          { "k": "failure modes", "v": "mapped and rehearsed", "tick": true }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "signed off",
-        "open": "",
-        "agile": "The specification is drawn up and signed off boundary by boundary — each one reviewed before the next, never invented mid-build.",
-        "outcomes": []
-      },
-      {
-        "tab": "03 · RELEASE",
-        "title": "Release record",
-        "basis": "basis · IS-ENG-26/041-A",
-        "rows": [
-          { "k": "ac-01", "v": "transaction round-trip", "tick": true },
-          { "k": "ac-02", "v": "immutable audit trail", "tick": true },
-          { "k": "ac-03", "v": "staged deploy · rollback", "tick": true }
-        ],
-        "gateK": "red team", "gatePre": "awaiting sign-off", "gatePost": "passed",
-        "stamp": "release approved",
-        "open": "",
-        "agile": "Engineering runs in short iterations, demoed against acceptance criteria and re-prioritised on feedback each cycle.",
-        "outcomes": []
-      },
-      {
-        "tab": "04 · OPS LOG",
-        "title": "Operations log",
-        "basis": "basis · IS-ENG-26/041-B",
-        "rows": [
-          { "k": "t+0", "v": "go-live · accepted into service", "tick": true },
-          { "k": "t+90", "v": "first failover drill · passed", "tick": true },
-          { "k": "t+365", "v": "iso 27001 annual audit · passed", "tick": true },
-          { "k": "t+7305", "v": "twenty years in service", "tick": false }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "",
-        "open": "open · continuous",
-        "agile": "Delivery continues after go-live — small, reversible releases driven by what operations needs next.",
-        "outcomes": []
-      }
-    ],
-    "items": [
+    "stages": [
       {
         "name": "Discovery",
         "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one.",
-        "meta": { "deliverable": "Discovery outcomes", "signoff": "Stakeholders", "owner": "Lead architect" }
+        "divider": "Discovery outcomes",
+        "dividerRight": "",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [
+          { "n": "01", "k": "Business goals", "v": "Aligned with stakeholders" },
+          { "n": "02", "k": "Requirements", "v": "Captured and prioritised" },
+          { "n": "03", "k": "Risks", "v": "Identified and assessed" },
+          { "n": "04", "k": "Success criteria", "v": "Defined and agreed" }
+        ],
+        "cards": [],
+        "list": [],
+        "support": [
+          { "k": "Collaboration", "v": "Stakeholders aligned" },
+          { "k": "Prioritisation", "v": "Prioritised project backlog" },
+          { "k": "Visibility", "v": "Clear success criteria" }
+        ],
+        "stamp": [],
+        "agile": "We adapt to change without losing sight of the goals that matter.",
+        "agileTag": ""
       },
       {
         "name": "Architecture",
         "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build.",
-        "meta": { "deliverable": "System specification", "signoff": "CTO · Security", "owner": "2× architects" }
+        "divider": "Process",
+        "dividerRight": "Sign-off before build",
+        "intro": { "k": "Our architecture process", "v": "A structured approach to designing resilient, secure and future-ready solutions." },
+        "tag": "Architecture is where strategy becomes structure.",
+        "grid": [],
+        "cards": [
+          { "n": "01", "k": "Plan", "v": "We understand your business goals and define the right architecture strategy." },
+          { "n": "02", "k": "Design", "v": "We create a solution architecture that is scalable, secure and efficient." },
+          { "n": "03", "k": "Validate", "v": "We verify integrations, security and performance to ensure reliability." },
+          { "n": "04", "k": "Build", "v": "We hand over a clear, validated blueprint ready for agile delivery." }
+        ],
+        "list": [],
+        "support": [],
+        "stamp": [],
+        "agile": "We design for change, not just for delivery.",
+        "agileTag": ""
       },
       {
         "name": "Build",
-        "description": "Engineering measured against acceptance criteria, hardened against the threat model, reviewed by an internal red team before release.",
-        "meta": { "deliverable": "Release candidate", "signoff": "Internal red team", "owner": "Engineering" }
+        "description": "Working software is delivered in increments, allowing feedback, adaptation and measurable progress throughout the project.",
+        "divider": "Sprint delivery",
+        "dividerRight": "",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [],
+        "cards": [],
+        "list": [
+          { "n": "SPR-01", "k": "", "v": "Requirements implemented" },
+          { "n": "SPR-02", "k": "", "v": "Features validated" },
+          { "n": "SPR-03", "k": "", "v": "User feedback incorporated" },
+          { "n": "SPR-04", "k": "", "v": "Release candidate prepared" }
+        ],
+        "support": [
+          { "k": "Quality", "v": "Continuous testing ensures reliability and high standards." },
+          { "k": "Collaboration", "v": "Stakeholder feedback drives better solutions and outcomes." },
+          { "k": "Delivery", "v": "Incremental releases provide value early and reduce project risk." }
+        ],
+        "stamp": ["Release approved", "Infostream · Podgorica"],
+        "agile": "Working software is delivered early and improved continuously through feedback and iteration.",
+        "agileTag": ""
       },
       {
         "name": "Operate",
-        "description": "Deployment, monitoring, training and long-term maintenance — two decades of running critical systems means we plan for the day something goes wrong, not just the day it ships.",
-        "meta": { "deliverable": "Runbook + maintenance", "signoff": "Infostream ops", "owner": "Support & upkeep" }
+        "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value.",
+        "divider": "Ongoing support",
+        "dividerRight": "IS-OPS-26/041-O",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [],
+        "cards": [],
+        "list": [
+          { "n": "01", "k": "Go-live", "v": "Solution successfully launched." },
+          { "n": "02", "k": "Monitoring", "v": "Performance and availability tracked." },
+          { "n": "03", "k": "Optimisation", "v": "Improvements identified and delivered." },
+          { "n": "04", "k": "Partnership", "v": "Ongoing support and advisory services." }
+        ],
+        "support": [
+          { "k": "Support", "v": "Dedicated assistance when you need it." },
+          { "k": "Monitoring", "v": "System health and performance visibility." },
+          { "k": "Improvement", "v": "Continuous optimisation drives long-term value." }
+        ],
+        "stamp": [],
+        "agile": "Feedback does not stop at delivery. Every release creates new opportunities for improvement.",
+        "agileTag": "Continuous improvement"
       }
     ]
   },

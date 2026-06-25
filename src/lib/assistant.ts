@@ -44,7 +44,7 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
 
   const services = dict.services.items.map((s) => `- ${s.k}: ${s.v}`).join("\n");
 
-  const process = dict.platform.items
+  const process = dict.platform.stages
     .map((s, i) => `${i + 1}. ${s.name} — ${s.description}`)
     .join("\n");
 

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -30,16 +30,48 @@ if (typeof window !== "undefined") {
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Must be the exact string the CSS gate in globals.css uses — the pinned
-// variant displays iff this matches, so the pin always has its JS. The height
-// floor sends landscape phones / very short windows to the static variant,
-// where a 100svh pinned scene could never fit its content.
-const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px)";
+// variant displays iff this matches, so the pin always has its JS. The width
+// floor routes phones and small tablets to the scrollable static variant: the
+// dense, two-column stages need ≥1024px to lay out, and their stacked
+// single-column form can't fit a 100svh pinned scene without clipping content
+// that the pin's overflow-hidden + scroll-capture makes unreachable. The
+// height floor likewise sends very short windows to the static variant.
+const MOTION_QUERY = "(min-width: 1024px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
 // Desktop-only extras — currently just the cursor parallax, which is
 // meaningless on touch devices.
 const ENHANCED_QUERY = "(min-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
 
-type StageItem = Dict["platform"]["items"][number];
-type MetaLabels = Dict["platform"]["metaLabels"];
+// ─── Per-stage content model (mirrors platform.stages in the dictionaries) ───
+// Each stage carries the same superset of fields; unused slots are empty
+// strings / arrays. The renderer shows whatever a stage populates, and the icon
+// assignment per slot lives in STAGE_ICONS below (icons aren't translatable).
+type GridItem = { n: string; k: string; v: string };
+type SupportItem = { k: string; v: string };
+type ListRow = { n: string; k: string; v: string };
+type PStage = {
+  name: string;
+  description: string;
+  divider: string;
+  dividerRight: string;
+  intro: { k: string; v: string };
+  tag: string;
+  grid: GridItem[];
+  cards: GridItem[];
+  list: ListRow[];
+  support: SupportItem[];
+  stamp: string[];
+  agile: string;
+  agileTag: string;
+};
+
+// Which line-art glyph rides each item slot, per stage. Kept in code (not the
+// dictionary) because icon choice is presentation, not copy — both locales share it.
+const STAGE_ICONS: { grid: IconName[]; cards: IconName[]; list: IconName[]; support: IconName[] }[] = [
+  { grid: ["target", "fileText", "alertTriangle", "shieldCheck"], cards: [], list: [], support: ["users", "list", "eye"] },
+  { grid: [], cards: ["target", "blueprint", "shieldCheck", "rocket"], list: [], support: [] },
+  { grid: [], cards: [], list: ["box", "clipboardCheck", "users", "rocket"], support: ["shieldCheck", "users", "rocket"] },
+  { grid: [], cards: [], list: ["rocket", "monitor", "barChart", "users"], support: ["shield", "radar", "trendingUp"] },
+];
 
 // CSSProperties widened to accept custom properties (--vars).
 type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
@@ -53,7 +85,8 @@ type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
    everything renders in its final, settled state. */
 
 // Maps --u onto a 0..1 reveal var --r starting at `start` over `len`, applied
-// as opacity + a small lift. lift=0 keeps the transform free for SVG nodes.
+// as opacity + a small lift. lift=0 keeps the transform free for SVG nodes /
+// elements that carry their own transform (e.g. the rotated stamp).
 const rev = (start: number, len = 0.1, lift = 6): CSSVars => ({
   "--r": `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
   opacity: "var(--r)",
@@ -193,8 +226,8 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   );
 
   const titleWords = dict.hero.title.split(" ");
-  const modules = dict.platform.items;
-  const labels = dict.platform.metaLabels;
+  const stages = dict.platform.stages as unknown as PStage[];
+  const agileLabel = dict.platform.agileLabel;
 
   return (
     <div id="platform" ref={outer} className="relative bg-[var(--bg-inset)]">
@@ -313,22 +346,19 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
               {/* Scenes 1–4 — process stages. Visual layer is decorative; the
                  canonical, screen-reader-facing copy lives in the sr-only block
                  below (and in the static variant on small screens). */}
-              {modules.map((mod, i) => (
-                <Scene key={i} target={i + 1} interactive={false} decorative>
-                  {/* pb biases the centered column upward, away from the stepper
-                     band (the stepper is hidden below sm, so no bias needed there) */}
-                  <div className="w-full sm:pb-8" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
-                    <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-start w-full">
-                      <div className="lg:col-span-6">
-                        <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} framework={dict.platform.framework} />
-                        <div className="mt-3 text-[clamp(2rem,4.6vw,4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
-                          {mod.name}
-                        </div>
-                        <p className="mt-4 max-w-md text-white/70 text-[15.5px] leading-relaxed" style={descStyle}>
-                          {mod.description}
-                        </p>
-                        <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} agileLabel={dict.platform.agileLabel} />
-                      </div>
+              {stages.map((stage, i) => (
+                <Scene key={i} target={i + 1} interactive={false} decorative align="top">
+                  <div className="w-full max-w-[940px]" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
+                    <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} />
+                    <DividerLabel
+                      index={i}
+                      label={stage.divider}
+                      right={stage.dividerRight}
+                      className="mt-6"
+                      style={rev(-0.36, 0.12, 6)}
+                    />
+                    <div className="mt-7">
+                      <StageBody index={i} stage={stage} agileLabel={agileLabel} />
                     </div>
                   </div>
                 </Scene>
@@ -344,7 +374,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((4.75 - var(--ph)) / 0.3)), 1)" }}
           >
             <HexStepper
-              labels={modules.map((m) => ({ name: m.name }))}
+              labels={stages.map((s) => ({ name: s.name }))}
               activeIndex={Math.max(0, activeScene - 1)}
               handleRef={stepper}
             />
@@ -380,22 +410,20 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           <p>{dict.hero.body}</p>
           <h2>{dict.platform.title}</h2>
           <p>{dict.platform.body}</p>
-          {modules.map((mod, i) => (
+          {stages.map((stage, i) => (
             <section key={i}>
-              <h3>{mod.name}</h3>
-              <p>{mod.description}</p>
-              <p>{dict.platform.agileLabel}: {dict.platform.dossier[i].agile}</p>
-              {(dict.platform.dossier[i].outcomes as { k: string; v: string }[]).map((o) => (
-                <p key={o.k}>{o.k}: {o.v}</p>
+              <h3>{stage.name}</h3>
+              <p>{stage.description}</p>
+              <p>{agileLabel}: {stage.agile}</p>
+              {[...stage.grid, ...stage.cards].map((it) => (
+                <p key={`g-${it.k}`}>{it.k}: {it.v}</p>
               ))}
-              <dl>
-                <dt>{labels.deliverable}</dt>
-                <dd>{mod.meta.deliverable}</dd>
-                <dt>{labels.signoff}</dt>
-                <dd>{mod.meta.signoff}</dd>
-                <dt>{labels.owner}</dt>
-                <dd>{mod.meta.owner}</dd>
-              </dl>
+              {stage.list.map((it) => (
+                <p key={`l-${it.n}`}>{it.k ? `${it.k} — ` : ""}{it.v}</p>
+              ))}
+              {stage.support.map((it) => (
+                <p key={`s-${it.k}`}>{it.k}: {it.v}</p>
+              ))}
             </section>
           ))}
         </div>
@@ -432,7 +460,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           </div>
         </div>
 
-        {/* Process stages, stacked. --u: 1 renders every dossier fully settled. */}
+        {/* Process stages, stacked. --u: 1 renders every block fully settled. */}
         <div className="relative mx-auto max-w-[1280px] px-6 pb-20">
           <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">{dict.platform.eyebrow}</div>
           <h2 className="mt-3 text-[clamp(1.8rem,6vw,2.6rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
@@ -440,15 +468,14 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           </h2>
           <p className="mt-4 max-w-xl text-white/70 text-[15.5px] leading-relaxed">{dict.platform.body}</p>
 
-          <div className="mt-12 space-y-14">
-            {modules.map((mod, i) => (
+          <div className="mt-12 space-y-16">
+            {stages.map((stage, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
-                <StageHeader index={i} eyebrow={dict.platform.eyebrow} stageLabel={dict.platform.stageLabel} total={modules.length} framework={dict.platform.framework} />
-                <h3 className="mt-3 text-[clamp(1.6rem,5.5vw,2.2rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
-                  {mod.name}
-                </h3>
-                <p className="mt-3 max-w-md text-white/70 text-[15px] leading-relaxed">{mod.description}</p>
-                <StageDossier stage={i} doc={dict.platform.dossier[i]} meta={mod.meta} labels={labels} authLabel={dict.platform.authorisation} agileLabel={dict.platform.agileLabel} />
+                <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} heading />
+                <DividerLabel index={i} label={stage.divider} right={stage.dividerRight} className="mt-5" />
+                <div className="mt-7">
+                  <StageBody index={i} stage={stage} agileLabel={agileLabel} />
+                </div>
               </article>
             ))}
           </div>
@@ -478,11 +505,13 @@ function Scene({
   target,
   interactive,
   decorative = false,
+  align = "center",
   children,
 }: {
   target: number;
   interactive: boolean;
   decorative?: boolean;
+  align?: "center" | "top";
   children: React.ReactNode;
 }) {
   // Opacity/lift are CSS functions of --ph; React only flips the discrete
@@ -499,225 +528,600 @@ function Scene({
       aria-hidden={decorative || !interactive}
       inert={!interactive}
     >
-      <div className="mx-auto max-w-[1280px] h-full px-6 lg:px-10 flex flex-col justify-center pt-20 pb-8 md:pt-24 md:pb-12">
+      <div
+        className={`mx-auto max-w-[1280px] h-full px-6 lg:px-10 flex flex-col ${
+          align === "top"
+            ? "process-scene-top justify-start pt-24 md:pt-28 pb-32"
+            : "justify-center pt-20 pb-8 md:pt-24 md:pb-12"
+        }`}
+      >
         {children}
       </div>
     </div>
   );
 }
 
-// ─── Stage header ───
-function StageHeader({ index, eyebrow, stageLabel, total, framework }: { index: number; eyebrow: string; stageLabel: string; total: number; framework: string }) {
+// ─── Stage heading: hollow stage number + title + description ───
+// `heading` renders the title as a real <h3> (static variant, where this is the
+// canonical, visible content); the pinned variant leaves it a <div> because that
+// scene is aria-hidden decoration and the real headings live in the sr-only block.
+function StageHeading({
+  index,
+  total,
+  name,
+  description,
+  heading = false,
+}: {
+  index: number;
+  total: number;
+  name: string;
+  description: string;
+  heading?: boolean;
+}) {
   const num = String(index + 1).padStart(2, "0");
   const tot = String(total).padStart(2, "0");
+  const Title = heading ? "h3" : "div";
   return (
-    // flex-wrap so the framework pill sits beside the stage number on wide
-    // layouts but drops below it on a phone instead of crowding the number.
-    <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
-      <div className="leading-none">
-        <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">
-          {eyebrow} / {stageLabel}
-        </div>
-        <div className="mt-2 flex items-baseline gap-2">
+    <div>
+      <div className="flex items-end gap-4">
+        <div className="flex items-baseline gap-2 leading-none shrink-0">
           <span
-            className="font-medium text-[clamp(2.2rem,3.6vw,3.2rem)] leading-none tracking-[-0.04em] text-transparent"
+            className="font-medium text-[clamp(2rem,3.4vw,3rem)] leading-none tracking-[-0.04em] text-transparent"
             style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
           >
             {num}
           </span>
-          <span className="mono text-[11px] tracking-[0.22em] text-white/50">/ {tot}</span>
+          <span className="mono text-[11px] tracking-[0.22em] text-white/45">/ {tot}</span>
         </div>
-      </div>
-      {/* Framework tag on every stage header — a live badge for the Agile
-         delivery framework (animated sheen + diamond pulse, see globals.css).
-         The header rule sits directly under the pill, matching the mockup. */}
-      <div className="flex flex-col items-start gap-2.5 mb-2 sm:flex-1">
-        <FrameworkPill label={framework} />
         <span
           aria-hidden
-          className="hidden sm:block h-px w-full bg-gradient-to-r from-[var(--brand-teal-bright)] via-[var(--brand-teal-bright)]/45 to-transparent"
-          style={{ boxShadow: "0 0 6px -1px var(--brand-teal-bright)" }}
+          className="hidden sm:block flex-1 h-px mb-2 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 to-transparent"
+          style={{ boxShadow: "0 0 6px -2px var(--brand-teal-bright)" }}
         />
       </div>
+      <Title className="mt-3 text-[clamp(1.9rem,4.2vw,3.4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+        {name}
+      </Title>
+      <p className="mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
+        {description}
+      </p>
     </div>
   );
 }
 
-// Framework badge — the Agile delivery framework tag on each stage header. A
-// quiet hairline pill (reads as a tag, not a control) with a "live" animated
-// sheen sweep + diamond pulse. Decorative: the semantic Agile copy lives in the
-// "Agile in action" card block. overflow-hidden clips the sheen to the pill.
-function FrameworkPill({ label, className = "" }: { label: string; className?: string }) {
+// ─── Labeled section divider: "0X · LABEL ———————— RIGHT" ───
+function DividerLabel({
+  index,
+  label,
+  right,
+  className = "",
+  style,
+}: {
+  index: number;
+  label: string;
+  right?: string;
+  className?: string;
+  style?: CSSVars;
+}) {
+  const num = String(index + 1).padStart(2, "0");
+  return (
+    <div className={`flex items-center gap-4 ${className}`} style={style}>
+      <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)] whitespace-nowrap shrink-0">
+        {num} · {label}
+      </span>
+      <span
+        aria-hidden
+        className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 via-white/12 to-transparent"
+        style={{ boxShadow: "0 0 6px -2px var(--brand-teal-bright)" }}
+      />
+      {right ? (
+        <span className="mono text-[9px] tracking-[0.22em] uppercase text-white/35 whitespace-nowrap shrink-0">{right}</span>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Circular line-art icon medallion ───
+// `tone="danger"` paints the ring + glyph red — used for the Discovery "Risks"
+// outcome, the one warning accent in the otherwise all-teal icon set (the cell
+// still carries its triangle glyph + label, so meaning never rides on color).
+function Medallion({
+  name,
+  size = "md",
+  solidBg = false,
+  tone = "teal",
+}: {
+  name: IconName;
+  size?: "sm" | "md";
+  solidBg?: boolean;
+  tone?: "teal" | "danger";
+}) {
+  const dim = size === "sm" ? "w-9 h-9" : "w-11 h-11";
+  const ic = size === "sm" ? "w-4 h-4" : "w-[18px] h-[18px]";
+  const tint =
+    tone === "danger"
+      ? "border-[var(--brand-red)]/50 text-[var(--brand-red)]"
+      : "border-[var(--brand-teal-bright)]/35 text-[var(--brand-teal-bright)]";
   return (
     <span
-      aria-hidden
-      className={`framework-pill relative inline-flex items-center gap-2.5 overflow-hidden mono text-[11px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded-full px-4 py-1.5 whitespace-nowrap ${className}`}
+      className={`relative grid place-items-center rounded-full border shrink-0 ${tint} ${dim} ${
+        solidBg ? "bg-[var(--bg-inset)]" : ""
+      }`}
     >
-      <span className="pill-diamond inline-block w-2 h-2 rotate-45 bg-[var(--brand-teal-bright)]/80" />
-      {label}
-      <span className="pill-sheen" />
+      <Icon name={name} className={ic} />
     </span>
   );
 }
 
-/* ─────────── Stage dossier ───────────
-   Each stage's panel is the artifact that stage actually produces — one case
-   file per stage, advancing through the same engagement (IS-ENG-26/041). Rows
-   reveal as the scroll approaches the stage's center; the sign-off stamp lands
-   just past it. Stage 3 cites stage 2, stage 2 cites stage 1 — and the
-   operations log never gets a closing stamp. */
-// File references stay constant across locales — the rest of the dossier copy
-// lives in the dictionaries (platform.dossier) so both languages read whole.
-const FILE_REFS = ["IS-ENG-26/041-D", "IS-ENG-26/041-A", "IS-ENG-26/041-B", "IS-ENG-26/041-O"];
-// The spec stage's system boundaries, as a plain typographic sequence in place
-// of the old boxes-and-arrows schematic. Constant across locales like FILE_REFS.
-const SPEC_FLOW = "citizens · gateway · service · ledger";
-
-type DossierDoc = Dict["platform"]["dossier"][number];
-
-function StageDossier({
-  stage,
-  doc,
-  meta,
-  labels,
-  authLabel,
-  agileLabel,
+// ─── "Agile in action" panel — shared across all four stages ───
+function AgileBox({
+  label,
+  text,
+  tag,
+  className = "",
+  style,
 }: {
-  stage: number;
-  doc: DossierDoc;
-  meta: StageItem["meta"];
-  labels: MetaLabels;
-  authLabel: string;
-  agileLabel: string;
+  label: string;
+  text: string;
+  tag?: string;
+  className?: string;
+  style?: CSSVars;
 }) {
-  const hasStamp = !!doc.stamp;
-  const hasOpen = !!doc.open;
-  // Discovery lists the engagement's agreed outcomes in place of the
-  // authorisation / sign-off block; the other stages leave `outcomes` empty.
-  const outcomes = doc.outcomes as { k: string; v: string }[];
-  const hasOutcomes = outcomes.length > 0;
   return (
-    // Pure editorial record — no card, no rail, no schematic. Just typeset
-    // hierarchy over the dark scene, so the 3D backdrop reads behind it. Mono
-    // micro-labels against sans values keep it a "record", not a data dump.
-    <div className="mt-7" style={{ width: hasOutcomes ? "min(100%, 27rem)" : "min(100%, 30rem)" }}>
-      {/* Deliverable kicker + case-file ref */}
-      <div className="flex items-baseline justify-between gap-4" style={rev(-0.42, 0.12, 6)}>
-        <span className="mono text-[10px] tracking-[0.3em] uppercase text-[var(--brand-teal-bright)]/85">
-          {hasOutcomes ? doc.tab : labels.deliverable}
+    <div
+      className={`process-agile relative rounded-xl border border-[var(--brand-teal-bright)]/30 bg-[var(--bg-inset)]/90 p-5 ${className}`}
+      style={{ boxShadow: "inset 0 0 30px -22px var(--brand-teal-bright)", ...style }}
+    >
+      <div className="flex items-start gap-3.5">
+        <span className="grid place-items-center w-9 h-9 rounded-full border border-[var(--brand-teal-bright)]/45 text-[var(--brand-teal-bright)] shrink-0">
+          <Icon name="infinity" className="w-[18px] h-[18px]" />
         </span>
-        {!hasOutcomes && (
-          <span aria-hidden className="mono text-[9px] tracking-[0.2em] uppercase text-white/30">{FILE_REFS[stage]}</span>
-        )}
-      </div>
-
-      {/* Artifact title — the block's lead */}
-      <div
-        className="mt-2.5 text-[clamp(1.2rem,1.8vw,1.6rem)] leading-[1.1] tracking-[-0.015em] font-medium text-white"
-        style={rev(-0.36, 0.12, 6)}
-      >
-        {doc.title}
-      </div>
-
-      {/* Facts — definition list. Stagger reveals on approach. */}
-      <dl className="mt-7 space-y-3.5">
-        {doc.rows.map((r, i) => {
-          const start = -0.26 + i * 0.05;
-          return (
-            <div key={r.k} className="flex items-baseline gap-5" style={rev(start, 0.08, 4)}>
-              <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">{r.k}</dt>
-              <dd className="flex-1 text-[13.5px] leading-snug text-white/85">{r.v}</dd>
-              {r.tick && (
-                <span aria-hidden className="text-[10px] leading-none text-[var(--brand-teal-bright)]/80 pt-[2px]" style={rev(start + 0.04, 0.05, 0)}>
-                  ✓
-                </span>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Spec stage — system boundaries as a typographic sequence, no boxes,
-           no arrows. */}
-        {stage === 1 && (
-          <div className="flex items-baseline gap-5" style={rev(-0.06, 0.08, 4)}>
-            <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">data flow</dt>
-            <dd className="flex-1 text-[13.5px] leading-snug text-white/85">{SPEC_FLOW}</dd>
-          </div>
-        )}
-
-        {/* Red-team gate (Build) — flips AWAITING → PASSED on approach */}
-        {doc.gateK && (
-          <div
-            className="flex items-baseline gap-5"
-            style={{ ...rev(-0.04, 0.08, 4), "--g": "clamp(0, calc((var(--u) - 0.02) / 0.05), 1)" } as CSSVars}
-          >
-            <dt className="mono text-[9px] tracking-[0.2em] uppercase text-white/35 w-[104px] shrink-0 pt-px">{doc.gateK}</dt>
-            <dd className="relative flex-1 text-[13.5px] leading-snug">
-              {/* The settled state is the passed value — the pre state is
-                 animation-only, so it never reads as a contradiction. */}
-              <span aria-hidden className="text-white/55" style={{ opacity: "calc(1 - var(--g))" }}>{doc.gatePre}</span>
-              <span className="absolute inset-0 text-[var(--brand-teal-bright)]" style={{ opacity: "var(--g)" }}>{doc.gatePost}</span>
-            </dd>
-          </div>
-        )}
-      </dl>
-
-      {/* Agile-in-action note — diamond marker echoing the framework pill. */}
-      {doc.agile && (
-        <div className="mt-7" style={rev(-0.08, 0.14, 4)}>
-          <div className="flex items-center gap-2.5">
-            <span aria-hidden className="inline-block w-1.5 h-1.5 rotate-45 border border-[var(--brand-teal-bright)]/80" />
-            <span className="mono text-[8.5px] tracking-[0.3em] uppercase text-[var(--brand-teal-bright)]/85">{agileLabel}</span>
-          </div>
-          <p className="mt-2.5 text-[13px] leading-relaxed text-white/65 max-w-md">{doc.agile}</p>
+        <div className="min-w-0">
+          <div className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]">{label}</div>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-white/80">{text}</p>
+          {tag ? (
+            <span className="mt-3 inline-flex items-center gap-2 mono text-[9px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1">
+              <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+              {tag}
+            </span>
+          ) : null}
         </div>
-      )}
-
-      {/* Sign-off / outcomes — a single fading hairline, then the closing block.
-         The stamp is plain coloured type, not a chip, to stay non-boxy. */}
-      <div className="mt-7 h-px w-full bg-gradient-to-r from-white/15 to-transparent" style={rev(-0.06, 0.1, 0)} aria-hidden />
-      <div className="mt-4" style={rev(-0.02, 0.12, 4)}>
-        {hasOutcomes ? (
-          /* Discovery — the engagement's agreed outcomes replace the sign-off. */
-          <dl className="space-y-2.5">
-            {outcomes.map((o) => (
-              <div key={o.k} className="flex items-baseline gap-5">
-                <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/35 w-[100px] shrink-0">{o.k}</dt>
-                <dd className="flex-1 text-[12.5px] leading-snug text-white/85">{o.v}</dd>
-              </div>
-            ))}
-          </dl>
-        ) : (
-          <>
-            <div className="flex items-center justify-between gap-4">
-              <span className="mono text-[8.5px] tracking-[0.3em] uppercase text-white/30">{authLabel}</span>
-              {hasStamp ? (
-                <span className="inline-flex items-center gap-2 mono text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)] whitespace-nowrap">
-                  <span aria-hidden>✓</span>
-                  {doc.stamp}
-                </span>
-              ) : hasOpen ? (
-                <span className="inline-flex items-center gap-2 mono text-[10px] tracking-[0.22em] uppercase text-[var(--signal-ok)] whitespace-nowrap">
-                  <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--signal-ok)] viz-pulse" />
-                  {doc.open}
-                </span>
-              ) : null}
-            </div>
-            <dl className="mt-3 flex flex-wrap gap-x-10 gap-y-2">
-              {[
-                [labels.signoff, meta.signoff],
-                [labels.owner, meta.owner],
-              ].map(([k, v]) => (
-                <div key={k} className="min-w-0">
-                  <dt className="mono text-[8.5px] tracking-[0.2em] uppercase text-white/35">{k}</dt>
-                  <dd className="text-[12.5px] text-white/85 mt-1 truncate">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </>
-        )}
       </div>
     </div>
+  );
+}
+
+// ─── Discovery grid cell: medallion + label + sub + index ───
+function GridCell({
+  icon,
+  n,
+  k,
+  v,
+  tone = "teal",
+  style,
+}: {
+  icon: IconName;
+  n: string;
+  k: string;
+  v: string;
+  tone?: "teal" | "danger";
+  style?: CSSVars;
+}) {
+  return (
+    <div className="flex items-center gap-3.5" style={style}>
+      <Medallion name={icon} tone={tone} />
+      <div className="min-w-0 flex-1">
+        <div className="mono text-[10.5px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
+        <div className="text-[12.5px] text-white/70 mt-0.5 leading-snug">{v}</div>
+      </div>
+      {n ? <span className="mono text-[10px] tracking-[0.18em] text-white/35 shrink-0">{n}</span> : null}
+    </div>
+  );
+}
+
+// ─── Support / benefit cell: stacked medallion + heading + copy ───
+// `boxed` wraps the cell in an opaque card — used where the row sits in the
+// right column over the bright 3D orbital (Build), so the teal label + body
+// keep WCAG contrast instead of compositing over the backdrop. In the
+// wash-protected left columns (Discovery, Operate) the cells stay bare.
+function SupportCell({
+  icon,
+  k,
+  v,
+  boxed = false,
+  style,
+}: {
+  icon: IconName;
+  k: string;
+  v: string;
+  boxed?: boolean;
+  style?: CSSVars;
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-2.5 ${
+        boxed ? "rounded-lg border border-white/[0.06] bg-[var(--bg-inset)]/85 px-3.5 py-3.5" : ""
+      }`}
+      style={style}
+    >
+      <Medallion name={icon} size="sm" />
+      <div>
+        <div className="mono text-[10.5px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
+        <p className="text-[12.5px] text-white/80 mt-1 leading-relaxed">{v}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Architecture process card ───
+function ProcessCard({ icon, n, k, v, style }: { icon: IconName; n: string; k: string; v: string; style?: CSSVars }) {
+  return (
+    <div
+      className="process-card relative rounded-lg border border-[var(--brand-teal-bright)]/22 bg-[var(--bg-inset)]/90 p-4 pt-5"
+      style={style}
+    >
+      <span className="absolute top-3 right-3 mono text-[10px] tracking-[0.18em] text-white/35">{n}</span>
+      <Medallion name={icon} size="sm" />
+      <div className="mt-3 mono text-[12px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
+      <span aria-hidden className="block mt-2 h-px w-7 bg-[var(--brand-teal-bright)]/60" />
+      <p className="mt-2.5 text-[12.5px] leading-relaxed text-white/78">{v}</p>
+    </div>
+  );
+}
+
+// ─── Checklist / numbered list card (Build sprint, Operate ongoing support) ───
+function ListCard({ rows, icons, style }: { rows: ListRow[]; icons: IconName[]; style?: CSSVars }) {
+  return (
+    <div
+      className="process-listcard relative rounded-xl border border-[var(--brand-teal-bright)]/20 bg-[var(--bg-inset)]/90 p-4 sm:p-5"
+      style={style}
+    >
+      {/* vertical timeline rail behind the medallions */}
+      <span
+        aria-hidden
+        className="absolute left-[37px] sm:left-[41px] top-9 bottom-9 w-px bg-gradient-to-b from-[var(--brand-teal-bright)]/45 via-[var(--brand-teal-bright)]/15 to-transparent"
+      />
+      <ul className="space-y-3.5">
+        {rows.map((r, i) => (
+          <li key={i} className="relative flex items-center gap-3" style={rev(-0.2 + i * 0.05, 0.08, 4)}>
+            <Medallion name={icons[i]} size="sm" solidBg />
+            <span className="mono text-[10px] tracking-[0.14em] text-[var(--brand-teal-bright)] w-[44px] shrink-0">{r.n}</span>
+            <div className="min-w-0 flex-1">
+              {r.k ? (
+                <div className="mono text-[11px] tracking-[0.18em] uppercase text-white/85 leading-tight">{r.k}</div>
+              ) : null}
+              <div className={`text-[12.5px] text-white/78 leading-snug ${r.k ? "mt-0.5" : ""}`}>{r.v}</div>
+            </div>
+            <span
+              aria-hidden
+              className="grid place-items-center w-5 h-5 rounded-full border border-[var(--brand-teal-bright)]/50 text-[var(--brand-teal-bright)] shrink-0"
+              style={rev(-0.12 + i * 0.05, 0.06, 0)}
+            >
+              <Icon name="check" className="w-3 h-3" />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// ─── "Release approved" ink stamp (Build) ───
+function Stamp({ lines, style }: { lines: string[]; style?: CSSVars }) {
+  return (
+    <div
+      className="release-stamp inline-flex flex-col items-center gap-0.5 border border-[var(--brand-teal-bright)]/55 rounded-sm px-4 py-2 text-[var(--brand-teal-bright)]"
+      style={style}
+    >
+      <span className="mono text-[11px] tracking-[0.28em] uppercase font-medium whitespace-nowrap">{lines[0]}</span>
+      {lines[1] ? (
+        <span className="mono text-[8px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/70 whitespace-nowrap">{lines[1]}</span>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Per-stage body layouts — each composes the shared blocks per the mockup ───
+function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage; agileLabel: string }) {
+  const icons = STAGE_ICONS[index];
+
+  // Discovery — outcomes grid + support row (left), agile panel (right).
+  if (index === 0) {
+    return (
+      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
+        <div className="lg:col-span-7">
+          {/* Column-major flow (sm+): top-left 01 / bottom-left 02, top-right
+             03 / bottom-right 04 — matching the mockup's numbering, while the
+             DOM order stays 01→04 for assistive tech. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col gap-x-8 gap-y-5">
+            {stage.grid.map((g, i) => (
+              <GridCell
+                key={i}
+                icon={icons.grid[i]}
+                tone={icons.grid[i] === "alertTriangle" ? "danger" : "teal"}
+                n={g.n}
+                k={g.k}
+                v={g.v}
+                style={rev(-0.26 + i * 0.05, 0.1, 6)}
+              />
+            ))}
+          </div>
+          <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-5 border-t border-white/10 pt-6">
+            {stage.support.map((s, i) => (
+              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(-0.04 + i * 0.04, 0.1, 6)} />
+            ))}
+          </div>
+        </div>
+        <div className="lg:col-span-5">
+          <AgileBox label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
+        </div>
+      </div>
+    );
+  }
+
+  // Architecture — intro column + agile (left), 2×2 process cards (right).
+  if (index === 1) {
+    return (
+      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
+        <div className="lg:col-span-4">
+          <div className="mono text-[11px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)]" style={rev(-0.3, 0.1, 6)}>
+            {stage.intro.k}
+          </div>
+          <p className="mt-3 text-[13.5px] leading-relaxed text-white/65" style={rev(-0.26, 0.1, 6)}>
+            {stage.intro.v}
+          </p>
+          <div
+            className="mt-5 flex items-start gap-3 border border-[var(--brand-teal-bright)]/25 rounded-lg px-4 py-3"
+            style={rev(-0.2, 0.1, 6)}
+          >
+            <span className="text-[var(--brand-teal-bright)] mt-px shrink-0">
+              <Icon name="info" className="w-4 h-4" />
+            </span>
+            <span className="mono text-[10px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]/90 leading-relaxed">
+              {stage.tag}
+            </span>
+          </div>
+          <AgileBox label={agileLabel} text={stage.agile} className="mt-5" style={rev(-0.12, 0.12, 8)} />
+        </div>
+        <div className="lg:col-span-8">
+          <div className="grid sm:grid-cols-2 gap-4">
+            {stage.cards.map((c, i) => (
+              <ProcessCard key={i} icon={icons.cards[i]} n={c.n} k={c.k} v={c.v} style={rev(-0.24 + i * 0.05, 0.1, 8)} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build — sprint list + stamp (left), agile + benefit row (right).
+  if (index === 2) {
+    return (
+      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-10 items-start">
+        <div className="lg:col-span-5 relative">
+          <ListCard rows={stage.list} icons={icons.list} style={rev(-0.3, 0.12, 8)} />
+          {stage.stamp.length > 0 ? (
+            <Stamp
+              lines={stage.stamp}
+              style={{ ...rev(0.06, 0.12, 0), position: "absolute", right: "-0.5rem", bottom: "-1.1rem" }}
+            />
+          ) : null}
+        </div>
+        <div className="lg:col-span-7">
+          <AgileBox label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {stage.support.map((s, i) => (
+              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} boxed style={rev(0.04 + i * 0.04, 0.1, 6)} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Operate — ongoing-support list + support row (left), agile (right).
+  return (
+    <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
+      <div className="lg:col-span-7">
+        <ListCard rows={stage.list} icons={icons.list} style={rev(-0.3, 0.12, 8)} />
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-5">
+          {stage.support.map((s, i) => (
+            <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
+          ))}
+        </div>
+      </div>
+      <div className="lg:col-span-5">
+        <AgileBox label={agileLabel} text={stage.agile} tag={stage.agileTag} style={rev(-0.02, 0.12, 8)} />
+      </div>
+    </div>
+  );
+}
+
+/* ─────────── Line-art icon set ───────────
+   Lucide-style hairline glyphs (1.5px stroke, currentColor) so they inherit the
+   teal medallion color and match the rest of the UI's thin-vector language.
+   No emoji, single consistent stroke weight — one icon family across the section. */
+type IconName =
+  | "target"
+  | "fileText"
+  | "alertTriangle"
+  | "shieldCheck"
+  | "shield"
+  | "users"
+  | "list"
+  | "eye"
+  | "shapes"
+  | "blueprint"
+  | "rocket"
+  | "box"
+  | "clipboardCheck"
+  | "activity"
+  | "monitor"
+  | "barChart"
+  | "radar"
+  | "trendingUp"
+  | "info"
+  | "check"
+  | "infinity";
+
+const ICONS: Record<IconName, ReactNode> = {
+  target: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <line x1="12" y1="1.5" x2="12" y2="5" />
+      <line x1="12" y1="19" x2="12" y2="22.5" />
+      <line x1="1.5" y1="12" x2="5" y2="12" />
+      <line x1="19" y1="12" x2="22.5" y2="12" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    </>
+  ),
+  fileText: (
+    <>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <line x1="9" y1="13" x2="15" y2="13" />
+      <line x1="9" y1="17" x2="15" y2="17" />
+    </>
+  ),
+  alertTriangle: (
+    <>
+      <path d="M10.3 3.7 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" />
+      <line x1="12" y1="9" x2="12" y2="13.5" />
+      <circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" />
+    </>
+  ),
+  shieldCheck: (
+    <>
+      <path d="M12 2 4 5v6c0 5 3.4 8.2 8 10 4.6-1.8 8-5 8-10V5z" />
+      <path d="m8.5 12 2.5 2.5 4.5-4.5" />
+    </>
+  ),
+  shield: <path d="M12 2 4 5v6c0 5 3.4 8.2 8 10 4.6-1.8 8-5 8-10V5z" />,
+  users: (
+    <>
+      <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20" />
+      <circle cx="10" cy="8" r="3.2" />
+      <path d="M19.5 20v-1.5a3.5 3.5 0 0 0-2.6-3.4" />
+      <path d="M15.5 5.2a3.2 3.2 0 0 1 0 6" />
+    </>
+  ),
+  list: (
+    <>
+      <line x1="8.5" y1="6.5" x2="20" y2="6.5" />
+      <line x1="8.5" y1="12" x2="20" y2="12" />
+      <line x1="8.5" y1="17.5" x2="20" y2="17.5" />
+      <circle cx="4.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="17.5" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  shapes: (
+    <>
+      <circle cx="17" cy="17" r="3.2" />
+      <rect x="4" y="13" width="7" height="7" rx="1" />
+      <path d="M8.5 3.5 12.5 10.5H4.5Z" />
+    </>
+  ),
+  // Blueprint / plan sheet — a framed drawing with two component squares, an
+  // accent circle and dimension lines (the Architecture "Design" card).
+  blueprint: (
+    <>
+      <rect x="4" y="3.5" width="16" height="17" rx="1.5" />
+      <rect x="7" y="7" width="4" height="3.8" rx="0.5" />
+      <rect x="7" y="13.5" width="4" height="3.5" rx="0.5" />
+      <circle cx="16" cy="9" r="1.8" />
+      <line x1="13.6" y1="14" x2="17.5" y2="14" />
+      <line x1="13.6" y1="16.5" x2="17.5" y2="16.5" />
+    </>
+  ),
+  rocket: (
+    <>
+      <path d="M5 14c-1.5 1-2 5-2 5s4-.5 5-2c.8-1 .7-2.3-.2-3a2 2 0 0 0-2.8 0Z" />
+      <path d="M12.5 14.5 9.5 11.5c.5-2 1.5-4 3-5.5C15 3.5 18.5 3 21 3c0 2.5-.5 6-3 8.5-1.5 1.5-3.5 2.5-5.5 3Z" />
+      <path d="M9.5 11.5 6 11s.5-2.5 2-3.5" />
+      <path d="M12.5 14.5 13 18s2.5-.5 3.5-2" />
+    </>
+  ),
+  box: (
+    <>
+      <path d="M20.5 8 12 3.5 3.5 8v8L12 20.5 20.5 16Z" />
+      <path d="m3.5 8 8.5 4.5 8.5-4.5" />
+      <line x1="12" y1="20.5" x2="12" y2="12.5" />
+    </>
+  ),
+  clipboardCheck: (
+    <>
+      <rect x="8" y="3" width="8" height="4" rx="1" />
+      <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2" />
+      <path d="m9 14 2 2 4-4" />
+    </>
+  ),
+  activity: <path d="M3 12h3l2.5-6 4 13 3-9 1.5 2h4" />,
+  // Monitor with a heartbeat trace inside the screen (the Operate "Monitoring"
+  // row) — a screen frame + pulse line + stand, not a bare ECG polyline.
+  monitor: (
+    <>
+      <rect x="2.5" y="4" width="19" height="12.5" rx="1.5" />
+      <path d="M6 10.2h2.2l1.4-3 2 5.4 1.5-2.4h3.4" />
+      <line x1="9.5" y1="20.5" x2="14.5" y2="20.5" />
+      <line x1="12" y1="16.5" x2="12" y2="20.5" />
+    </>
+  ),
+  barChart: (
+    <>
+      <line x1="4" y1="21" x2="20" y2="21" />
+      <line x1="7.5" y1="21" x2="7.5" y2="13" />
+      <line x1="12" y1="21" x2="12" y2="8" />
+      <line x1="16.5" y1="21" x2="16.5" y2="4" />
+    </>
+  ),
+  radar: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="12" x2="19" y2="7" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  trendingUp: (
+    <>
+      <polyline points="3 17 9 11 13 15 21 7" />
+      <polyline points="15 7 21 7 21 13" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <line x1="12" y1="11" x2="12" y2="16" />
+      <circle cx="12" cy="8" r="0.7" fill="currentColor" stroke="none" />
+    </>
+  ),
+  check: <polyline points="4 12 9 17 20 6" />,
+  infinity: (
+    <path d="M7 9a3 3 0 1 0 0 6c1.7 0 3-1.4 5-3 2 1.6 3.3 3 5 3a3 3 0 1 0 0-6c-1.7 0-3 1.4-5 3-2-1.6-3.3-3-5-3Z" />
+  ),
+};
+
+function Icon({ name, className = "" }: { name: IconName; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      {ICONS[name]}
+    </svg>
   );
 }
 

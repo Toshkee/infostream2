@@ -47,99 +47,100 @@
     "eyebrow": "Proces",
     "title": "Četiri faze. Jedan odgovoran tim.",
     "body": "Svaki angažman prolazi kroz iste četiri faze — bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
-    "metaLabels": { "deliverable": "Isporuka", "signoff": "Potvrda", "owner": "Nosilac" },
-    "stageLabel": "faza",
-    "authorisation": "Ovjera",
     "framework": "Agile okvir isporuke",
     "agileLabel": "Agile u praksi",
-    "dossier": [
-      {
-        "tab": "01 · ISHODI",
-        "title": "Ishodi otkrivanja",
-        "basis": "osnov · javna nabavka",
-        "rows": [
-          { "k": "poslovni ciljevi", "v": "usklađeni sa stejkholderima", "tick": true },
-          { "k": "zahtjevi", "v": "prikupljeni i prioritizovani", "tick": true },
-          { "k": "rizici", "v": "identifikovani i procijenjeni", "tick": true },
-          { "k": "kriterijumi", "v": "definisani i dogovoreni", "tick": true }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "",
-        "open": "",
-        "agile": "Prilagođavamo se promjenama ne gubeći iz vida ciljeve koji su važni.",
-        "outcomes": [
-          { "k": "saradnja", "v": "Stejkholderi usklađeni" },
-          { "k": "prioritizacija", "v": "Prioritizovan backlog projekta" },
-          { "k": "vidljivost", "v": "Jasni kriterijumi uspjeha" }
-        ]
-      },
-      {
-        "tab": "02 · SPEC",
-        "title": "Sistemska specifikacija",
-        "basis": "osnov · IS-ENG-26/041-D",
-        "rows": [
-          { "k": "model podataka", "v": "entiteti · retencija · porijeklo", "tick": true },
-          { "k": "granice", "v": "identitet · revizija · integracija", "tick": true },
-          { "k": "scenariji otkaza", "v": "mapirani i provježbani", "tick": true }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "potvrđeno",
-        "open": "",
-        "agile": "Specifikacija se izrađuje i ovjerava granicu po granicu — svaka se pregleda prije nego što se iscrta sljedeća, nikad se ne izmišlja usput.",
-        "outcomes": []
-      },
-      {
-        "tab": "03 · IZDANJE",
-        "title": "Zapisnik izdanja",
-        "basis": "osnov · IS-ENG-26/041-A",
-        "rows": [
-          { "k": "kp-01", "v": "ciklus transakcije", "tick": true },
-          { "k": "kp-02", "v": "nepromjenljiv revizorski trag", "tick": true },
-          { "k": "kp-03", "v": "fazni deploy · rollback", "tick": true }
-        ],
-        "gateK": "red tim", "gatePre": "čeka potvrdu", "gatePost": "prošlo",
-        "stamp": "izdanje odobreno",
-        "open": "",
-        "agile": "Inženjering teče u kratkim iteracijama — svaki ciklus se demonstrira prema kriterijumima prihvatanja i preuređuje po povratnim informacijama.",
-        "outcomes": []
-      },
-      {
-        "tab": "04 · DNEVNIK",
-        "title": "Operativni dnevnik",
-        "basis": "osnov · IS-ENG-26/041-B",
-        "rows": [
-          { "k": "t+0", "v": "go-live · primljeno u rad", "tick": true },
-          { "k": "t+90", "v": "prva failover vježba · prošla", "tick": true },
-          { "k": "t+365", "v": "godišnja iso 27001 revizija · prošla", "tick": true },
-          { "k": "t+7305", "v": "dvadeset godina u radu", "tick": false }
-        ],
-        "gateK": "", "gatePre": "", "gatePost": "",
-        "stamp": "",
-        "open": "otvoren · kontinuirano",
-        "agile": "Isporuka se nastavlja i nakon puštanja u rad — mala, reverzibilna izdanja vođena stvarnim potrebama eksploatacije.",
-        "outcomes": []
-      }
-    ],
-    "items": [
+    "stages": [
       {
         "name": "Otkrivanje",
         "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
-        "meta": { "deliverable": "Ishodi otkrivanja", "signoff": "Stejkholderi", "owner": "Glavni arhitekta" }
+        "divider": "Ishodi otkrivanja",
+        "dividerRight": "",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [
+          { "n": "01", "k": "Poslovni ciljevi", "v": "Usklađeni sa stejkholderima" },
+          { "n": "02", "k": "Zahtjevi", "v": "Prikupljeni i prioritizovani" },
+          { "n": "03", "k": "Rizici", "v": "Identifikovani i procijenjeni" },
+          { "n": "04", "k": "Kriterijumi uspjeha", "v": "Definisani i dogovoreni" }
+        ],
+        "cards": [],
+        "list": [],
+        "support": [
+          { "k": "Saradnja", "v": "Stejkholderi usklađeni" },
+          { "k": "Prioritizacija", "v": "Prioritizovan backlog projekta" },
+          { "k": "Vidljivost", "v": "Jasni kriterijumi uspjeha" }
+        ],
+        "stamp": [],
+        "agile": "Prilagođavamo se promjenama ne gubeći iz vida ciljeve koji su važni.",
+        "agileTag": ""
       },
       {
         "name": "Arhitektura",
         "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju — ne izmišljaju se usput.",
-        "meta": { "deliverable": "Sistemska specifikacija", "signoff": "CTO · Bezbjednost", "owner": "2× arhitekte" }
+        "divider": "Proces",
+        "dividerRight": "Potvrda prije izrade",
+        "intro": { "k": "Naš arhitektonski proces", "v": "Strukturiran pristup projektovanju otpornih, bezbjednih i rješenja spremnih za budućnost." },
+        "tag": "Arhitektura je mjesto gdje strategija postaje struktura.",
+        "grid": [],
+        "cards": [
+          { "n": "01", "k": "Plan", "v": "Razumijemo vaše poslovne ciljeve i definišemo pravu arhitektonsku strategiju." },
+          { "n": "02", "k": "Dizajn", "v": "Kreiramo arhitekturu rješenja koja je skalabilna, bezbjedna i efikasna." },
+          { "n": "03", "k": "Validacija", "v": "Provjeravamo integracije, bezbjednost i performanse radi pouzdanosti." },
+          { "n": "04", "k": "Izrada", "v": "Predajemo jasan, validiran nacrt spreman za agilnu isporuku." }
+        ],
+        "list": [],
+        "support": [],
+        "stamp": [],
+        "agile": "Projektujemo za promjenu, ne samo za isporuku.",
+        "agileTag": ""
       },
       {
         "name": "Izrada",
-        "description": "Inženjering mjeren prema kriterijumima prihvatanja, otvrdnut prema modelu pretnji, prošao kroz interni red tim prije puštanja u rad.",
-        "meta": { "deliverable": "Kandidat za isporuku", "signoff": "Interni red tim", "owner": "Inženjering" }
+        "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta.",
+        "divider": "Isporuka sprinta",
+        "dividerRight": "",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [],
+        "cards": [],
+        "list": [
+          { "n": "SPR-01", "k": "", "v": "Zahtjevi implementirani" },
+          { "n": "SPR-02", "k": "", "v": "Funkcionalnosti validirane" },
+          { "n": "SPR-03", "k": "", "v": "Povratne informacije korisnika uključene" },
+          { "n": "SPR-04", "k": "", "v": "Kandidat za izdanje pripremljen" }
+        ],
+        "support": [
+          { "k": "Kvalitet", "v": "Kontinuirano testiranje obezbjeđuje pouzdanost i visoke standarde." },
+          { "k": "Saradnja", "v": "Povratne informacije stejkholdera vode do boljih rješenja i ishoda." },
+          { "k": "Isporuka", "v": "Inkrementalna izdanja donose vrijednost ranije i smanjuju rizik projekta." }
+        ],
+        "stamp": ["Izdanje odobreno", "Infostream · Podgorica"],
+        "agile": "Funkcionalni softver se isporučuje rano i kontinuirano poboljšava kroz povratne informacije i iteracije.",
+        "agileTag": ""
       },
       {
         "name": "Eksploatacija",
-        "description": "Deployment, monitoring, obuka i dugoročno održavanje — dvije decenije rada na kritičnim sistemima znači da planiramo za dan kada nešto pođe naopako, ne samo za dan puštanja u rad.",
-        "meta": { "deliverable": "Runbook + održavanje", "signoff": "Infostream ops", "owner": "Podrška i održavanje" }
+        "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
+        "divider": "Stalna podrška",
+        "dividerRight": "IS-OPS-26/041-O",
+        "intro": { "k": "", "v": "" },
+        "tag": "",
+        "grid": [],
+        "cards": [],
+        "list": [
+          { "n": "01", "k": "Puštanje u rad", "v": "Rješenje uspješno pokrenuto." },
+          { "n": "02", "k": "Monitoring", "v": "Performanse i dostupnost praćene." },
+          { "n": "03", "k": "Optimizacija", "v": "Poboljšanja identifikovana i isporučena." },
+          { "n": "04", "k": "Partnerstvo", "v": "Stalna podrška i savjetodavne usluge." }
+        ],
+        "support": [
+          { "k": "Podrška", "v": "Posvećena pomoć kad vam zatreba." },
+          { "k": "Monitoring", "v": "Uvid u zdravlje sistema i performanse." },
+          { "k": "Unapređenje", "v": "Kontinuirana optimizacija donosi dugoročnu vrijednost." }
+        ],
+        "stamp": [],
+        "agile": "Povratne informacije ne prestaju nakon isporuke. Svako izdanje stvara nove prilike za poboljšanje.",
+        "agileTag": "Kontinuirano unapređenje"
       }
     ]
   },
