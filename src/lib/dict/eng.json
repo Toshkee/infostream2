@@ -14,16 +14,18 @@
     "ogTagline": "National financial infrastructure"
   },
   "hero": {
-    "eyebrow": "Infostream / National financial infrastructure",
-    "title": "The data spine behind Montenegro's public finance.",
-    "body": "For two decades, our software has run the systems behind Montenegro's taxes, public budgets and national registers — from the Tax Administration to the Pension Fund — built on Oracle and .NET, audited to ISO 27001.",
+    "eyebrow": "Infostream / Software Built To Last",
+    "title": "Building software that keeps business moving.",
+    "body": "For two decades, we've designed, built and operated software that organisations rely on every day. From enterprise platforms to cloud and AI solutions, we deliver technology that evolves with your business.",
     "exitTitle": "Four stages. One accountable team.",
     "exitAccent": "Twenty years of staying on the line.",
     "exitScrollHint": "scroll to see who's connected",
     "meta": [
-      { "k": "audited", "v": "ISO 27001" },
-      { "k": "platform", "v": "Oracle APEX" },
-      { "k": "in service", "v": "20+ yrs" }
+      { "k": "Years of experience", "v": "20+" },
+      { "k": "Delivery", "v": "Agile" },
+      { "k": "Platforms", "v": "Oracle • Microsoft" },
+      { "k": "Development", "v": "APEX • .NET" },
+      { "k": "Innovation", "v": "AI" }
     ]
   },
   "stats": {

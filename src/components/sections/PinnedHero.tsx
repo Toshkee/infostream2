@@ -73,6 +73,11 @@ const STAGE_ICONS: { grid: IconName[]; cards: IconName[]; list: IconName[]; supp
   { grid: [], cards: [], list: ["rocket", "monitor", "barChart", "users"], support: ["shield", "radar", "trendingUp"] },
 ];
 
+// Hero intro metric chips — one line-art glyph per chip, in dictionary order
+// (Years of experience · Delivery · Platforms · Development · Innovation). Icon
+// choice is presentation, so it lives in code rather than the translatable copy.
+const HERO_META_ICONS: IconName[] = ["clock", "infinity", "database", "code", "network"];
+
 // CSSProperties widened to accept custom properties (--vars).
 type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
 
@@ -327,17 +332,22 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                    when this scene goes inert mid-scroll. */}
                 <p aria-hidden className="mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
                   {titleWords.map((w, i) => (
-                    <span key={i} className="hero-title-word inline-block mr-[0.22em]">{w}</span>
+                    <span key={i} className="hero-title-word inline-block mr-[0.22em]">
+                      {i === titleWords.length - 1 ? tealPeriod(w) : w}
+                    </span>
                   ))}
                 </p>
                 <p className="hero-body mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
 
-                {/* Audited figures — the same claims the Stats section substantiates */}
-                <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-2xl">
+                {/* Capability chips — what we do, what we build on */}
+                <div className="hero-meta-grid mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-white/10 border border-white/10 rounded-lg overflow-hidden max-w-4xl">
                   {dict.hero.meta.map((m, i) => (
-                    <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3">
-                      <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
-                      <div className="mono text-base mt-1 text-white/90">{m.v}</div>
+                    <div key={i} className="hero-meta-row bg-[var(--bg-inset-elev)] px-4 py-3.5 flex items-center gap-3">
+                      <Medallion name={HERO_META_ICONS[i] ?? "infinity"} size="sm" />
+                      <div className="min-w-0">
+                        <div className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/55 leading-tight">{m.k}</div>
+                        <div className="mono text-[15px] mt-1 text-white/90 leading-tight">{m.v}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -350,13 +360,16 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 <Scene key={i} target={i + 1} interactive={false} decorative align="top">
                   <div className="w-full max-w-[940px]" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
                     <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} />
-                    <DividerLabel
-                      index={i}
-                      label={stage.divider}
-                      right={stage.dividerRight}
-                      className="mt-6"
-                      style={rev(-0.36, 0.12, 6)}
-                    />
+                    {/* Discovery carries its own header inside the brief card. */}
+                    {i !== 0 && (
+                      <DividerLabel
+                        index={i}
+                        label={stage.divider}
+                        right={stage.dividerRight}
+                        className="mt-6"
+                        style={rev(-0.36, 0.12, 6)}
+                      />
+                    )}
                     <div className="mt-7">
                       <StageBody index={i} stage={stage} agileLabel={agileLabel} />
                     </div>
@@ -447,14 +460,17 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             {dict.hero.eyebrow}
           </div>
           <h1 className="mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
-            {dict.hero.title}
+            {tealPeriod(dict.hero.title)}
           </h1>
           <p className="mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed">{dict.hero.body}</p>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/10 border border-white/10 rounded-md overflow-hidden max-w-2xl">
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-white/10 border border-white/10 rounded-lg overflow-hidden max-w-4xl">
             {dict.hero.meta.map((m, i) => (
-              <div key={i} className="bg-[var(--bg-inset-elev)] px-4 py-3">
-                <div className="mono text-[10px] tracking-[0.22em] uppercase text-white/55">{m.k}</div>
-                <div className="mono text-base mt-1 text-white/90">{m.v}</div>
+              <div key={i} className="bg-[var(--bg-inset-elev)] px-4 py-3.5 flex items-center gap-3">
+                <Medallion name={HERO_META_ICONS[i] ?? "infinity"} size="sm" />
+                <div className="min-w-0">
+                  <div className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/55 leading-tight">{m.k}</div>
+                  <div className="mono text-[15px] mt-1 text-white/90 leading-tight">{m.v}</div>
+                </div>
               </div>
             ))}
           </div>
@@ -472,7 +488,10 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             {stages.map((stage, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
                 <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} heading />
-                <DividerLabel index={i} label={stage.divider} right={stage.dividerRight} className="mt-5" />
+                {/* Discovery carries its own header inside the brief card. */}
+                {i !== 0 && (
+                  <DividerLabel index={i} label={stage.divider} right={stage.dividerRight} className="mt-5" />
+                )}
                 <div className="mt-7">
                   <StageBody index={i} stage={stage} agileLabel={agileLabel} />
                 </div>
@@ -486,6 +505,20 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
         </div>
       </section>
     </div>
+  );
+}
+
+// Colours a title's trailing full stop teal — the one accent glyph in the hero
+// headline, matching the homepage mockup. Returns the word untouched if it has
+// no closing punctuation.
+function tealPeriod(text: string): ReactNode {
+  const m = text.match(/^([\s\S]*?)([.!?]+)$/);
+  if (!m) return text;
+  return (
+    <>
+      {m[1]}
+      <span className="text-[var(--brand-teal-bright)]">{m[2]}</span>
+    </>
   );
 }
 
@@ -691,34 +724,6 @@ function AgileBox({
   );
 }
 
-// ─── Discovery grid cell: medallion + label + sub + index ───
-function GridCell({
-  icon,
-  n,
-  k,
-  v,
-  tone = "teal",
-  style,
-}: {
-  icon: IconName;
-  n: string;
-  k: string;
-  v: string;
-  tone?: "teal" | "danger";
-  style?: CSSVars;
-}) {
-  return (
-    <div className="flex items-center gap-3.5" style={style}>
-      <Medallion name={icon} tone={tone} />
-      <div className="min-w-0 flex-1">
-        <div className="mono text-[10.5px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
-        <div className="text-[12.5px] text-white/70 mt-0.5 leading-snug">{v}</div>
-      </div>
-      {n ? <span className="mono text-[10px] tracking-[0.18em] text-white/35 shrink-0">{n}</span> : null}
-    </div>
-  );
-}
-
 // ─── Support / benefit cell: stacked medallion + heading + copy ───
 // `boxed` wraps the cell in an opaque card — used where the row sits in the
 // right column over the bright 3D orbital (Build), so the teal label + body
@@ -825,36 +830,82 @@ function Stamp({ lines, style }: { lines: string[]; style?: CSSVars }) {
 function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage; agileLabel: string }) {
   const icons = STAGE_ICONS[index];
 
-  // Discovery — outcomes grid + support row (left), agile panel (right).
+  // Discovery — a single "project brief" spec-sheet card: header serial,
+  // outcomes as label→value rows, an inline agile note, and a three-column
+  // support footer (per the discovery mockup).
   if (index === 0) {
+    const last = stage.grid.length - 1;
     return (
-      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-        <div className="lg:col-span-7">
-          {/* Column-major flow (sm+): top-left 01 / bottom-left 02, top-right
-             03 / bottom-right 04 — matching the mockup's numbering, while the
-             DOM order stays 01→04 for assistive tech. */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col gap-x-8 gap-y-5">
-            {stage.grid.map((g, i) => (
-              <GridCell
-                key={i}
-                icon={icons.grid[i]}
-                tone={icons.grid[i] === "alertTriangle" ? "danger" : "teal"}
-                n={g.n}
-                k={g.k}
-                v={g.v}
-                style={rev(-0.26 + i * 0.05, 0.1, 6)}
-              />
-            ))}
+      <div className="relative max-w-[720px]" style={rev(-0.4, 0.16, 8)}>
+        <div
+          className="relative rounded-2xl border border-white/[0.1] bg-[var(--bg-inset)]/85 overflow-hidden"
+          style={{ boxShadow: "inset 0 0 70px -45px var(--brand-teal-bright)" }}
+        >
+          {/* Card header — phase tag + decorative document serial */}
+          <div className="flex items-center justify-between gap-4 px-5 sm:px-6 py-4 border-b border-white/[0.07]">
+            <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]">
+              0{index + 1} · Brief
+            </span>
+            <span aria-hidden className="mono text-[9px] tracking-[0.2em] uppercase text-white/30">
+              IS-ENG-26 · 64Σ-0
+            </span>
           </div>
-          <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-5 border-t border-white/10 pt-6">
+
+          <div className="px-5 sm:px-6 pt-5 pb-5">
+            {/* Outcomes label */}
+            <div className="flex items-center gap-2.5" style={rev(-0.3, 0.1, 6)}>
+              <span aria-hidden className="h-3.5 w-1 rounded-full bg-[var(--brand-teal-bright)]" />
+              <span className="mono text-[10.5px] tracking-[0.24em] uppercase text-white/75">{stage.divider}</span>
+            </div>
+
+            {/* Outcome rows — label column → value, with a tick on the final row */}
+            <ul className="mt-3.5 divide-y divide-white/[0.055]">
+              {stage.grid.map((g, i) => (
+                <li key={i} className="flex items-center gap-4 py-2.5" style={rev(-0.24 + i * 0.05, 0.1, 5)}>
+                  <span className="mono text-[10px] tracking-[0.16em] uppercase text-white/45 w-[42%] sm:w-[38%] shrink-0">
+                    {g.k}
+                  </span>
+                  <span className="text-[13px] leading-snug text-white/85 flex-1">{g.v}</span>
+                  {i === last ? (
+                    <span
+                      aria-hidden
+                      className="grid place-items-center w-5 h-5 rounded-full border border-[var(--brand-teal-bright)]/55 text-[var(--brand-teal-bright)] shrink-0"
+                    >
+                      <Icon name="check" className="w-3 h-3" />
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+
+            {/* Agile in action — inline note */}
+            <div className="mt-6 flex items-center gap-2.5" style={rev(-0.08, 0.12, 6)}>
+              <span aria-hidden className="inline-block w-2 h-2 rotate-45 bg-[var(--brand-teal-bright)]" />
+              <span className="mono text-[10px] tracking-[0.26em] uppercase text-[var(--brand-teal-bright)]">{agileLabel}</span>
+            </div>
+            <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-white/70" style={rev(-0.04, 0.12, 6)}>
+              {stage.agile}
+            </p>
+          </div>
+
+          {/* Support footer — three hairline-divided cells */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.07] border-t border-white/[0.07]">
             {stage.support.map((s, i) => (
-              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(-0.04 + i * 0.04, 0.1, 6)} />
+              <div key={i} className="bg-[var(--bg-inset)] px-5 py-3.5" style={rev(i * 0.04, 0.1, 5)}>
+                <div className="mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]/90">{s.k}</div>
+                <div className="text-[11.5px] text-white/65 mt-1.5 leading-snug">{s.v}</div>
+              </div>
             ))}
           </div>
         </div>
-        <div className="lg:col-span-5">
-          <AgileBox label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
-        </div>
+
+        {/* Section watermark */}
+        <span
+          aria-hidden
+          className="absolute right-1 -bottom-5 mono text-[9px] tracking-[0.34em] uppercase text-white/15"
+        >
+          {stage.name}
+        </span>
       </div>
     );
   }
@@ -962,7 +1013,11 @@ type IconName =
   | "trendingUp"
   | "info"
   | "check"
-  | "infinity";
+  | "infinity"
+  | "clock"
+  | "database"
+  | "code"
+  | "network";
 
 const ICONS: Record<IconName, ReactNode> = {
   target: (
@@ -1105,6 +1160,41 @@ const ICONS: Record<IconName, ReactNode> = {
   check: <polyline points="4 12 9 17 20 6" />,
   infinity: (
     <path d="M7 9a3 3 0 1 0 0 6c1.7 0 3-1.4 5-3 2 1.6 3.3 3 5 3a3 3 0 1 0 0-6c-1.7 0-3 1.4-5 3-2-1.6-3.3-3-5-3Z" />
+  ),
+  // Clock — years of experience.
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  // Stacked-disk database — the platforms we build on.
+  database: (
+    <>
+      <ellipse cx="12" cy="5.5" rx="7" ry="2.5" />
+      <path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
+      <path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6" />
+    </>
+  ),
+  // Angle brackets + slash — software development.
+  code: (
+    <>
+      <polyline points="8 8 4 12 8 16" />
+      <polyline points="16 8 20 12 16 16" />
+      <line x1="13.5" y1="6" x2="10.5" y2="18" />
+    </>
+  ),
+  // Connected nodes — AI / innovation.
+  network: (
+    <>
+      <circle cx="12" cy="12" r="2.2" />
+      <circle cx="5" cy="6" r="1.8" />
+      <circle cx="19" cy="7" r="1.8" />
+      <circle cx="17" cy="18" r="1.8" />
+      <line x1="10.3" y1="10.7" x2="6.4" y2="7.2" />
+      <line x1="13.9" y1="11" x2="17.3" y2="8.2" />
+      <line x1="13.2" y1="13.7" x2="16" y2="16.5" />
+    </>
   ),
 };
 

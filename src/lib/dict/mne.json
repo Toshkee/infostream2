@@ -14,16 +14,18 @@
     "ogTagline": "Nacionalna finansijska infrastruktura"
   },
   "hero": {
-    "eyebrow": "Infostream / Nacionalna finansijska infrastruktura",
-    "title": "Kičma podataka iza javnih finansija Crne Gore.",
-    "body": "Dvije decenije naš softver pokreće sisteme iza poreza, javnih budžeta i nacionalnih registara Crne Gore — od Poreske uprave do Fonda PIO — izgrađen na Oracle-u i .NET-u, revidiran po ISO 27001.",
+    "eyebrow": "Infostream / Softver napravljen da traje",
+    "title": "Gradimo softver koji poslovanje drži u pokretu.",
+    "body": "Već dvije decenije projektujemo, gradimo i održavamo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih platformi do cloud i AI rješenja, isporučujemo tehnologiju koja se razvija zajedno s vašim poslovanjem.",
     "exitTitle": "Četiri faze. Jedan odgovoran tim.",
     "exitAccent": "Dvadeset godina na liniji.",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
-      { "k": "revizija", "v": "ISO 27001" },
-      { "k": "platforma", "v": "Oracle APEX" },
-      { "k": "u službi", "v": "20+ god" }
+      { "k": "Godine iskustva", "v": "20+" },
+      { "k": "Isporuka", "v": "Agile" },
+      { "k": "Platforme", "v": "Oracle • Microsoft" },
+      { "k": "Razvoj", "v": "APEX • .NET" },
+      { "k": "Inovacija", "v": "AI" }
     ]
   },
   "stats": {
