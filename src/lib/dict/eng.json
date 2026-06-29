@@ -124,7 +124,7 @@
         "name": "Operate",
         "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value.",
         "divider": "Ongoing support",
-        "dividerRight": "IS-OPS-26/041-O",
+        "dividerRight": "",
         "intro": { "k": "", "v": "" },
         "tag": "",
         "grid": [],
@@ -148,9 +148,18 @@
   },
   "clients": {
     "eyebrow": "Trusted by",
+    "status": "in production",
     "title": "We do not have many clients. We have the right ones.",
-    "colOrg": "Institution",
+    "colOrg": "institution",
+    "colSystem": "system",
     "more": "more systems in production",
+    "groups": [
+      "Defense, security & intelligence",
+      "Public finance & social",
+      "Government & ministries",
+      "EU & international",
+      "Innovation & private sector"
+    ],
     "projects": [
       { "org": "Pension & Disability Insurance Fund", "system": "National information system" },
       { "org": "Tax Administration of Montenegro", "system": "Central Register of Business Entities" },

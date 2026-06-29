@@ -3,54 +3,39 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const BARS = 16;
-const CYCLE_MS = 2600;
+// Which client indices (into dict.clients.projects) belong to each domain group,
+// in display order. This is structure, not copy — the translatable group LABELS
+// live in dict.clients.groups (same order). Mirrors the "structure in code, copy
+// in dict" split used elsewhere (e.g. STAGE_ICONS in PinnedHero). If the projects
+// array is reordered in the dictionaries, update these indices to match.
+const GROUP_INDICES: number[][] = [
+  [2, 3, 5, 9, 14], // Defense, security & intelligence
+  [0, 1, 8, 17], // Public finance & social
+  [18, 4, 13, 7, 6], // Government & ministries
+  [12, 15, 16], // EU & international
+  [10, 11, 19], // Innovation & private sector
+];
 
 export default function Clients({ dict }: { dict: Dict }) {
   const ref = useRef<HTMLDivElement>(null);
-  const pausedRef = useRef(false);
   const c = dict.clients;
   const projects = c.projects;
-  const total = projects.length;
 
-  const [active, setActive] = useState(0);
-
-  // Second clause of the positioning line in teal.
+  // Second sentence of the positioning line in teal.
   const titleParts = c.title.split(/(?<=\.)\s+/);
 
-  const current = projects[active];
-  // Deterministic "signal" heights derived from the active name (no RNG).
-  const barVals = Array.from({ length: BARS }, (_, j) => {
-    const code = current.org.charCodeAt((j * 5 + 3) % current.org.length) || 65;
-    return 0.18 + ((code % 11) / 11) * 0.82;
-  });
+  // Build the grouped register, numbering continuously across every group.
+  let n = 0;
+  const groups = GROUP_INDICES.map((idxs, g) => ({
+    label: c.groups[g] ?? "",
+    rows: idxs.map((i) => ({ ...projects[i], num: ++n })),
+  }));
 
-  // Auto-advance — fast, pauses on hover, idles when offscreen or reduced-motion.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = ref.current;
-    let inView = true;
-    const io = new IntersectionObserver(
-      ([e]) => (inView = e.isIntersecting),
-      { threshold: 0.25 }
-    );
-    if (el) io.observe(el);
-    const id = window.setInterval(() => {
-      if (pausedRef.current || !inView) return;
-      setActive((a) => (a + 1) % total);
-    }, CYCLE_MS);
-    return () => {
-      window.clearInterval(id);
-      io.disconnect();
-    };
-  }, [total]);
-
-  // Entrance choreography (runs once).
   useGSAP(
     () => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -62,53 +47,31 @@ export default function Clients({ dict }: { dict: Dict }) {
       gsap.fromTo(
         ".clients-eyebrow-dash",
         { width: 0 },
-        { width: "3.5rem", duration: 1.1, ease: "power3.out",
-          scrollTrigger: { trigger: ".clients-heading", start: "top 85%" } }
+        {
+          width: "1.5rem", duration: 1.0, ease: "power3.out",
+          scrollTrigger: { trigger: ".clients-heading", start: "top 85%" },
+        }
       );
       gsap.to(".clients-h2", {
-        clipPath: "inset(0 0% 0 0)", duration: 1.2, ease: "power4.out",
+        clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power4.out",
         scrollTrigger: { trigger: ".clients-h2", start: "top 85%" },
       });
-      gsap.from(".clients-stage", {
-        opacity: 0, y: 30, duration: 0.9, ease: "power3.out",
-        scrollTrigger: { trigger: ".clients-module", start: "top 80%" },
-      });
-      gsap.from(".reg-item", {
-        opacity: 0, x: 24, duration: 0.5, stagger: 0.035, ease: "power2.out",
+      // Group blocks ease up first, their rows cascade just behind.
+      gsap.from(".reg-group", {
+        opacity: 0, y: 18, duration: 0.6, stagger: 0.08, ease: "power3.out",
         scrollTrigger: { trigger: ".clients-register", start: "top 82%" },
       });
+      gsap.from(".reg-row", {
+        opacity: 0, y: 10, duration: 0.45, stagger: 0.022, ease: "power2.out",
+        scrollTrigger: { trigger: ".clients-register", start: "top 80%" },
+      });
       gsap.from(".clients-more", {
-        opacity: 0, y: 16, duration: 0.6, ease: "power2.out",
-        scrollTrigger: { trigger: ".clients-register", start: "top 60%" },
+        opacity: 0, y: 12, duration: 0.6, ease: "power2.out",
+        scrollTrigger: { trigger: ".clients-more", start: "top 92%" },
       });
     },
     { scope: ref }
   );
-
-  // Per-switch animation — re-runs whenever the active project changes.
-  useGSAP(
-    () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const tl = gsap.timeline();
-      tl.fromTo(".stage-char",
-        { yPercent: 115, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: 0.5, ease: "power3.out", stagger: 0.022 }, 0);
-      tl.fromTo(".stage-index",
-        { yPercent: 80, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 0);
-      tl.fromTo(".stage-system",
-        { opacity: 0, x: -12 },
-        { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.05);
-      tl.to(".signal-bar",
-        { scaleY: (i: number) => barVals[i], duration: 0.55, ease: "power2.out", stagger: 0.018 }, 0);
-      tl.to(".stage-progress-fill",
-        { scaleX: (active + 1) / total, duration: 0.6, ease: "power3.out" }, 0);
-    },
-    { dependencies: [active], scope: ref }
-  );
-
-  const pause = () => (pausedRef.current = true);
-  const resume = () => (pausedRef.current = false);
 
   return (
     <section
@@ -119,7 +82,7 @@ export default function Clients({ dict }: { dict: Dict }) {
       {/* decorative grid */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        className="absolute inset-0 opacity-[0.05] pointer-events-none"
         style={{
           backgroundImage:
             "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
@@ -127,141 +90,84 @@ export default function Clients({ dict }: { dict: Dict }) {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
+      <div className="relative z-10 mx-auto max-w-[1180px] px-6 lg:px-10">
         {/* header */}
-        <div className="clients-heading max-w-3xl">
-          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-            <span className="clients-eyebrow-dash h-px w-6 bg-[var(--brand-teal-bright)]" />
-            {c.eyebrow}
+        <div className="clients-heading flex items-start justify-between gap-6">
+          <div className="max-w-3xl">
+            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
+              <span className="clients-eyebrow-dash h-px w-6 bg-[var(--brand-teal-bright)]" />
+              {c.eyebrow}
+            </div>
+            <h2 className="clients-h2 mask-reveal mt-5 text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">
+              {titleParts[0]}
+              {titleParts.length > 1 && (
+                <>
+                  {" "}
+                  <span className="text-[var(--brand-teal-bright)]">
+                    {titleParts.slice(1).join(" ")}
+                  </span>
+                </>
+              )}
+            </h2>
           </div>
-          <h2 className="clients-h2 mask-reveal mt-5 text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">
-            {titleParts[0]}
-            {titleParts.length > 1 && (
-              <>
-                {" "}
-                <span className="text-[var(--brand-teal-bright)]">
-                  {titleParts.slice(1).join(" ")}
-                </span>
-              </>
-            )}
-          </h2>
+
+          {/* quiet "in production" status chip */}
+          <span className="mono shrink-0 mt-1 inline-flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/30 rounded-full px-3 py-1.5">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+            {c.status}
+          </span>
         </div>
 
-        {/* interactive module */}
-        <div
-          className="clients-module mt-12 grid gap-10 lg:mt-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
-          onMouseEnter={pause}
-          onMouseLeave={resume}
-          onFocusCapture={pause}
-          onBlurCapture={resume}
-        >
-          {/* ── feature stage ── */}
-          <div className="clients-stage relative">
-            <div className="mono flex items-center gap-3 text-[11px] tracking-[0.28em] uppercase text-white/40">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand-red)]" />
-              {c.colOrg}
-              <span className="ml-auto inline-flex items-baseline tabular-nums text-white/30">
-                <span className="overflow-hidden">
-                  <span className="stage-index inline-block text-[var(--brand-teal-bright)]">
-                    {String(active + 1).padStart(2, "0")}
-                  </span>
-                </span>
-                <span className="px-1">/</span>
-                <span>{String(total).padStart(2, "0")}</span>
-              </span>
-            </div>
-
-            {/* big institution name — letters cascade on each switch */}
-            <div className="relative mt-5 min-h-[clamp(4.2rem,11vw,8.5rem)] overflow-hidden">
-              <h3
-                key={active}
-                aria-label={current.org}
-                className="flex flex-wrap text-[clamp(1.7rem,4.4vw,3.4rem)] font-medium leading-[1.04] tracking-[-0.02em]"
-              >
-                {current.org.split(" ").map((word, wi) => (
-                  // Group by word so flex-wrap only breaks between words, never
-                  // mid-word ("Insu rance"); characters still cascade individually.
-                  <span key={wi} aria-hidden className="inline-flex whitespace-nowrap mr-[0.26em]">
-                    {Array.from(word).map((ch, j) => (
-                      <span key={j} className="stage-char inline-block will-change-transform">
-                        {ch}
-                      </span>
-                    ))}
-                  </span>
-                ))}
-              </h3>
-            </div>
-
-            {/* system delivered */}
-            <p className="stage-system mono mt-4 text-[12px] tracking-[0.18em] uppercase text-[var(--brand-teal-soft)]">
-              {current.system}
-            </p>
-
-            {/* animated signal bars */}
-            <div className="mt-8 flex h-12 items-end gap-1.5" aria-hidden>
-              {barVals.map((_, j) => (
-                <span
-                  key={j}
-                  className="signal-bar block w-full flex-1 origin-bottom rounded-sm bg-[var(--brand-teal)]/40"
-                  style={{ height: "100%", transform: "scaleY(0.25)" }}
-                />
-              ))}
-            </div>
-
-            {/* progress through the roster */}
-            <div className="mt-5 h-px w-full overflow-hidden bg-white/10">
-              <span
-                className="stage-progress-fill block h-full w-full origin-left bg-[var(--brand-teal-bright)]"
-                style={{ transform: "scaleX(0.05)" }}
-              />
-            </div>
+        {/* register */}
+        <div className="clients-register mt-12 lg:mt-16">
+          {/* column header */}
+          <div className="grid grid-cols-[2.25rem_1fr] md:grid-cols-[2.5rem_1.5fr_1fr] gap-x-4 border-b border-white/12 pb-3 mono text-[10px] tracking-[0.24em] uppercase text-white/35">
+            <span aria-hidden />
+            <span>{c.colOrg}</span>
+            <span className="hidden md:block">{c.colSystem}</span>
           </div>
 
-          {/* ── compact register index ── */}
-          <div className="clients-register">
-            <ul className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-              {projects.map((p, i) => {
-                const on = i === active;
-                return (
-                  <li key={i} className="reg-item">
-                    <button
-                      type="button"
-                      onMouseEnter={() => setActive(i)}
-                      onFocus={() => setActive(i)}
-                      onClick={() => setActive(i)}
-                      aria-current={on}
-                      className="group flex w-full items-center gap-3 border-b border-white/5 py-2.5 text-left transition-colors duration-200"
-                    >
-                      <span
-                        className={`mono text-[10px] tabular-nums transition-colors duration-200 ${
-                          on ? "text-[var(--brand-teal-bright)]" : "text-white/30 group-hover:text-white/60"
-                        }`}
-                      >
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className={`h-px flex-none transition-all duration-300 ${
-                          on ? "w-5 bg-[var(--brand-teal-bright)]" : "w-2 bg-white/20 group-hover:w-3"
-                        }`}
-                      />
-                      <span
-                        className={`truncate text-[13px] transition-colors duration-200 ${
-                          on ? "text-white" : "text-white/45 group-hover:text-white/80"
-                        }`}
-                      >
-                        {p.org}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+          {groups.map((grp, gi) => (
+            <div key={gi} className="reg-group">
+              {/* domain divider */}
+              <div className="flex items-center gap-4 pt-7 pb-3">
+                <span className="mono text-[11px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)] whitespace-nowrap">
+                  {grp.label}
+                </span>
+                <span
+                  aria-hidden
+                  className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/30 to-transparent"
+                />
+              </div>
 
-            {/* and more — static note (no all-projects page to link to) */}
-            <div className="clients-more mt-6 flex items-baseline gap-2.5 border-t border-white/10 pt-5">
-              <span aria-hidden className="mono text-base leading-none text-[var(--brand-red)]">+</span>
-              <span className="text-[15px] text-white/65">40 {c.more}</span>
+              {/* rows */}
+              <ul>
+                {grp.rows.map((r) => (
+                  <li
+                    key={r.num}
+                    className="reg-row group grid grid-cols-[2.25rem_1fr] md:grid-cols-[2.5rem_1.5fr_1fr] items-baseline gap-x-4 gap-y-1 border-b border-white/[0.06] py-3 transition-colors duration-200 hover:bg-white/[0.02]"
+                  >
+                    <span className="mono text-[11px] tabular-nums text-white/30 transition-colors duration-200 group-hover:text-[var(--brand-teal-bright)]">
+                      {String(r.num).padStart(2, "0")}
+                    </span>
+                    <span className="text-[14.5px] leading-snug text-white/85 transition-colors duration-200 group-hover:text-white">
+                      {r.org}
+                    </span>
+                    <span className="col-start-2 md:col-start-3 mono text-[12px] leading-snug text-[var(--brand-teal-soft)]">
+                      {r.system}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+
+          {/* and more — static note (no all-projects page to link to) */}
+          <div className="clients-more mt-8 flex items-baseline gap-2.5">
+            <span aria-hidden className="mono text-base leading-none text-[var(--brand-red)]">
+              +
+            </span>
+            <span className="text-[15px] text-white/65">40 {c.more}</span>
           </div>
         </div>
       </div>

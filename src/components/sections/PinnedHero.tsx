@@ -67,8 +67,8 @@ type PStage = {
 // Which line-art glyph rides each item slot, per stage. Kept in code (not the
 // dictionary) because icon choice is presentation, not copy — both locales share it.
 const STAGE_ICONS: { grid: IconName[]; cards: IconName[]; list: IconName[]; support: IconName[] }[] = [
-  { grid: ["target", "fileText", "alertTriangle", "shieldCheck"], cards: [], list: [], support: ["users", "list", "eye"] },
-  { grid: [], cards: ["target", "blueprint", "shieldCheck", "rocket"], list: [], support: [] },
+  { grid: ["targetAccent", "fileText", "alertTriangle", "shieldCheck"], cards: [], list: [], support: ["users", "list", "eye"] },
+  { grid: [], cards: ["targetAccent", "blueprint", "shieldCheck", "rocket"], list: [], support: [] },
   { grid: [], cards: [], list: ["box", "clipboardCheck", "users", "rocket"], support: ["shieldCheck", "users", "rocket"] },
   { grid: [], cards: [], list: ["rocket", "monitor", "barChart", "users"], support: ["shield", "radar", "trendingUp"] },
 ];
@@ -596,7 +596,7 @@ function StageHeading({
   const Title = heading ? "h3" : "div";
   return (
     <div>
-      <div className="flex items-end gap-4">
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
         <div className="flex items-baseline gap-2 leading-none shrink-0">
           <span
             className="font-medium text-[clamp(2rem,3.4vw,3rem)] leading-none tracking-[-0.04em] text-transparent"
@@ -667,13 +667,17 @@ function Medallion({
   name: IconName;
   size?: "sm" | "md";
   solidBg?: boolean;
-  tone?: "teal" | "danger";
+  tone?: "teal" | "danger" | "warn";
 }) {
   const dim = size === "sm" ? "w-9 h-9" : "w-11 h-11";
   const ic = size === "sm" ? "w-4 h-4" : "w-[18px] h-[18px]";
+  // "warn" keeps the uniform teal ring but paints the glyph red — the warning
+  // accent on the Discovery "Risks" outcome (per fo.png). "danger" reddens both.
   const tint =
     tone === "danger"
       ? "border-[var(--brand-red)]/50 text-[var(--brand-red)]"
+      : tone === "warn"
+      ? "border-[var(--brand-teal-bright)]/35 text-[var(--brand-red)]"
       : "border-[var(--brand-teal-bright)]/35 text-[var(--brand-teal-bright)]";
   return (
     <span
@@ -724,6 +728,42 @@ function AgileBox({
   );
 }
 
+// ─── "Agile in action" — borderless note (Discovery, Build, Operate) ───
+// The open treatment from the mockups: an infinity medallion + teal label on one
+// line, the agile sentence beneath, no card border. AgileBox (bordered) is kept
+// only for Architecture, where the left rail wants its blocks visually grouped.
+function AgileNote({
+  label,
+  text,
+  tag,
+  className = "",
+  style,
+}: {
+  label: string;
+  text: string;
+  tag?: string;
+  className?: string;
+  style?: CSSVars;
+}) {
+  return (
+    <div className={className} style={style}>
+      <div className="flex items-center gap-3">
+        <span className="grid place-items-center w-10 h-10 rounded-full border border-[var(--brand-teal-bright)]/40 text-[var(--brand-teal-bright)] shrink-0">
+          <Icon name="infinity" className="w-5 h-5" />
+        </span>
+        <span className="mono text-[11px] tracking-[0.26em] uppercase text-[var(--brand-teal-bright)]">{label}</span>
+      </div>
+      <p className="mt-4 max-w-md text-[13.5px] leading-relaxed text-white/70">{text}</p>
+      {tag ? (
+        <span className="mt-4 inline-flex items-center gap-2 mono text-[9px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1">
+          <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+          {tag}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 // ─── Support / benefit cell: stacked medallion + heading + copy ───
 // `boxed` wraps the cell in an opaque card — used where the row sits in the
 // right column over the bright 3D orbital (Build), so the teal label + body
@@ -759,17 +799,24 @@ function SupportCell({
 }
 
 // ─── Architecture process card ───
+// Mockup arrangement: a small numbered badge + the step title on the top line,
+// then the icon medallion beside the description below.
 function ProcessCard({ icon, n, k, v, style }: { icon: IconName; n: string; k: string; v: string; style?: CSSVars }) {
   return (
     <div
-      className="process-card relative rounded-lg border border-[var(--brand-teal-bright)]/22 bg-[var(--bg-inset)]/90 p-4 pt-5"
+      className="process-card relative rounded-lg border border-[var(--brand-teal-bright)]/22 bg-[var(--bg-inset)]/90 p-5"
       style={style}
     >
-      <span className="absolute top-3 right-3 mono text-[10px] tracking-[0.18em] text-white/35">{n}</span>
-      <Medallion name={icon} size="sm" />
-      <div className="mt-3 mono text-[12px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
-      <span aria-hidden className="block mt-2 h-px w-7 bg-[var(--brand-teal-bright)]/60" />
-      <p className="mt-2.5 text-[12.5px] leading-relaxed text-white/78">{v}</p>
+      <div className="flex items-center gap-3">
+        <span className="mono text-[10px] tracking-[0.16em] text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded px-1.5 py-0.5 shrink-0">
+          {n}
+        </span>
+        <span className="mono text-[12px] tracking-[0.22em] uppercase text-white/90">{k}</span>
+      </div>
+      <div className="mt-4 flex items-start gap-3.5">
+        <Medallion name={icon} size="sm" />
+        <p className="text-[12.5px] leading-relaxed text-white/75">{v}</p>
+      </div>
     </div>
   );
 }
@@ -830,82 +877,47 @@ function Stamp({ lines, style }: { lines: string[]; style?: CSSVars }) {
 function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage; agileLabel: string }) {
   const icons = STAGE_ICONS[index];
 
-  // Discovery — a single "project brief" spec-sheet card: header serial,
-  // outcomes as label→value rows, an inline agile note, and a three-column
-  // support footer (per the discovery mockup).
+  // Discovery — full-width outcomes row (numbered medallion cells), then an
+  // "Agile in action" note (left) beside the three support benefits (right).
   if (index === 0) {
-    const last = stage.grid.length - 1;
     return (
-      <div className="relative max-w-[720px]" style={rev(-0.4, 0.16, 8)}>
-        <div
-          className="relative rounded-2xl border border-white/[0.1] bg-[var(--bg-inset)]/85 overflow-hidden"
-          style={{ boxShadow: "inset 0 0 70px -45px var(--brand-teal-bright)" }}
-        >
-          {/* Card header — phase tag + decorative document serial */}
-          <div className="flex items-center justify-between gap-4 px-5 sm:px-6 py-4 border-b border-white/[0.07]">
-            <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]">
-              0{index + 1} · Brief
-            </span>
-            <span aria-hidden className="mono text-[9px] tracking-[0.2em] uppercase text-white/30">
-              IS-ENG-26 · 64Σ-0
-            </span>
-          </div>
-
-          <div className="px-5 sm:px-6 pt-5 pb-5">
-            {/* Outcomes label */}
-            <div className="flex items-center gap-2.5" style={rev(-0.3, 0.1, 6)}>
-              <span aria-hidden className="h-3.5 w-1 rounded-full bg-[var(--brand-teal-bright)]" />
-              <span className="mono text-[10.5px] tracking-[0.24em] uppercase text-white/75">{stage.divider}</span>
+      <div>
+        {/* Four outcomes across the full width */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-9">
+          {stage.grid.map((g, i) => (
+            <div key={i} className="flex flex-col gap-3.5" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
+              <div className="flex items-center gap-3">
+                <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{g.n}</span>
+                <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent" />
+              </div>
+              <Medallion name={icons.grid[i]} tone={icons.grid[i] === "alertTriangle" ? "warn" : "teal"} />
+              <div>
+                <div className="mono text-[11px] tracking-[0.18em] uppercase text-[var(--brand-teal-bright)] leading-tight">
+                  {g.k}
+                </div>
+                <div className="text-[13px] text-white/70 mt-1.5 leading-snug">{g.v}</div>
+              </div>
             </div>
+          ))}
+        </div>
 
-            {/* Outcome rows — label column → value, with a tick on the final row */}
-            <ul className="mt-3.5 divide-y divide-white/[0.055]">
-              {stage.grid.map((g, i) => (
-                <li key={i} className="flex items-center gap-4 py-2.5" style={rev(-0.24 + i * 0.05, 0.1, 5)}>
-                  <span className="mono text-[10px] tracking-[0.16em] uppercase text-white/45 w-[42%] sm:w-[38%] shrink-0">
-                    {g.k}
-                  </span>
-                  <span className="text-[13px] leading-snug text-white/85 flex-1">{g.v}</span>
-                  {i === last ? (
-                    <span
-                      aria-hidden
-                      className="grid place-items-center w-5 h-5 rounded-full border border-[var(--brand-teal-bright)]/55 text-[var(--brand-teal-bright)] shrink-0"
-                    >
-                      <Icon name="check" className="w-3 h-3" />
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-
-            {/* Agile in action — inline note */}
-            <div className="mt-6 flex items-center gap-2.5" style={rev(-0.08, 0.12, 6)}>
-              <span aria-hidden className="inline-block w-2 h-2 rotate-45 bg-[var(--brand-teal-bright)]" />
-              <span className="mono text-[10px] tracking-[0.26em] uppercase text-[var(--brand-teal-bright)]">{agileLabel}</span>
-            </div>
-            <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-white/70" style={rev(-0.04, 0.12, 6)}>
-              {stage.agile}
-            </p>
-          </div>
-
-          {/* Support footer — three hairline-divided cells */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.07] border-t border-white/[0.07]">
+        {/* Agile note (left) + support benefits (right) */}
+        <div className="mt-10 grid lg:grid-cols-12 gap-x-10 gap-y-8 border-t border-white/10 pt-8">
+          <AgileNote label={agileLabel} text={stage.agile} className="lg:col-span-5" style={rev(-0.05, 0.12, 8)} />
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6">
             {stage.support.map((s, i) => (
-              <div key={i} className="bg-[var(--bg-inset)] px-5 py-3.5" style={rev(i * 0.04, 0.1, 5)}>
-                <div className="mono text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]/90">{s.k}</div>
-                <div className="text-[11.5px] text-white/65 mt-1.5 leading-snug">{s.v}</div>
+              <div key={i} className="flex items-start gap-3" style={rev(0.02 + i * 0.04, 0.1, 6)}>
+                <Medallion name={icons.support[i]} size="sm" />
+                <div className="min-w-0">
+                  <div className="mono text-[10px] tracking-[0.18em] uppercase text-[var(--brand-teal-bright)] leading-tight">
+                    {s.k}
+                  </div>
+                  <div className="text-[12px] text-white/65 mt-1 leading-snug">{s.v}</div>
+                </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Section watermark */}
-        <span
-          aria-hidden
-          className="absolute right-1 -bottom-5 mono text-[9px] tracking-[0.34em] uppercase text-white/15"
-        >
-          {stage.name}
-        </span>
       </div>
     );
   }
@@ -959,10 +971,10 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
           ) : null}
         </div>
         <div className="lg:col-span-7">
-          <AgileBox label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <AgileNote label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6 border-t border-white/10 pt-7">
             {stage.support.map((s, i) => (
-              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} boxed style={rev(0.04 + i * 0.04, 0.1, 6)} />
+              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
             ))}
           </div>
         </div>
@@ -970,19 +982,37 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
     );
   }
 
-  // Operate — ongoing-support list + support row (left), agile (right).
+  // Operate — open numbered list + agile note up top, then the three support
+  // benefits full-width below (per the mockup; no enclosing list card).
   return (
-    <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-      <div className="lg:col-span-7">
-        <ListCard rows={stage.list} icons={icons.list} style={rev(-0.3, 0.12, 8)} />
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-5">
-          {stage.support.map((s, i) => (
-            <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
+    <div>
+      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
+        <div className="lg:col-span-7 space-y-4">
+          {stage.list.map((r, i) => (
+            <div key={i} className="flex items-start gap-4" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
+              <Medallion name={icons.list[i]} size="sm" />
+              <div className="min-w-0 flex-1 border-b border-white/[0.08] pb-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{r.n}</span>
+                  <span className="mono text-[12px] tracking-[0.18em] uppercase text-white/85">{r.k}</span>
+                </div>
+                <p className="mt-1.5 text-[12.5px] text-white/70 leading-snug">{r.v}</p>
+              </div>
+            </div>
           ))}
         </div>
+        <AgileNote
+          label={agileLabel}
+          text={stage.agile}
+          tag={stage.agileTag}
+          className="lg:col-span-5"
+          style={rev(-0.02, 0.12, 8)}
+        />
       </div>
-      <div className="lg:col-span-5">
-        <AgileBox label={agileLabel} text={stage.agile} tag={stage.agileTag} style={rev(-0.02, 0.12, 8)} />
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 border-t border-white/10 pt-7">
+        {stage.support.map((s, i) => (
+          <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
+        ))}
       </div>
     </div>
   );
@@ -994,6 +1024,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
    No emoji, single consistent stroke weight — one icon family across the section. */
 type IconName =
   | "target"
+  | "targetAccent"
   | "fileText"
   | "alertTriangle"
   | "shieldCheck"
@@ -1028,6 +1059,18 @@ const ICONS: Record<IconName, ReactNode> = {
       <line x1="1.5" y1="12" x2="5" y2="12" />
       <line x1="19" y1="12" x2="22.5" y2="12" />
       <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    </>
+  ),
+  // Same crosshair, but the bullseye is painted brand-red — the small pop of
+  // colour on the Discovery "Business goals" outcome (per fo.png).
+  targetAccent: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <line x1="12" y1="1.5" x2="12" y2="5" />
+      <line x1="12" y1="19" x2="12" y2="22.5" />
+      <line x1="1.5" y1="12" x2="5" y2="12" />
+      <line x1="19" y1="12" x2="22.5" y2="12" />
+      <circle cx="12" cy="12" r="2.2" fill="var(--brand-red)" stroke="none" />
     </>
   ),
   fileText: (

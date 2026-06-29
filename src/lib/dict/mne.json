@@ -124,7 +124,7 @@
         "name": "Eksploatacija",
         "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
         "divider": "Stalna podrška",
-        "dividerRight": "IS-OPS-26/041-O",
+        "dividerRight": "",
         "intro": { "k": "", "v": "" },
         "tag": "",
         "grid": [],
@@ -148,9 +148,18 @@
   },
   "clients": {
     "eyebrow": "Vjeruju nam",
+    "status": "u produkciji",
     "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
-    "colOrg": "Institucija",
+    "colOrg": "institucija",
+    "colSystem": "sistem",
     "more": "sistema u produkciji",
+    "groups": [
+      "Odbrana, bezbjednost i obavještajni sektor",
+      "Javne finansije i socijalni sektor",
+      "Vlada i ministarstva",
+      "EU i međunarodni sektor",
+      "Inovacije i privatni sektor"
+    ],
     "projects": [
       { "org": "Fond PIO Crne Gore", "system": "Nacionalni informacioni sistem" },
       { "org": "Poreska uprava Crne Gore", "system": "Centralni registar privrednih subjekata" },
