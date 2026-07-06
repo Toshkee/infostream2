@@ -29,7 +29,7 @@ export default function Services({ dict }: { dict: Dict }) {
 
       if (reduced) {
         gsap.set(".svc-draw", { drawSVG: "100%" });
-        gsap.set([".svc-pulse", ".srv-copy > *", ".srv-rule"], { opacity: 1, x: 0, y: 0, scaleX: 1 });
+        gsap.set([".svc-pulse", ".srv-copy > *"], { opacity: 1, x: 0, y: 0 });
         return;
       }
 
@@ -38,7 +38,6 @@ export default function Services({ dict }: { dict: Dict }) {
         const pulses = row.querySelectorAll<SVGElement>(".svc-pulse");
         const floats = row.querySelectorAll<SVGElement>(".svc-float");
         const copy = row.querySelectorAll<HTMLElement>(".srv-copy > *");
-        const rule = row.querySelector<HTMLElement>(".srv-rule");
         const flip = row.dataset.flip === "1";
 
         gsap.set(draws, { drawSVG: "0%" });
@@ -46,7 +45,6 @@ export default function Services({ dict }: { dict: Dict }) {
 
         const tl = gsap.timeline({ scrollTrigger: { trigger: row, start: "top 78%" } });
         tl.from(copy, { opacity: 0, x: flip ? 28 : -28, duration: 0.7, ease: "power3.out", stagger: 0.08 }, 0)
-          .fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.out" }, 0.1)
           .to(draws, { drawSVG: "100%", duration: 1, stagger: 0.03, ease: "power2.out" }, 0.15)
           .to(pulses, { opacity: 1, duration: 0.4, stagger: 0.06, ease: "power2.out" }, "-=0.4");
 
@@ -85,8 +83,7 @@ export default function Services({ dict }: { dict: Dict }) {
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10">
         {/* Heading */}
         <div className="max-w-2xl">
-          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-            <span className="h-px w-6 bg-[var(--brand-teal-bright)]" />
+          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
             {s.eyebrow}
           </div>
           <h2 className="srv-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -134,10 +131,7 @@ export default function Services({ dict }: { dict: Dict }) {
 
                 {/* Copy */}
                 <div className={`srv-copy lg:col-span-5 ${flip ? "lg:order-1" : "lg:order-2"}`}>
-                  <div className="flex items-center gap-3">
-                    <span className="srv-rule h-px w-10 origin-left bg-[var(--brand-teal-bright)]/60" />
-                  </div>
-                  <h3 className="mt-5 font-medium leading-tight tracking-[-0.02em] text-[clamp(1.55rem,3vw,2.35rem)]">
+                  <h3 className="font-medium leading-tight tracking-[-0.02em] text-[clamp(1.55rem,3vw,2.35rem)]">
                     {it.k}
                   </h3>
                   <p className="mt-4 max-w-md text-white/65 leading-relaxed text-[15.5px]">{it.v}</p>

@@ -188,8 +188,7 @@ export default function Projects({ dict }: { dict: Dict }) {
         {/* Heading */}
         <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
           <div className="max-w-2xl">
-            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-              <span className="h-px w-6 bg-[var(--brand-teal-bright)]" />
+            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
               {pj.eyebrow}
             </div>
             <h2 className="pj-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -231,7 +230,7 @@ export default function Projects({ dict }: { dict: Dict }) {
 
                     {/* zoom-on-hover wrapper (kept separate from GSAP's parallax target) */}
                     <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
-                      <ProjectVisual media={media} index={i} name={item.name} reduced={reducedMotion} />
+                      <ProjectVisual media={media} name={item.name} reduced={reducedMotion} />
                     </div>
 
                     {/* sheen sweep on hover */}
@@ -242,9 +241,6 @@ export default function Projects({ dict }: { dict: Dict }) {
                   <div className="mt-5 px-1">
                     <div className="flex items-baseline justify-between gap-4">
                       <h3 className="text-white font-medium text-[clamp(1.15rem,2vw,1.45rem)] tracking-[-0.01em] leading-tight">
-                        <span className="mono text-[var(--brand-teal-bright)] text-[0.7em] mr-2 align-[0.15em]">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
                         {item.name}
                       </h3>
                       <span className="mono text-[11px] tracking-[0.18em] text-white/40 tabular-nums flex-none">
@@ -294,12 +290,10 @@ export default function Projects({ dict }: { dict: Dict }) {
 // styled dashboard-wireframe placeholder so the layout reads intentionally.
 function ProjectVisual({
   media,
-  index,
   name,
   reduced,
 }: {
   media: ProjectMedia;
-  index: number;
   name: string;
   reduced: boolean;
 }) {
@@ -330,18 +324,16 @@ function ProjectVisual({
     );
   }
   return (
-    <Placeholder accent={media.accent} index={index} kind={media.kind} reduced={reduced} />
+    <Placeholder accent={media.accent} kind={media.kind} reduced={reduced} />
   );
 }
 
 function Placeholder({
   accent,
-  index,
   kind,
   reduced,
 }: {
   accent: string;
-  index: number;
   kind?: "image" | "video";
   reduced: boolean;
 }) {
@@ -401,10 +393,14 @@ function Placeholder({
           </span>
         ) : (
           <span
-            className="mono text-[3.2rem] leading-none font-medium"
-            style={{ color: accent, opacity: 0.9 }}
+            className="flex h-14 w-14 items-center justify-center rounded-full border"
+            style={{ borderColor: accent, boxShadow: `0 0 24px -6px ${accent}` }}
           >
-            {String(index + 1).padStart(2, "0")}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <circle cx="9" cy="10" r="1.6" />
+              <path d="m3 17 5-5 4 4 3-3 6 6" />
+            </svg>
           </span>
         )}
         <span className="mono text-[10px] uppercase tracking-[0.25em] text-white/45">

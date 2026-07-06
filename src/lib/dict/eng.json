@@ -5,7 +5,7 @@
     "clients": "Clients",
     "technology": "Tech",
     "projects": "Work",
-    "security": "Security",
+    "security": "Standards",
     "contact": "Contact",
     "cta": "Talk to us"
   },
@@ -21,28 +21,67 @@
     "exitAccent": "Twenty years of staying on the line.",
     "exitScrollHint": "scroll to see who's connected",
     "meta": [
-      { "k": "Years of experience", "v": "20+" },
-      { "k": "Delivery", "v": "Agile" },
-      { "k": "Platforms", "v": "Oracle • Microsoft" },
-      { "k": "Development", "v": "APEX • .NET" },
-      { "k": "Innovation", "v": "AI" }
+      {
+        "k": "Years of experience",
+        "v": "20+"
+      },
+      {
+        "k": "Delivery",
+        "v": "Agile"
+      },
+      {
+        "k": "Platforms",
+        "v": "Oracle • Microsoft"
+      },
+      {
+        "k": "Development",
+        "v": "APEX • .NET"
+      },
+      {
+        "k": "Innovation",
+        "v": "AI"
+      }
     ]
   },
   "stats": {
-    "iso": { "value": "ISO 27001", "label": "Information security, externally audited" },
-    "apex": { "value": "Oracle APEX", "label": "The platform we build on" },
-    "years": { "value": "20+", "label": "Years operating critical state systems" }
+    "iso": {
+      "value": "ISO 27001",
+      "label": "Information security, externally audited"
+    },
+    "apex": {
+      "value": "Oracle APEX",
+      "label": "The platform we build on"
+    },
+    "years": {
+      "value": "20+",
+      "label": "Years operating critical state systems"
+    }
   },
   "services": {
     "eyebrow": "What we do",
     "title": "We build the systems a state runs on.",
     "body": "Since 2004 we have designed, built and run public-finance systems and national registers — five disciplines, delivered end to end and kept entirely in house.",
     "items": [
-      { "k": "Financial software development", "v": "Custom treasury, budgeting, payments and statutory reporting — built to fit how each institution operates, then run in production for the long term." },
-      { "k": "Registers", "v": "Authoritative national registers at the close of administrative procedure: we built the Central Register of Business Entities and the Digital Address Register." },
-      { "k": "Digital transformation", "v": "We move institutions off paper: unstructured documents are captured, digitised and centralised, so information stays secure and instantly available." },
-      { "k": "IT infrastructure", "v": "We match the right technology to each need, then deliver it as a flexible platform that holds steady under real production load." },
-      { "k": "Consulting", "v": "We help clients weigh their options and apply technology that genuinely reshapes how they work — practical decisions, not novelty." }
+      {
+        "k": "Financial software development",
+        "v": "Custom treasury, budgeting, payments and statutory reporting — built to fit how each institution operates, then run in production for the long term."
+      },
+      {
+        "k": "Registers",
+        "v": "Authoritative national registers at the close of administrative procedure: we built the Central Register of Business Entities and the Digital Address Register."
+      },
+      {
+        "k": "Digital transformation",
+        "v": "We move institutions off paper: unstructured documents are captured, digitised and centralised, so information stays secure and instantly available."
+      },
+      {
+        "k": "IT infrastructure",
+        "v": "We match the right technology to each need, then deliver it as a flexible platform that holds steady under real production load."
+      },
+      {
+        "k": "Consulting",
+        "v": "We help clients weigh their options and apply technology that genuinely reshapes how they work — practical decisions, not novelty."
+      }
     ]
   },
   "platform": {
@@ -57,20 +96,48 @@
         "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one.",
         "divider": "Discovery outcomes",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [
-          { "n": "01", "k": "Business goals", "v": "Aligned with stakeholders" },
-          { "n": "02", "k": "Requirements", "v": "Captured and prioritised" },
-          { "n": "03", "k": "Risks", "v": "Identified and assessed" },
-          { "n": "04", "k": "Success criteria", "v": "Defined and agreed" }
+          {
+            "n": "01",
+            "k": "Business goals",
+            "v": "Aligned with stakeholders"
+          },
+          {
+            "n": "02",
+            "k": "Requirements",
+            "v": "Captured and prioritised"
+          },
+          {
+            "n": "03",
+            "k": "Risks",
+            "v": "Identified and assessed"
+          },
+          {
+            "n": "04",
+            "k": "Success criteria",
+            "v": "Defined and agreed"
+          }
         ],
         "cards": [],
         "list": [],
         "support": [
-          { "k": "Collaboration", "v": "Stakeholders aligned" },
-          { "k": "Prioritisation", "v": "Prioritised project backlog" },
-          { "k": "Visibility", "v": "Clear success criteria" }
+          {
+            "k": "Collaboration",
+            "v": "Stakeholders aligned"
+          },
+          {
+            "k": "Prioritisation",
+            "v": "Prioritised project backlog"
+          },
+          {
+            "k": "Visibility",
+            "v": "Clear success criteria"
+          }
         ],
         "stamp": [],
         "agile": "We adapt to change without losing sight of the goals that matter.",
@@ -81,14 +148,33 @@
         "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build.",
         "divider": "Process",
         "dividerRight": "Sign-off before build",
-        "intro": { "k": "Our architecture process", "v": "A structured approach to designing resilient, secure and future-ready solutions." },
+        "intro": {
+          "k": "Our architecture process",
+          "v": "A structured approach to designing resilient, secure and future-ready solutions."
+        },
         "tag": "Architecture is where strategy becomes structure.",
         "grid": [],
         "cards": [
-          { "n": "01", "k": "Plan", "v": "We understand your business goals and define the right architecture strategy." },
-          { "n": "02", "k": "Design", "v": "We create a solution architecture that is scalable, secure and efficient." },
-          { "n": "03", "k": "Validate", "v": "We verify integrations, security and performance to ensure reliability." },
-          { "n": "04", "k": "Build", "v": "We hand over a clear, validated blueprint ready for agile delivery." }
+          {
+            "n": "01",
+            "k": "Plan",
+            "v": "We understand your business goals and define the right architecture strategy."
+          },
+          {
+            "n": "02",
+            "k": "Design",
+            "v": "We create a solution architecture that is scalable, secure and efficient."
+          },
+          {
+            "n": "03",
+            "k": "Validate",
+            "v": "We verify integrations, security and performance to ensure reliability."
+          },
+          {
+            "n": "04",
+            "k": "Build",
+            "v": "We hand over a clear, validated blueprint ready for agile delivery."
+          }
         ],
         "list": [],
         "support": [],
@@ -101,22 +187,53 @@
         "description": "Working software is delivered in increments, allowing feedback, adaptation and measurable progress throughout the project.",
         "divider": "Sprint delivery",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [],
         "cards": [],
         "list": [
-          { "n": "SPR-01", "k": "", "v": "Requirements implemented" },
-          { "n": "SPR-02", "k": "", "v": "Features validated" },
-          { "n": "SPR-03", "k": "", "v": "User feedback incorporated" },
-          { "n": "SPR-04", "k": "", "v": "Release candidate prepared" }
+          {
+            "n": "SPR-01",
+            "k": "",
+            "v": "Requirements implemented"
+          },
+          {
+            "n": "SPR-02",
+            "k": "",
+            "v": "Features validated"
+          },
+          {
+            "n": "SPR-03",
+            "k": "",
+            "v": "User feedback incorporated"
+          },
+          {
+            "n": "SPR-04",
+            "k": "",
+            "v": "Release candidate prepared"
+          }
         ],
         "support": [
-          { "k": "Quality", "v": "Continuous testing ensures reliability and high standards." },
-          { "k": "Collaboration", "v": "Stakeholder feedback drives better solutions and outcomes." },
-          { "k": "Delivery", "v": "Incremental releases provide value early and reduce project risk." }
+          {
+            "k": "Quality",
+            "v": "Continuous testing ensures reliability and high standards."
+          },
+          {
+            "k": "Collaboration",
+            "v": "Stakeholder feedback drives better solutions and outcomes."
+          },
+          {
+            "k": "Delivery",
+            "v": "Incremental releases provide value early and reduce project risk."
+          }
         ],
-        "stamp": ["Release approved", "Infostream · Podgorica"],
+        "stamp": [
+          "Release approved",
+          "Infostream · Podgorica"
+        ],
         "agile": "Working software is delivered early and improved continuously through feedback and iteration.",
         "agileTag": ""
       },
@@ -125,20 +242,48 @@
         "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value.",
         "divider": "Ongoing support",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [],
         "cards": [],
         "list": [
-          { "n": "01", "k": "Go-live", "v": "Solution successfully launched." },
-          { "n": "02", "k": "Monitoring", "v": "Performance and availability tracked." },
-          { "n": "03", "k": "Optimisation", "v": "Improvements identified and delivered." },
-          { "n": "04", "k": "Partnership", "v": "Ongoing support and advisory services." }
+          {
+            "n": "01",
+            "k": "Go-live",
+            "v": "Solution successfully launched."
+          },
+          {
+            "n": "02",
+            "k": "Monitoring",
+            "v": "Performance and availability tracked."
+          },
+          {
+            "n": "03",
+            "k": "Optimisation",
+            "v": "Improvements identified and delivered."
+          },
+          {
+            "n": "04",
+            "k": "Partnership",
+            "v": "Ongoing support and advisory services."
+          }
         ],
         "support": [
-          { "k": "Support", "v": "Dedicated assistance when you need it." },
-          { "k": "Monitoring", "v": "System health and performance visibility." },
-          { "k": "Improvement", "v": "Continuous optimisation drives long-term value." }
+          {
+            "k": "Support",
+            "v": "Dedicated assistance when you need it."
+          },
+          {
+            "k": "Monitoring",
+            "v": "System health and performance visibility."
+          },
+          {
+            "k": "Improvement",
+            "v": "Continuous optimisation drives long-term value."
+          }
         ],
         "stamp": [],
         "agile": "Feedback does not stop at delivery. Every release creates new opportunities for improvement.",
@@ -161,26 +306,86 @@
       "Innovation & private sector"
     ],
     "projects": [
-      { "org": "Pension & Disability Insurance Fund", "system": "National information system" },
-      { "org": "Tax Administration of Montenegro", "system": "Central Register of Business Entities" },
-      { "org": "Ministry of Defense", "system": "INFODMS document management" },
-      { "org": "Intelligence Agency of Montenegro", "system": "Enterprise resource planning" },
-      { "org": "Parliament of Montenegro", "system": "ERPStream platform" },
-      { "org": "Ministry of Interior", "system": "Security & detective activity licensing" },
-      { "org": "Address Register of Montenegro", "system": "National address IT system" },
-      { "org": "Official Gazette of Montenegro", "system": "Register of regulations & acts" },
-      { "org": "Ministry of Finance", "system": "REES system upgrade" },
-      { "org": "Military Intelligence Department", "system": "Document management system" },
-      { "org": "Innovation Fund of Montenegro", "system": "Information system" },
-      { "org": "einovacije.gov.me", "system": "National innovation portal" },
-      { "org": "Ministry of European Affairs", "system": "ERPStream" },
-      { "org": "Ministry of Energy & Mining", "system": "ERPStream" },
-      { "org": "Maritime Security Administration", "system": "ERPStream" },
-      { "org": "EU Delegation to Montenegro", "system": "Freedom-of-information system" },
-      { "org": "EU Assistance Funds — CFCU", "system": "eCES contract execution system" },
-      { "org": "Human Resources Management Authority", "system": "HR management information system" },
-      { "org": "Government of Montenegro", "system": "COVID-19 state-aid platform" },
-      { "org": "ERSTE Bank", "system": "ERPStream on Oracle 12c" }
+      {
+        "org": "Pension & Disability Insurance Fund",
+        "system": "National information system"
+      },
+      {
+        "org": "Tax Administration of Montenegro",
+        "system": "Central Register of Business Entities"
+      },
+      {
+        "org": "Ministry of Defense",
+        "system": "INFODMS document management"
+      },
+      {
+        "org": "Intelligence Agency of Montenegro",
+        "system": "Enterprise resource planning"
+      },
+      {
+        "org": "Parliament of Montenegro",
+        "system": "ERPStream platform"
+      },
+      {
+        "org": "Ministry of Interior",
+        "system": "Security & detective activity licensing"
+      },
+      {
+        "org": "Address Register of Montenegro",
+        "system": "National address IT system"
+      },
+      {
+        "org": "Official Gazette of Montenegro",
+        "system": "Register of regulations & acts"
+      },
+      {
+        "org": "Ministry of Finance",
+        "system": "REES system upgrade"
+      },
+      {
+        "org": "Military Intelligence Department",
+        "system": "Document management system"
+      },
+      {
+        "org": "Innovation Fund of Montenegro",
+        "system": "Information system"
+      },
+      {
+        "org": "einovacije.gov.me",
+        "system": "National innovation portal"
+      },
+      {
+        "org": "Ministry of European Affairs",
+        "system": "ERPStream"
+      },
+      {
+        "org": "Ministry of Energy & Mining",
+        "system": "ERPStream"
+      },
+      {
+        "org": "Maritime Security Administration",
+        "system": "ERPStream"
+      },
+      {
+        "org": "EU Delegation to Montenegro",
+        "system": "Freedom-of-information system"
+      },
+      {
+        "org": "EU Assistance Funds — CFCU",
+        "system": "eCES contract execution system"
+      },
+      {
+        "org": "Human Resources Management Authority",
+        "system": "HR management information system"
+      },
+      {
+        "org": "Government of Montenegro",
+        "system": "COVID-19 state-aid platform"
+      },
+      {
+        "org": "ERSTE Bank",
+        "system": "ERPStream on Oracle 12c"
+      }
     ]
   },
   "projects": {
@@ -192,43 +397,84 @@
       {
         "name": "Official Gazette — Legal Register",
         "summary": "Register of the refined, consolidated texts of Montenegro's laws and regulations for the Official Gazette — full-text search across every published act.",
-        "tags": ["Oracle", ".NET", "Elasticsearch"],
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Elasticsearch"
+        ],
         "year": "2023"
       },
       {
         "name": "DotBond",
         "summary": "An open-source toolchain our engineers built to generate fully-typed TypeScript clients from C#/.NET back-ends — keeping front-end and API contracts in lockstep.",
-        "tags": ["C#", ".NET", "TypeScript"],
+        "tags": [
+          "C#",
+          ".NET",
+          "TypeScript"
+        ],
         "year": "2024"
       },
       {
         "name": "Regulations Register",
         "summary": "Back-office register for classifying and publishing national regulations — issuer workflows, regulation metadata and EU-harmonisation chapter tracking.",
-        "tags": ["Oracle", ".NET", "Angular"],
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Angular"
+        ],
         "year": "2025"
       },
       {
         "name": "Innovation Fund Platform",
         "summary": "The information system behind the Innovation Fund of Montenegro — managing funding programmes and applications, searchable by programme and year.",
-        "tags": ["Oracle APEX", "Oracle", "JavaScript"],
+        "tags": [
+          "Oracle APEX",
+          "Oracle",
+          "JavaScript"
+        ],
         "year": "2024"
       },
       {
         "name": "Register of NGOs & Political Parties",
         "summary": "Online registration and records for Montenegro's NGOs and political parties at ngo.gov.me — guided submission, seat and membership data, document issuance.",
-        "tags": ["Oracle", "Angular", "JavaScript"],
+        "tags": [
+          "Oracle",
+          "Angular",
+          "JavaScript"
+        ],
         "year": "2024"
       }
     ]
   },
   "security": {
-    "eyebrow": "Security posture",
-    "title": "Built to be audited.",
-    "body": "Two parallel ISO regimes, Bitdefender enterprise across endpoints and servers, an internal red team that breaks our own code before anyone else can.",
-    "pillars": [
-      { "k": "ISO 27001", "v": "Information security management, certified and externally audited annually." },
-      { "k": "ISO 9001", "v": "Quality management across the full delivery lifecycle." },
-      { "k": "Bitdefender", "v": "Enterprise endpoint and server protection across all production estate." }
+    "eyebrow": "Standards",
+    "title": "Committed to quality. Certified by standards.",
+    "body": "International standards, certified processes and trusted technologies ensure every solution is delivered with quality, reliability and information security.",
+    "cards": [
+      {
+        "id": "bitdefender",
+        "name": "Bitdefender",
+        "desc": "Enterprise endpoint and server protection.",
+        "status": "Active"
+      },
+      {
+        "id": "iso9001",
+        "name": "ISO 9001",
+        "desc": "Certified Quality Management System.",
+        "status": "Certified"
+      },
+      {
+        "id": "iso20000",
+        "name": "ISO 20000",
+        "desc": "Certified IT Service Management.",
+        "status": "Certified"
+      },
+      {
+        "id": "iso27001",
+        "name": "ISO 27001",
+        "desc": "Certified Information Security Management.",
+        "status": "Certified"
+      }
     ]
   },
   "contact": {
@@ -243,25 +489,70 @@
   },
   "technology": {
     "eyebrow": "Technology",
-    "title": "The stack underneath.",
+    "title": "Built on proven technologies.",
     "builtOn": "Built on",
+    "rotate": [
+      {
+        "word": "Oracle Database",
+        "desc": "The trusted foundation for secure, scalable and reliable software solutions."
+      },
+      {
+        "word": "Oracle APEX",
+        "desc": "Rapid application development that delivers secure business solutions with speed and flexibility."
+      },
+      {
+        "word": ".NET",
+        "desc": "A modern development framework for scalable, maintainable and enterprise-ready applications."
+      }
+    ],
     "perimeterLabel": "SECURE PERIMETER",
-    "body": "Stable, well-understood tooling — chosen for longevity, audit-trail and operational predictability over novelty.",
-    "tiers": [
+    "groups": [
       {
-        "label": "Core Platform",
-        "tech": ["Oracle Database", "Oracle APEX", "PostgreSQL / PostGIS", "Elasticsearch"],
-        "note": "Oracle at the core for transactional integrity, PL/SQL and point-in-time recovery — with PostGIS for spatial data and Elasticsearch for full-text search."
+        "label": "Core Technologies",
+        "intro": "The core platforms we rely on to deliver secure, scalable and enterprise-grade solutions.",
+        "items": [
+          {
+            "name": "Oracle Database",
+            "icon": "db",
+            "desc": "Enterprise-grade database platform built for reliability, security and scale."
+          },
+          {
+            "name": "Oracle APEX",
+            "icon": "apex",
+            "desc": "Low-code development platform for building powerful enterprise applications faster."
+          },
+          {
+            "name": "Microsoft .NET",
+            "icon": "net",
+            "desc": "Robust framework for building scalable, maintainable and high-performance applications."
+          }
+        ]
       },
       {
-        "label": "Application",
-        "tech": [".NET / C#", "Java / Spring", "Angular", "JavaScript", "Microservices"],
-        "note": "Server-side logic and operator-facing web interfaces, built as microservices and shipped through continuous integration and automated testing."
-      },
-      {
-        "label": "Security",
-        "tech": ["Bitdefender Enterprise", "ISO 27001", "ISO 9001"],
-        "note": "Endpoint and server protection across the production estate, under externally audited control regimes."
+        "label": "Supporting Technologies",
+        "intro": "Technologies we use to complement and extend solutions based on project requirements.",
+        "items": [
+          {
+            "name": "Java",
+            "icon": "java",
+            "desc": "Strong, reliable platform for enterprise-grade applications."
+          },
+          {
+            "name": "Angular",
+            "icon": "angular",
+            "desc": "Modern frontend framework for building fast and dynamic interfaces."
+          },
+          {
+            "name": "JavaScript",
+            "icon": "js",
+            "desc": "Essential for interactive web experiences and integration layers."
+          },
+          {
+            "name": "AI",
+            "icon": "ai",
+            "desc": "Intelligent solutions that automate processes and unlock business insights."
+          }
+        ]
       }
     ]
   },

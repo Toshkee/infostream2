@@ -5,7 +5,7 @@
     "clients": "Klijenti",
     "technology": "Tehnologija",
     "projects": "Radovi",
-    "security": "Bezbjednost",
+    "security": "Standardi",
     "contact": "Kontakt",
     "cta": "Razgovarajmo"
   },
@@ -21,28 +21,67 @@
     "exitAccent": "Dvadeset godina na liniji.",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
-      { "k": "Godine iskustva", "v": "20+" },
-      { "k": "Isporuka", "v": "Agile" },
-      { "k": "Platforme", "v": "Oracle • Microsoft" },
-      { "k": "Razvoj", "v": "APEX • .NET" },
-      { "k": "Inovacija", "v": "AI" }
+      {
+        "k": "Godine iskustva",
+        "v": "20+"
+      },
+      {
+        "k": "Isporuka",
+        "v": "Agile"
+      },
+      {
+        "k": "Platforme",
+        "v": "Oracle • Microsoft"
+      },
+      {
+        "k": "Razvoj",
+        "v": "APEX • .NET"
+      },
+      {
+        "k": "Inovacija",
+        "v": "AI"
+      }
     ]
   },
   "stats": {
-    "iso": { "value": "ISO 27001", "label": "Informaciona bezbjednost, eksterno revidirana" },
-    "apex": { "value": "Oracle APEX", "label": "Platforma na kojoj gradimo" },
-    "years": { "value": "20+", "label": "Godina rada na kritičnim državnim sistemima" }
+    "iso": {
+      "value": "ISO 27001",
+      "label": "Informaciona bezbjednost, eksterno revidirana"
+    },
+    "apex": {
+      "value": "Oracle APEX",
+      "label": "Platforma na kojoj gradimo"
+    },
+    "years": {
+      "value": "20+",
+      "label": "Godina rada na kritičnim državnim sistemima"
+    }
   },
   "services": {
     "eyebrow": "Čime se bavimo",
     "title": "Gradimo sisteme na kojima počiva država.",
     "body": "Od 2004. godine projektujemo, gradimo i održavamo sisteme javnih finansija i nacionalne registre — pet disciplina, isporučenih od početka do kraja i u potpunosti razvijenih u sopstvenoj režiji.",
     "items": [
-      { "k": "Razvoj finansijskog softvera", "v": "Rješenja za trezor, budžetiranje, plaćanja i zakonski propisano izvještavanje — prilagođena načinu rada svake institucije, a potom dugoročno održavana u produkciji." },
-      { "k": "Registri", "v": "Vjerodostojni nacionalni registri kao završetak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa." },
-      { "k": "Digitalna transformacija", "v": "Institucije oslobađamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne." },
-      { "k": "IT infrastruktura", "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporučujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono opterećenje." },
-      { "k": "Konsalting", "v": "Pomažemo klijentima da odmjere mogućnosti i primijene tehnologiju koja zaista mijenja način na koji rade — praktične odluke, a ne pomodarstvo." }
+      {
+        "k": "Razvoj finansijskog softvera",
+        "v": "Rješenja za trezor, budžetiranje, plaćanja i zakonski propisano izvještavanje — prilagođena načinu rada svake institucije, a potom dugoročno održavana u produkciji."
+      },
+      {
+        "k": "Registri",
+        "v": "Vjerodostojni nacionalni registri kao završetak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa."
+      },
+      {
+        "k": "Digitalna transformacija",
+        "v": "Institucije oslobađamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne."
+      },
+      {
+        "k": "IT infrastruktura",
+        "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporučujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono opterećenje."
+      },
+      {
+        "k": "Konsalting",
+        "v": "Pomažemo klijentima da odmjere mogućnosti i primijene tehnologiju koja zaista mijenja način na koji rade — praktične odluke, a ne pomodarstvo."
+      }
     ]
   },
   "platform": {
@@ -57,20 +96,48 @@
         "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
         "divider": "Ishodi otkrivanja",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [
-          { "n": "01", "k": "Poslovni ciljevi", "v": "Usklađeni sa stejkholderima" },
-          { "n": "02", "k": "Zahtjevi", "v": "Prikupljeni i prioritizovani" },
-          { "n": "03", "k": "Rizici", "v": "Identifikovani i procijenjeni" },
-          { "n": "04", "k": "Kriterijumi uspjeha", "v": "Definisani i dogovoreni" }
+          {
+            "n": "01",
+            "k": "Poslovni ciljevi",
+            "v": "Usklađeni sa stejkholderima"
+          },
+          {
+            "n": "02",
+            "k": "Zahtjevi",
+            "v": "Prikupljeni i prioritizovani"
+          },
+          {
+            "n": "03",
+            "k": "Rizici",
+            "v": "Identifikovani i procijenjeni"
+          },
+          {
+            "n": "04",
+            "k": "Kriterijumi uspjeha",
+            "v": "Definisani i dogovoreni"
+          }
         ],
         "cards": [],
         "list": [],
         "support": [
-          { "k": "Saradnja", "v": "Stejkholderi usklađeni" },
-          { "k": "Prioritizacija", "v": "Prioritizovan backlog projekta" },
-          { "k": "Vidljivost", "v": "Jasni kriterijumi uspjeha" }
+          {
+            "k": "Saradnja",
+            "v": "Stejkholderi usklađeni"
+          },
+          {
+            "k": "Prioritizacija",
+            "v": "Prioritizovan backlog projekta"
+          },
+          {
+            "k": "Vidljivost",
+            "v": "Jasni kriterijumi uspjeha"
+          }
         ],
         "stamp": [],
         "agile": "Prilagođavamo se promjenama ne gubeći iz vida ciljeve koji su važni.",
@@ -81,14 +148,33 @@
         "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju — ne izmišljaju se usput.",
         "divider": "Proces",
         "dividerRight": "Potvrda prije izrade",
-        "intro": { "k": "Naš arhitektonski proces", "v": "Strukturiran pristup projektovanju otpornih, bezbjednih i rješenja spremnih za budućnost." },
+        "intro": {
+          "k": "Naš arhitektonski proces",
+          "v": "Strukturiran pristup projektovanju otpornih, bezbjednih i rješenja spremnih za budućnost."
+        },
         "tag": "Arhitektura je mjesto gdje strategija postaje struktura.",
         "grid": [],
         "cards": [
-          { "n": "01", "k": "Plan", "v": "Razumijemo vaše poslovne ciljeve i definišemo pravu arhitektonsku strategiju." },
-          { "n": "02", "k": "Dizajn", "v": "Kreiramo arhitekturu rješenja koja je skalabilna, bezbjedna i efikasna." },
-          { "n": "03", "k": "Validacija", "v": "Provjeravamo integracije, bezbjednost i performanse radi pouzdanosti." },
-          { "n": "04", "k": "Izrada", "v": "Predajemo jasan, validiran nacrt spreman za agilnu isporuku." }
+          {
+            "n": "01",
+            "k": "Plan",
+            "v": "Razumijemo vaše poslovne ciljeve i definišemo pravu arhitektonsku strategiju."
+          },
+          {
+            "n": "02",
+            "k": "Dizajn",
+            "v": "Kreiramo arhitekturu rješenja koja je skalabilna, bezbjedna i efikasna."
+          },
+          {
+            "n": "03",
+            "k": "Validacija",
+            "v": "Provjeravamo integracije, bezbjednost i performanse radi pouzdanosti."
+          },
+          {
+            "n": "04",
+            "k": "Izrada",
+            "v": "Predajemo jasan, validiran nacrt spreman za agilnu isporuku."
+          }
         ],
         "list": [],
         "support": [],
@@ -101,22 +187,53 @@
         "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta.",
         "divider": "Isporuka sprinta",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [],
         "cards": [],
         "list": [
-          { "n": "SPR-01", "k": "", "v": "Zahtjevi implementirani" },
-          { "n": "SPR-02", "k": "", "v": "Funkcionalnosti validirane" },
-          { "n": "SPR-03", "k": "", "v": "Povratne informacije korisnika uključene" },
-          { "n": "SPR-04", "k": "", "v": "Kandidat za izdanje pripremljen" }
+          {
+            "n": "SPR-01",
+            "k": "",
+            "v": "Zahtjevi implementirani"
+          },
+          {
+            "n": "SPR-02",
+            "k": "",
+            "v": "Funkcionalnosti validirane"
+          },
+          {
+            "n": "SPR-03",
+            "k": "",
+            "v": "Povratne informacije korisnika uključene"
+          },
+          {
+            "n": "SPR-04",
+            "k": "",
+            "v": "Kandidat za izdanje pripremljen"
+          }
         ],
         "support": [
-          { "k": "Kvalitet", "v": "Kontinuirano testiranje obezbjeđuje pouzdanost i visoke standarde." },
-          { "k": "Saradnja", "v": "Povratne informacije stejkholdera vode do boljih rješenja i ishoda." },
-          { "k": "Isporuka", "v": "Inkrementalna izdanja donose vrijednost ranije i smanjuju rizik projekta." }
+          {
+            "k": "Kvalitet",
+            "v": "Kontinuirano testiranje obezbjeđuje pouzdanost i visoke standarde."
+          },
+          {
+            "k": "Saradnja",
+            "v": "Povratne informacije stejkholdera vode do boljih rješenja i ishoda."
+          },
+          {
+            "k": "Isporuka",
+            "v": "Inkrementalna izdanja donose vrijednost ranije i smanjuju rizik projekta."
+          }
         ],
-        "stamp": ["Izdanje odobreno", "Infostream · Podgorica"],
+        "stamp": [
+          "Izdanje odobreno",
+          "Infostream · Podgorica"
+        ],
         "agile": "Funkcionalni softver se isporučuje rano i kontinuirano poboljšava kroz povratne informacije i iteracije.",
         "agileTag": ""
       },
@@ -125,20 +242,48 @@
         "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
         "divider": "Stalna podrška",
         "dividerRight": "",
-        "intro": { "k": "", "v": "" },
+        "intro": {
+          "k": "",
+          "v": ""
+        },
         "tag": "",
         "grid": [],
         "cards": [],
         "list": [
-          { "n": "01", "k": "Puštanje u rad", "v": "Rješenje uspješno pokrenuto." },
-          { "n": "02", "k": "Monitoring", "v": "Performanse i dostupnost praćene." },
-          { "n": "03", "k": "Optimizacija", "v": "Poboljšanja identifikovana i isporučena." },
-          { "n": "04", "k": "Partnerstvo", "v": "Stalna podrška i savjetodavne usluge." }
+          {
+            "n": "01",
+            "k": "Puštanje u rad",
+            "v": "Rješenje uspješno pokrenuto."
+          },
+          {
+            "n": "02",
+            "k": "Monitoring",
+            "v": "Performanse i dostupnost praćene."
+          },
+          {
+            "n": "03",
+            "k": "Optimizacija",
+            "v": "Poboljšanja identifikovana i isporučena."
+          },
+          {
+            "n": "04",
+            "k": "Partnerstvo",
+            "v": "Stalna podrška i savjetodavne usluge."
+          }
         ],
         "support": [
-          { "k": "Podrška", "v": "Posvećena pomoć kad vam zatreba." },
-          { "k": "Monitoring", "v": "Uvid u zdravlje sistema i performanse." },
-          { "k": "Unapređenje", "v": "Kontinuirana optimizacija donosi dugoročnu vrijednost." }
+          {
+            "k": "Podrška",
+            "v": "Posvećena pomoć kad vam zatreba."
+          },
+          {
+            "k": "Monitoring",
+            "v": "Uvid u zdravlje sistema i performanse."
+          },
+          {
+            "k": "Unapređenje",
+            "v": "Kontinuirana optimizacija donosi dugoročnu vrijednost."
+          }
         ],
         "stamp": [],
         "agile": "Povratne informacije ne prestaju nakon isporuke. Svako izdanje stvara nove prilike za poboljšanje.",
@@ -161,26 +306,86 @@
       "Inovacije i privatni sektor"
     ],
     "projects": [
-      { "org": "Fond PIO Crne Gore", "system": "Nacionalni informacioni sistem" },
-      { "org": "Poreska uprava Crne Gore", "system": "Centralni registar privrednih subjekata" },
-      { "org": "Ministarstvo odbrane", "system": "INFODMS upravljanje dokumentima" },
-      { "org": "Agencija za nacionalnu bezbjednost", "system": "ERP sistem" },
-      { "org": "Skupština Crne Gore", "system": "ERPStream platforma" },
-      { "org": "Ministarstvo unutrašnjih poslova", "system": "Licenciranje zaštitarske djelatnosti" },
-      { "org": "Adresni registar Crne Gore", "system": "Nacionalni adresni IT sistem" },
-      { "org": "Službeni list Crne Gore", "system": "Registar propisa i akata" },
-      { "org": "Ministarstvo finansija", "system": "Unapređenje REES sistema" },
-      { "org": "Vojnoobavještajna služba", "system": "Sistem za upravljanje dokumentima" },
-      { "org": "Fond za inovacije Crne Gore", "system": "Informacioni sistem" },
-      { "org": "einovacije.gov.me", "system": "Nacionalni portal za inovacije" },
-      { "org": "Ministarstvo evropskih poslova", "system": "ERPStream" },
-      { "org": "Ministarstvo energetike i rudarstva", "system": "ERPStream" },
-      { "org": "Uprava pomorske sigurnosti", "system": "ERPStream" },
-      { "org": "Delegacija EU u Crnoj Gori", "system": "Sistem za slobodan pristup informacijama" },
-      { "org": "Fondovi EU pomoći — CFCU", "system": "eCES sistem za izvršenje ugovora" },
-      { "org": "Uprava za kadrove", "system": "Informacioni sistem za upravljanje kadrovima" },
-      { "org": "Vlada Crne Gore", "system": "Platforma za COVID-19 subvencije" },
-      { "org": "Erste banka", "system": "ERPStream na Oracle 12c platformi" }
+      {
+        "org": "Fond PIO Crne Gore",
+        "system": "Nacionalni informacioni sistem"
+      },
+      {
+        "org": "Poreska uprava Crne Gore",
+        "system": "Centralni registar privrednih subjekata"
+      },
+      {
+        "org": "Ministarstvo odbrane",
+        "system": "INFODMS upravljanje dokumentima"
+      },
+      {
+        "org": "Agencija za nacionalnu bezbjednost",
+        "system": "ERP sistem"
+      },
+      {
+        "org": "Skupština Crne Gore",
+        "system": "ERPStream platforma"
+      },
+      {
+        "org": "Ministarstvo unutrašnjih poslova",
+        "system": "Licenciranje zaštitarske djelatnosti"
+      },
+      {
+        "org": "Adresni registar Crne Gore",
+        "system": "Nacionalni adresni IT sistem"
+      },
+      {
+        "org": "Službeni list Crne Gore",
+        "system": "Registar propisa i akata"
+      },
+      {
+        "org": "Ministarstvo finansija",
+        "system": "Unapređenje REES sistema"
+      },
+      {
+        "org": "Vojnoobavještajna služba",
+        "system": "Sistem za upravljanje dokumentima"
+      },
+      {
+        "org": "Fond za inovacije Crne Gore",
+        "system": "Informacioni sistem"
+      },
+      {
+        "org": "einovacije.gov.me",
+        "system": "Nacionalni portal za inovacije"
+      },
+      {
+        "org": "Ministarstvo evropskih poslova",
+        "system": "ERPStream"
+      },
+      {
+        "org": "Ministarstvo energetike i rudarstva",
+        "system": "ERPStream"
+      },
+      {
+        "org": "Uprava pomorske sigurnosti",
+        "system": "ERPStream"
+      },
+      {
+        "org": "Delegacija EU u Crnoj Gori",
+        "system": "Sistem za slobodan pristup informacijama"
+      },
+      {
+        "org": "Fondovi EU pomoći — CFCU",
+        "system": "eCES sistem za izvršenje ugovora"
+      },
+      {
+        "org": "Uprava za kadrove",
+        "system": "Informacioni sistem za upravljanje kadrovima"
+      },
+      {
+        "org": "Vlada Crne Gore",
+        "system": "Platforma za COVID-19 subvencije"
+      },
+      {
+        "org": "Erste banka",
+        "system": "ERPStream na Oracle 12c platformi"
+      }
     ]
   },
   "projects": {
@@ -192,43 +397,84 @@
       {
         "name": "Službeni list — Registar propisa",
         "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list — pretraga punog teksta kroz sve objavljene akte.",
-        "tags": ["Oracle", ".NET", "Elasticsearch"],
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Elasticsearch"
+        ],
         "year": "2023"
       },
       {
         "name": "DotBond",
         "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine — front-end i API ugovori ostaju usklađeni.",
-        "tags": ["C#", ".NET", "TypeScript"],
+        "tags": [
+          "C#",
+          ".NET",
+          "TypeScript"
+        ],
         "year": "2024"
       },
       {
         "name": "Registar propisa",
         "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa — tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
-        "tags": ["Oracle", ".NET", "Angular"],
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Angular"
+        ],
         "year": "2025"
       },
       {
         "name": "Platforma Fonda za inovacije",
         "summary": "Informacioni sistem Fonda za inovacije Crne Gore — upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
-        "tags": ["Oracle APEX", "Oracle", "JavaScript"],
+        "tags": [
+          "Oracle APEX",
+          "Oracle",
+          "JavaScript"
+        ],
         "year": "2024"
       },
       {
         "name": "Registar NVO i političkih partija",
         "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me — vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
-        "tags": ["Oracle", "Angular", "JavaScript"],
+        "tags": [
+          "Oracle",
+          "Angular",
+          "JavaScript"
+        ],
         "year": "2024"
       }
     ]
   },
   "security": {
-    "eyebrow": "Bezbjednosna postavka",
-    "title": "Pravljeno da bude revidirano.",
-    "body": "Dva paralelna ISO režima, Bitdefender enterprise na svim krajnjim tačkama i serverima, interni red tim koji prvi lomi naš sopstveni kod.",
-    "pillars": [
-      { "k": "ISO 27001", "v": "Sistem upravljanja informacionom bezbjednošću, eksterno revidiran godišnje." },
-      { "k": "ISO 9001", "v": "Sistem upravljanja kvalitetom kroz cijeli ciklus isporuke." },
-      { "k": "Bitdefender", "v": "Enterprise zaštita radnih stanica i servera u cjelokupnom produkcionom okruženju." }
+    "eyebrow": "Standardi",
+    "title": "Posvećeni kvalitetu. Sertifikovani po standardima.",
+    "body": "Međunarodni standardi, sertifikovani procesi i provjerene tehnologije obezbjeđuju da svako rješenje bude isporučeno uz kvalitet, pouzdanost i bezbjednost informacija.",
+    "cards": [
+      {
+        "id": "bitdefender",
+        "name": "Bitdefender",
+        "desc": "Zaštita radnih stanica i servera na nivou preduzeća.",
+        "status": "Aktivno"
+      },
+      {
+        "id": "iso9001",
+        "name": "ISO 9001",
+        "desc": "Sertifikovan sistem upravljanja kvalitetom.",
+        "status": "Sertifikovano"
+      },
+      {
+        "id": "iso20000",
+        "name": "ISO 20000",
+        "desc": "Sertifikovano upravljanje IT servisima.",
+        "status": "Sertifikovano"
+      },
+      {
+        "id": "iso27001",
+        "name": "ISO 27001",
+        "desc": "Sertifikovano upravljanje bezbjednošću informacija.",
+        "status": "Sertifikovano"
+      }
     ]
   },
   "contact": {
@@ -243,25 +489,70 @@
   },
   "technology": {
     "eyebrow": "Tehnologija",
-    "title": "Stek u osnovi.",
+    "title": "Građeno na provjerenim tehnologijama.",
     "builtOn": "Građeno na",
+    "rotate": [
+      {
+        "word": "Oracle Database",
+        "desc": "Provjeren temelj za bezbjedna, skalabilna i pouzdana softverska rješenja."
+      },
+      {
+        "word": "Oracle APEX",
+        "desc": "Brz razvoj aplikacija koji isporučuje bezbjedna poslovna rješenja uz brzinu i fleksibilnost."
+      },
+      {
+        "word": ".NET",
+        "desc": "Moderan razvojni okvir za skalabilne i održive aplikacije spremne za poslovnu upotrebu."
+      }
+    ],
     "perimeterLabel": "BEZBJEDNI PERIMETAR",
-    "body": "Stabilan, dobro poznat alat — biran zbog dugovječnosti, revizorskog traga i operativne predvidljivosti, ne zbog novosti.",
-    "tiers": [
+    "groups": [
       {
-        "label": "Osnovna platforma",
-        "tech": ["Oracle Database", "Oracle APEX", "PostgreSQL / PostGIS", "Elasticsearch"],
-        "note": "Oracle u osnovi za transakcionu konzistentnost, PL/SQL i oporavak u tački vremena — uz PostGIS za prostorne podatke i Elasticsearch za pretragu punog teksta."
+        "label": "Osnovne tehnologije",
+        "intro": "Osnovne platforme na koje se oslanjamo za isporuku bezbjednih, skalabilnih rješenja poslovne klase.",
+        "items": [
+          {
+            "name": "Oracle Database",
+            "icon": "db",
+            "desc": "Baza podataka poslovne klase, građena za pouzdanost, bezbjednost i skalabilnost."
+          },
+          {
+            "name": "Oracle APEX",
+            "icon": "apex",
+            "desc": "Low-code platforma za brži razvoj moćnih poslovnih aplikacija."
+          },
+          {
+            "name": "Microsoft .NET",
+            "icon": "net",
+            "desc": "Robustan okvir za izgradnju skalabilnih i održivih aplikacija visokih performansi."
+          }
+        ]
       },
       {
-        "label": "Aplikacija",
-        "tech": [".NET / C#", "Java / Spring", "Angular", "JavaScript", "Mikroservisi"],
-        "note": "Serverska logika i korisnički web interfejsi, građeni kao mikroservisi i isporučeni kroz kontinuiranu integraciju i automatsko testiranje."
-      },
-      {
-        "label": "Bezbjednost",
-        "tech": ["Bitdefender Enterprise", "ISO 27001", "ISO 9001"],
-        "note": "Zaštita radnih stanica i servera u cjelokupnom produkcionom okruženju, pod eksterno revidiranim režimima kontrole."
+        "label": "Prateće tehnologije",
+        "intro": "Tehnologije kojima dopunjujemo i proširujemo rješenja u zavisnosti od zahtjeva projekta.",
+        "items": [
+          {
+            "name": "Java",
+            "icon": "java",
+            "desc": "Snažna, pouzdana platforma za aplikacije poslovne klase."
+          },
+          {
+            "name": "Angular",
+            "icon": "angular",
+            "desc": "Moderan frontend okvir za izgradnju brzih i dinamičnih interfejsa."
+          },
+          {
+            "name": "JavaScript",
+            "icon": "js",
+            "desc": "Neizostavan za interaktivna web iskustva i integracione slojeve."
+          },
+          {
+            "name": "AI",
+            "icon": "ai",
+            "desc": "Inteligentna rješenja koja automatizuju procese i otkrivaju poslovne uvide."
+          }
+        ]
       }
     ]
   },

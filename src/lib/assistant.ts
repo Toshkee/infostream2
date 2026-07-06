@@ -48,11 +48,16 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
     .map((s, i) => `${i + 1}. ${s.name} — ${s.description}`)
     .join("\n");
 
-  const tech = dict.technology.tiers
-    .map((t) => `- ${t.label}: ${t.tech.join(", ")} (${t.note})`)
+  const tech = dict.technology.groups
+    .map(
+      (g) =>
+        `- ${g.label}: ${g.items.map((it) => `${it.name} (${it.desc})`).join("; ")}`
+    )
     .join("\n");
 
-  const security = dict.security.pillars.map((p) => `- ${p.k}: ${p.v}`).join("\n");
+  const security = dict.security.cards
+    .map((c) => `- ${c.name}: ${c.desc} (${c.status})`)
+    .join("\n");
 
   const clients = dict.clients.projects
     .map((p) => `- ${p.org} — ${p.system}`)

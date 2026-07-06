@@ -44,14 +44,6 @@ export default function Clients({ dict }: { dict: Dict }) {
         return;
       }
 
-      gsap.fromTo(
-        ".clients-eyebrow-dash",
-        { width: 0 },
-        {
-          width: "1.5rem", duration: 1.0, ease: "power3.out",
-          scrollTrigger: { trigger: ".clients-heading", start: "top 85%" },
-        }
-      );
       gsap.to(".clients-h2", {
         clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power4.out",
         scrollTrigger: { trigger: ".clients-h2", start: "top 85%" },
@@ -94,8 +86,7 @@ export default function Clients({ dict }: { dict: Dict }) {
         {/* header */}
         <div className="clients-heading flex items-start justify-between gap-6">
           <div className="max-w-3xl">
-            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-              <span className="clients-eyebrow-dash h-px w-6 bg-[var(--brand-teal-bright)]" />
+            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
               {c.eyebrow}
             </div>
             <h2 className="clients-h2 mask-reveal mt-5 text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">

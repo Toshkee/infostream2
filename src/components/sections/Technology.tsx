@@ -7,15 +7,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { TECH_LOGOS } from "@/components/icons/TechLogos";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, useGSAP);
 
 // ── Topology layout ─────────────────────────────────────────────────
-// Three node groups, mapped to dict.tiers:
-//   tier 0 (Core Platform) → database cluster   (bottom)
-//   tier 1 (Application)    → servers + operator workstations (middle/top)
-//   tier 2 (Security)       → the enclosing perimeter
+// Three node groups the live-layer cycle rotates through:
+//   0 (data)        → database cluster   (bottom)
+//   1 (application) → servers + operator workstations (middle/top)
+//   2 (security)    → the enclosing perimeter
 // Coordinates are in the SVG's 600×560 viewBox.
 type Pt = { x: number; y: number };
 
@@ -67,10 +68,11 @@ const RED = "var(--brand-red)";
 
 export default function Technology({ dict }: { dict: Dict }) {
   const tech = dict.technology;
-  const tiers = tech.tiers;
+  const groups = tech.groups;
+  const rotate = tech.rotate;
   const ref = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
-  const [activeTier, setActiveTier] = useState(0);
+  const [tick, setTick] = useState(0);
 
   // Cycle the live layer, but only while on-screen and in motion.
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function Technology({ dict }: { dict: Dict }) {
       : null;
     if (el && io) io.observe(el);
     const id = window.setInterval(() => {
-      if (visible) setActiveTier((v) => (v + 1) % 3);
+      if (visible) setTick((v) => v + 1);
     }, CYCLE_MS);
     return () => {
       window.clearInterval(id);
@@ -157,13 +159,13 @@ export default function Technology({ dict }: { dict: Dict }) {
     { scope: ref, dependencies: [reducedMotion] }
   );
 
-  const word = tiers[activeTier]?.tech[0] ?? "";
+  const active = rotate[tick % rotate.length];
 
-  // tier → which node group is "live". Endpoints + servers are the
-  // Application tier; databases are Core; the perimeter is Security.
-  const dbLive = activeTier === 0 || reducedMotion;
-  const appLive = activeTier === 1 || reducedMotion;
-  const secLive = activeTier === 2 || reducedMotion;
+  // tick → which node group is "live". Endpoints + servers are the
+  // application layer; databases the data layer; the perimeter security.
+  const dbLive = tick % 3 === 0 || reducedMotion;
+  const appLive = tick % 3 === 1 || reducedMotion;
+  const secLive = tick % 3 === 2 || reducedMotion;
 
   const glow = (on: boolean) =>
     on ? "drop-shadow(0 0 9px rgba(214,59,59,0.55))" : "none";
@@ -189,8 +191,7 @@ export default function Technology({ dict }: { dict: Dict }) {
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10">
         {/* Heading */}
         <div className="max-w-2xl">
-          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
-            <span className="h-px w-6 bg-[var(--brand-teal-bright)]" />
+          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
             {tech.eyebrow}
           </div>
           <h2 className="tech-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -200,20 +201,23 @@ export default function Technology({ dict }: { dict: Dict }) {
             <span className="text-white/45">{tech.builtOn}</span>
             <span className="relative inline-flex overflow-hidden">
               <span
-                key={reducedMotion ? "static" : activeTier}
+                key={reducedMotion ? "static" : tick}
                 className={`inline-block font-medium text-[var(--brand-red)] ${reducedMotion ? "" : "tech-word"}`}
               >
-                {word}.
+                {active.word}.
               </span>
             </span>
           </div>
-          <p className="mt-6 text-white/65 leading-relaxed max-w-md text-[15.5px]">
-            {tech.body}
+          <p
+            key={reducedMotion ? "static-desc" : `desc-${tick}`}
+            className={`mt-6 text-white/65 leading-relaxed max-w-md text-[15.5px] min-h-[3.25em] ${reducedMotion ? "" : "tech-word"}`}
+          >
+            {active.desc}
           </p>
         </div>
 
-        {/* Scene + tier detail */}
-        <div className="mt-16 lg:mt-20 grid gap-12 lg:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center">
+        {/* Scene + technology groups */}
+        <div className="mt-16 lg:mt-20 grid gap-12 lg:gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] items-center">
           <svg
             viewBox="0 0 600 560"
             className="tech-scene w-full h-auto max-w-[540px] mx-auto"
@@ -302,67 +306,61 @@ export default function Technology({ dict }: { dict: Dict }) {
             ))}
           </svg>
 
-          {/* Tier detail cards — Security → Application → Core (mirror the topology top→bottom) */}
-          <div className="flex flex-col gap-3.5">
-            {[2, 1, 0].map((i) => {
-              const tier = tiers[i];
-              const active = activeTier === i || reducedMotion;
-              return (
-                <div
-                  key={i}
-                  className="relative rounded-2xl border p-5 transition-all duration-500"
-                  style={{
-                    borderColor: active ? "rgba(214,59,59,0.45)" : "rgba(255,255,255,0.08)",
-                    background: active ? "rgba(214,59,59,0.05)" : "rgba(255,255,255,0.015)",
-                    boxShadow: active ? "0 0 28px -8px rgba(214,59,59,0.4)" : "none",
-                    opacity: active ? 1 : 0.55,
-                  }}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="mono text-[10px] tracking-[0.2em] tabular-nums transition-colors duration-500"
-                      style={{ color: active ? "var(--brand-red)" : "rgba(122,216,210,0.8)" }}
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-white font-medium text-[clamp(1.05rem,1.8vw,1.3rem)] leading-tight tracking-[-0.01em]">
-                      {tier.label}
-                    </h3>
-                  </div>
-
-                  <div className="mt-3.5 flex flex-wrap gap-2">
-                    {tier.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 border rounded-md text-[13px] font-medium transition-all duration-500"
-                        style={{
-                          borderColor: active ? "rgba(214,59,59,0.3)" : "rgba(255,255,255,0.1)",
-                          background: active ? "rgba(214,59,59,0.06)" : "rgba(255,255,255,0.04)",
-                          color: active ? "#fff" : "rgba(255,255,255,0.7)",
-                        }}
-                      >
-                        <span
-                          className="inline-block h-1.5 w-1.5 rounded-full flex-none transition-colors duration-500"
-                          style={{
-                            background: active ? "var(--brand-red)" : "rgba(122,216,210,0.7)",
-                            boxShadow: active ? "0 0 5px rgba(214,59,59,0.8)" : "none",
-                          }}
-                        />
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p className="mt-3.5 mono text-[11px] leading-relaxed text-white/40 tracking-[0.02em]">
-                    {tier.note}
+          {/* Technology groups — Core / Supporting */}
+          <div className="flex flex-col gap-5">
+            {groups.map((group, gi) => (
+              <div
+                key={gi}
+                className="relative rounded-2xl border border-white/[0.08] bg-white/[0.015] p-6 lg:p-7"
+              >
+                <div>
+                  <h3 className="text-white font-medium text-[clamp(1.1rem,1.9vw,1.4rem)] leading-tight tracking-[-0.01em]">
+                    {group.label}
+                  </h3>
+                  <p className="mt-3 text-white/60 text-[14px] leading-relaxed max-w-lg">
+                    {group.intro}
                   </p>
                 </div>
-              );
-            })}
+
+                <div
+                  className={`mt-6 grid gap-x-6 gap-y-5 ${
+                    group.items.length > 3 ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-3"
+                  }`}
+                >
+                  {group.items.map((item) => (
+                    <div key={item.name} className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <span className="flex-none inline-flex items-center justify-center h-10 w-10 rounded-full border border-[rgba(122,216,210,0.4)] text-[var(--brand-teal-soft)]">
+                          <TechIcon icon={item.icon} />
+                        </span>
+                        <span className="text-white font-medium text-[15px] leading-snug">
+                          {item.name}
+                        </span>
+                      </div>
+                      <p className="mt-2.5 text-white/50 text-[13px] leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+// Brand logo per technology, keyed by the dict `icon` field.
+function TechIcon({ icon }: { icon: string }) {
+  const Logo = TECH_LOGOS[icon];
+  return Logo ? (
+    <Logo />
+  ) : (
+    <span className="mono text-[8.5px] tracking-[0.08em] leading-none">
+      {icon.toUpperCase().slice(0, 4)}
+    </span>
   );
 }
 

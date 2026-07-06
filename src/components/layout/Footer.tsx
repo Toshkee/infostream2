@@ -76,10 +76,7 @@ export default function Footer({ dict }: { dict: Dict }) {
         {/* Bottom hairline + meta row */}
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row gap-3 md:items-center md:justify-between mono text-[10px] tracking-[0.22em] uppercase text-white/40">
           <div>© {new Date().getFullYear()} Infostream — {dict.footer.rights}</div>
-          <div className="flex items-center gap-3">
-            <span className="h-px w-6 bg-white/20" />
-            <span>{dict.footer.ethos}</span>
-          </div>
+          <div>{dict.footer.ethos}</div>
         </div>
       </div>
     </footer>

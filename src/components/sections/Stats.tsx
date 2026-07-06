@@ -34,18 +34,6 @@ export default function Stats({ dict }: { dict: Dict }) {
         }
       );
 
-      gsap.fromTo(
-        ".stats-rule",
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: { trigger: ref.current, start: "top 80%", once: true },
-        }
-      );
-
       gsap.utils.toArray<HTMLElement>(".stats-value").forEach((el) => {
         gsap.fromTo(
           el,
@@ -136,9 +124,7 @@ function StatCell({ value, label, index }: { value: string; label: string; index
 
   return (
     <div ref={ref} className="relative">
-      {/* Short teal rule — the card-system accent; drawn in left-to-right by GSAP */}
-      <span aria-hidden className="stats-rule block h-px w-10 origin-left bg-[var(--brand-teal-bright)]/70" />
-      <div className="stats-value mono text-[clamp(1.85rem,3.2vw,2.6rem)] leading-[1.05] tracking-[-0.02em] text-white mt-5 will-change-transform">
+      <div className="stats-value mono text-[clamp(1.85rem,3.2vw,2.6rem)] leading-[1.05] tracking-[-0.02em] text-white will-change-transform">
         {shown}
       </div>
       <div className="mt-3 mono text-[10.5px] tracking-[0.22em] uppercase text-white/45 max-w-[24ch]">
