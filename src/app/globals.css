@@ -136,18 +136,18 @@ body {
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-/* Process section — desktops and large tablets (≥1024px wide, motion-OK) get
-   the pinned scroll-scrubbed experience; everyone else (phones, small tablets,
-   reduced-motion, no-JS) gets the static stacked variant, which is fully
-   scrollable and needs no JS. The dense two-column stages can't fit their
-   stacked single-column form into a phone's 100svh pinned scene, so routing
-   narrow/short viewports to the static variant prevents clipped, unreachable
-   content. Gated purely in CSS so the correct layout paints first, with no JS
-   race and no hydration/layout shift. The media query is the exact string
-   MOTION_QUERY in PinnedHero.tsx uses to start ScrollTrigger — same query, so
-   there is no client where the pinned variant shows without its JS. */
+/* Process section — every motion-OK visitor gets the pinned scroll-scrubbed
+   experience, phones included; reduced-motion, very-short-viewport and no-JS
+   visitors get the static stacked variant, which is fully scrollable and needs
+   no JS. Below 1024px the pinned stages render a compacted form (see the phone
+   compaction block below) so each scene fits the 100svh pin without clipping
+   content the pin's overflow-hidden would make unreachable. Gated purely in
+   CSS so the correct layout paints first, with no JS race and no
+   hydration/layout shift. The media query is the exact string MOTION_QUERY in
+   PinnedHero.tsx uses to start ScrollTrigger — same query, so there is no
+   client where the pinned variant shows without its JS. */
 .process-pinned { display: none; }
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) and (min-height: 500px) {
+@media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
   .process-pinned { display: block; }
   .process-static { display: none; }
 }
@@ -166,6 +166,38 @@ body {
   .process-card { padding: 0.8rem 0.85rem 0.95rem; }
   .process-listcard { padding: 0.9rem; }
   .process-agile { padding: 1rem; }
+}
+
+/* Phone / small-tablet compaction for the pinned variant. Each stage scene
+   must fit inside the 100svh pin — anything taller is clipped and unreachable
+   (the pin scroll-captures, there's no inner scrolling). So below 1024px the
+   secondary blocks (agile notes, support/benefit rows, Architecture's intro
+   rail) are hidden — the full copy stays available in the sr-only block and
+   isn't lost — long body text clamps to two lines, and grids/cards tighten.
+   Scoped to .process-pinned so the static variant (reduced-motion phones)
+   keeps rendering everything, uncut. Unlayered on purpose, same as above. */
+@media (max-width: 1023.98px) {
+  .process-pinned .process-aux { display: none; }
+  .process-pinned .process-scene-top { padding-top: 5.5rem; padding-bottom: 3rem; }
+  .process-pinned .process-stage-desc,
+  .process-pinned .process-body-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .process-pinned .process-stage-desc { -webkit-line-clamp: 3; }
+  .process-pinned .process-body-clamp { -webkit-line-clamp: 2; }
+  .process-pinned .process-outcome-grid { row-gap: 1.5rem; column-gap: 1.25rem; }
+  .process-pinned .process-outcome { gap: 0.6rem; }
+  .process-pinned .process-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+  .process-pinned .process-card { padding: 0.7rem 0.75rem 0.8rem; }
+  .process-pinned .process-card > div + div { margin-top: 0.6rem; }
+  .process-pinned .process-listcard { padding: 0.8rem; }
+  .process-pinned .process-oplist > * + * { margin-top: 0.75rem; }
+}
+/* The stream stepper is visible from 640px up — keep stage content clear of it. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .process-pinned .process-scene-top { padding-bottom: 6.5rem; }
 }
 
 /* Per-stage blocks (grids, cards, list rails, the "Agile in action" panel) are

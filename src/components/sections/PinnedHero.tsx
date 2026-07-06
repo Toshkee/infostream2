@@ -30,13 +30,12 @@ if (typeof window !== "undefined") {
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Must be the exact string the CSS gate in globals.css uses — the pinned
-// variant displays iff this matches, so the pin always has its JS. The width
-// floor routes phones and small tablets to the scrollable static variant: the
-// dense, two-column stages need ≥1024px to lay out, and their stacked
-// single-column form can't fit a 100svh pinned scene without clipping content
-// that the pin's overflow-hidden + scroll-capture makes unreachable. The
-// height floor likewise sends very short windows to the static variant.
-const MOTION_QUERY = "(min-width: 1024px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
+// variant displays iff this matches, so the pin always has its JS. All screen
+// widths get the pinned experience; below 1024px the stages render a compacted
+// form (secondary blocks hidden, long copy clamped — see the phone compaction
+// block in globals.css) so each scene fits the 100svh pin without clipping.
+// The height floor sends very short windows to the static variant.
+const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px)";
 // Desktop-only extras — currently just the cursor parallax, which is
 // meaningless on touch devices.
 const ENHANCED_QUERY = "(min-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
@@ -615,7 +614,7 @@ function StageHeading({
       <Title className="mt-3 text-[clamp(1.9rem,4.2vw,3.4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
         {name}
       </Title>
-      <p className="mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
+      <p className="process-stage-desc mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
         {description}
       </p>
     </div>
@@ -815,7 +814,7 @@ function ProcessCard({ icon, n, k, v, style }: { icon: IconName; n: string; k: s
       </div>
       <div className="mt-4 flex items-start gap-3.5">
         <Medallion name={icon} size="sm" />
-        <p className="text-[12.5px] leading-relaxed text-white/75">{v}</p>
+        <p className="process-body-clamp text-[12.5px] leading-relaxed text-white/75">{v}</p>
       </div>
     </div>
   );
@@ -842,7 +841,7 @@ function ListCard({ rows, icons, style }: { rows: ListRow[]; icons: IconName[]; 
               {r.k ? (
                 <div className="mono text-[11px] tracking-[0.18em] uppercase text-white/85 leading-tight">{r.k}</div>
               ) : null}
-              <div className={`text-[12.5px] text-white/78 leading-snug ${r.k ? "mt-0.5" : ""}`}>{r.v}</div>
+              <div className={`process-body-clamp text-[12.5px] text-white/78 leading-snug ${r.k ? "mt-0.5" : ""}`}>{r.v}</div>
             </div>
             <span
               aria-hidden
@@ -883,9 +882,9 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
     return (
       <div>
         {/* Four outcomes across the full width */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-9">
+        <div className="process-outcome-grid grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-9">
           {stage.grid.map((g, i) => (
-            <div key={i} className="flex flex-col gap-3.5" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
+            <div key={i} className="process-outcome flex flex-col gap-3.5" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
               <div className="flex items-center gap-3">
                 <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{g.n}</span>
                 <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent" />
@@ -895,14 +894,15 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
                 <div className="mono text-[11px] tracking-[0.18em] uppercase text-[var(--brand-teal-bright)] leading-tight">
                   {g.k}
                 </div>
-                <div className="text-[13px] text-white/70 mt-1.5 leading-snug">{g.v}</div>
+                <div className="process-body-clamp text-[13px] text-white/70 mt-1.5 leading-snug">{g.v}</div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Agile note (left) + support benefits (right) */}
-        <div className="mt-10 grid lg:grid-cols-12 gap-x-10 gap-y-8 border-t border-white/10 pt-8">
+        {/* Agile note (left) + support benefits (right) — hidden on phones in
+           the pinned variant (process-aux) so the scene fits the pin. */}
+        <div className="process-aux mt-10 grid lg:grid-cols-12 gap-x-10 gap-y-8 border-t border-white/10 pt-8">
           <AgileNote label={agileLabel} text={stage.agile} className="lg:col-span-5" style={rev(-0.05, 0.12, 8)} />
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6">
             {stage.support.map((s, i) => (
@@ -926,7 +926,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
   if (index === 1) {
     return (
       <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-        <div className="lg:col-span-4">
+        <div className="process-aux lg:col-span-4">
           <div className="mono text-[11px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)]" style={rev(-0.3, 0.1, 6)}>
             {stage.intro.k}
           </div>
@@ -947,7 +947,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
           <AgileBox label={agileLabel} text={stage.agile} className="mt-5" style={rev(-0.12, 0.12, 8)} />
         </div>
         <div className="lg:col-span-8">
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="process-cards-grid grid sm:grid-cols-2 gap-4">
             {stage.cards.map((c, i) => (
               <ProcessCard key={i} icon={icons.cards[i]} n={c.n} k={c.k} v={c.v} style={rev(-0.24 + i * 0.05, 0.1, 8)} />
             ))}
@@ -970,7 +970,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
             />
           ) : null}
         </div>
-        <div className="lg:col-span-7">
+        <div className="process-aux lg:col-span-7">
           <AgileNote label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6 border-t border-white/10 pt-7">
             {stage.support.map((s, i) => (
@@ -987,7 +987,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
   return (
     <div>
       <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-        <div className="lg:col-span-7 space-y-4">
+        <div className="process-oplist lg:col-span-7 space-y-4">
           {stage.list.map((r, i) => (
             <div key={i} className="flex items-start gap-4" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
               <Medallion name={icons.list[i]} size="sm" />
@@ -996,7 +996,7 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
                   <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{r.n}</span>
                   <span className="mono text-[12px] tracking-[0.18em] uppercase text-white/85">{r.k}</span>
                 </div>
-                <p className="mt-1.5 text-[12.5px] text-white/70 leading-snug">{r.v}</p>
+                <p className="process-body-clamp mt-1.5 text-[12.5px] text-white/70 leading-snug">{r.v}</p>
               </div>
             </div>
           ))}
@@ -1005,11 +1005,11 @@ function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage;
           label={agileLabel}
           text={stage.agile}
           tag={stage.agileTag}
-          className="lg:col-span-5"
+          className="process-aux lg:col-span-5"
           style={rev(-0.02, 0.12, 8)}
         />
       </div>
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 border-t border-white/10 pt-7">
+      <div className="process-aux mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 border-t border-white/10 pt-7">
         {stage.support.map((s, i) => (
           <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
         ))}
