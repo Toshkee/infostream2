@@ -38,65 +38,79 @@ export default function Security({ dict }: { dict: Dict }) {
       );
 
       if (reducedMotion) {
-        gsap.set([".sec-draw", ".sec-link"], { drawSVG: "100%", opacity: 1 });
-        gsap.set([".sec-sat", ".sec-core", ".sec-dot", ".sec-orbit"], { opacity: 1, scale: 1 });
+        gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
+        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot"], { opacity: 1, scale: 1 });
         return;
       }
 
-      // Orbital diagram entrance — rings fade in (drawSVG would flatten their
-      // dash pattern), shield draws, satellites pop.
+      // Entrance — rings fade in (drawSVG would flatten their dash pattern),
+      // the shield assembles dot by dot from the top, satellites pop.
       gsap.set(".sec-orbit", { opacity: 0, scale: 0.92, transformOrigin: "50% 50%" });
       gsap.set(".sec-link", { drawSVG: "0%" });
-      gsap.set(".sec-draw", { drawSVG: "0%" });
       gsap.set(".sec-sat", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" });
-      gsap.set(".sec-core", { opacity: 0, scale: 0.85, transformOrigin: "50% 50%" });
-      gsap.set(".sec-dot", { opacity: 0 });
+      gsap.set(".sec-core", { opacity: 0, transformOrigin: "50% 50%" });
+      gsap.set(".ps-dot", { opacity: 0, scale: 0, transformOrigin: "50% 50%" });
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: ".sec-viz", start: "top 75%" },
       });
-      tl.to(".sec-core", { opacity: 1, scale: 1, duration: 0.7, ease: "power3.out" }, 0)
+      tl.to(".sec-core", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0)
         .to(".sec-orbit", { opacity: 1, scale: 1, duration: 1.1, stagger: 0.15, ease: "power2.out" }, 0.1)
-        .to(".sec-draw", { drawSVG: "100%", duration: 0.9, ease: "power2.out" }, 0.35)
-        .to(".sec-link", { drawSVG: "100%", duration: 0.7, stagger: 0.08, ease: "power2.out" }, 0.5)
-        .to(".sec-sat", { opacity: 1, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.8)" }, 0.7)
-        .to(".sec-dot", { opacity: 0.7, duration: 0.5, stagger: 0.04 }, 1);
-
-      // Verification pulse — the core periodically emits a ring; as it crosses
-      // the orbit, every satellite glows and its link brightens, like the
-      // standards being re-verified. The glow lands when the eased ring radius
-      // passes ORBIT_R (~35% of the expansion, ≈0.75s in).
-      const pulse = gsap.timeline({ repeat: -1, repeatDelay: 2.6, delay: 1.8 });
-      pulse
-        .set(".sec-ring", { attr: { r: 96 }, opacity: 0.5 })
-        .to(".sec-ring", { attr: { r: 238 }, opacity: 0, duration: 2.2, ease: "power1.out" }, 0)
         .to(
-          ".sec-sat",
-          { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" },
-          0.75
+          ".ps-dot",
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.5,
+            ease: "back.out(2)",
+            // DOM order is row-major top→bottom with the check dots appended
+            // last, so the shield assembles downward and the tick lands last.
+            stagger: 0.9 / SHIELD_DOTS.length,
+          },
+          0.15
         )
-        .to(
-          ".sec-sat-halo",
-          { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 },
-          0.75
-        )
-        .to(
-          ".sec-link",
-          { attr: { stroke: "rgba(58,165,160,0.8)" }, duration: 0.4, yoyo: true, repeat: 1 },
-          0.75
-        );
+        .to(".sec-link", { drawSVG: "100%", duration: 0.7, stagger: 0.08, ease: "power2.out" }, 0.7)
+        .to(".sec-sat", { opacity: 1, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.8)" }, 0.9);
 
-      // Ambient drift on the scattered dots.
-      gsap.utils.toArray<SVGElement>(".sec-dot").forEach((el, i) => {
+      // The shield breathes as one object.
+      gsap.to(".sec-shield", {
+        scale: 1.015,
+        duration: 3.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        svgOrigin: "280 280",
+      });
+
+      // Verification wave — every WAVE_PERIOD a bright band sweeps down through
+      // the shield particles; each dot flares as it passes. Per-dot repeating
+      // tweens share the period, offset by the dot's height, so the wave stays
+      // coherent forever without a master timeline.
+      const WAVE_PERIOD = 6;
+      const WAVE_TRAVEL = 1.3;
+      gsap.utils.toArray<SVGCircleElement>(".ps-dot").forEach((el, i) => {
+        const d = SHIELD_DOTS[i];
+        const offset = ((d.y - SHIELD_Y_MIN) / (SHIELD_Y_MAX - SHIELD_Y_MIN)) * WAVE_TRAVEL;
+        const restFill = d.check ? "var(--brand-teal)" : `rgba(58,165,160,${d.o})`;
         gsap.to(el, {
-          opacity: 0.15,
-          duration: 1.6 + (i % 5) * 0.4,
+          keyframes: [
+            { scale: 1.9, fill: "#7ad8d2", duration: 0.22, ease: "power2.out" },
+            { scale: 1, fill: restFill, duration: 0.55, ease: "power2.inOut" },
+          ],
           repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: 1 + (i % 7) * 0.3,
+          repeatDelay: WAVE_PERIOD - 0.77,
+          delay: 2.2 + offset,
+          transformOrigin: "50% 50%",
         });
       });
+
+      // Badges glint once per wave, just after it clears the shield.
+      const glint = gsap.timeline({ repeat: -1, delay: 2.2 + WAVE_TRAVEL });
+      glint
+        .to(".sec-sat", { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
+        .to(".sec-sat-halo", { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
+        .to(".sec-link", { attr: { stroke: "rgba(58,165,160,0.8)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
+        .to({}, { duration: WAVE_PERIOD - 0.8 });
     },
     { scope: ref, dependencies: [reducedMotion] }
   );
@@ -198,6 +212,74 @@ function CardBadge({ id }: { id: string }) {
 /* ---------------------------------------------------------------- */
 
 const ORBIT_R = 178;
+
+/* ---------------------------------------------------------------- */
+/* Particle shield — the shield silhouette rendered as a dot matrix. */
+/* All positions are deterministic (no Math.random), so server and   */
+/* client render identical markup.                                   */
+/* ---------------------------------------------------------------- */
+
+// Half-width of the shield silhouette at local height y. Shape matches the old
+// line drawing: peak (0,-52) → shoulders (±38,-38) → straight sides to y=-10 →
+// bottom cubic (±38,-10)(±38,15)(±22,30)(0,41).
+function shieldHalfWidth(y: number): number {
+  if (y < -52 || y > 41) return -1;
+  if (y <= -38) return (38 * (y + 52)) / 14;
+  if (y <= -10) return 38;
+  let best = 0;
+  for (let t = 0; t <= 1; t += 0.01) {
+    const mt = 1 - t;
+    const by = mt * mt * mt * -10 + 3 * mt * mt * t * 15 + 3 * mt * t * t * 30 + t * t * t * 41;
+    if (Math.abs(by - y) < 2.5) {
+      const bx = mt * mt * mt * 38 + 3 * mt * mt * t * 38 + 3 * mt * t * t * 22;
+      best = Math.max(best, bx);
+    }
+  }
+  return best;
+}
+
+// 2.0 keeps the peak just inside the badge link lines (inner end at r=104).
+const SHIELD_SCALE = 2.0;
+const CHECK_SEGS: [number, number, number, number][] = [
+  [-16, -2, -4, 11],
+  [-4, 11, 18, -15],
+];
+
+// Check-mark dots — sampled along the tick polyline, brighter than the body.
+const CHECK_DOTS = CHECK_SEGS.flatMap(([x1, y1, x2, y2]) => {
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  const steps = Math.round(len / 3.5);
+  return Array.from({ length: steps + 1 }, (_, i) => ({
+    x: x1 + ((x2 - x1) * i) / steps,
+    y: y1 + ((y2 - y1) * i) / steps,
+  }));
+});
+
+// Body dots — grid sampling inside the silhouette, skipping the check-mark
+// channel so the tick stays legible; edge dots slightly brighter for contour.
+const SHIELD_DOTS = (() => {
+  const dots: { x: number; y: number; r: number; o: number; check: boolean }[] = [];
+  for (let y = -50; y <= 40; y += 6) {
+    const hw = shieldHalfWidth(y);
+    if (hw < 1) continue;
+    for (let x = -Math.floor(hw / 6) * 6; x <= hw; x += 6) {
+      if (Math.abs(x) > hw) continue;
+      if (CHECK_DOTS.some((c) => Math.hypot(c.x - x, c.y - y) < 5)) continue;
+      const edge = Math.abs(x) > hw - 6 || y < -44 || y > 34;
+      dots.push({ x, y, r: edge ? 2.2 : 1.9, o: edge ? 0.75 : 0.4, check: false });
+    }
+  }
+  for (const c of CHECK_DOTS) dots.push({ ...c, r: 3, o: 1, check: true });
+  return dots.map((d) => ({
+    ...d,
+    x: 280 + d.x * SHIELD_SCALE,
+    y: 280 + d.y * SHIELD_SCALE,
+    r: d.r,
+  }));
+})();
+
+const SHIELD_Y_MIN = Math.min(...SHIELD_DOTS.map((d) => d.y));
+const SHIELD_Y_MAX = Math.max(...SHIELD_DOTS.map((d) => d.y));
 const SATS: { angle: number; icon: React.JSX.Element }[] = [
   {
     // Award — quality
@@ -254,33 +336,9 @@ function OrbitalDiagram() {
       role="img"
       aria-label="Certified standards linked to a protected core"
     >
-      {/* Scattered ambient dots */}
-      {[
-        [66, 130], [130, 66], [420, 58], [500, 140], [512, 300], [468, 452],
-        [330, 512], [140, 486], [52, 372], [214, 40], [508, 216], [92, 250],
-      ].map(([x, y], i) =>
-        i % 4 === 3 ? (
-          <rect key={i} className="sec-dot" x={x - 2.5} y={y - 2.5} width="5" height="5" fill="none" stroke="rgba(58,165,160,0.45)" strokeWidth="1" />
-        ) : (
-          <circle key={i} className="sec-dot" cx={x} cy={y} r={i % 3 === 0 ? 3 : 1.8} fill="rgba(58,165,160,0.45)" />
-        )
-      )}
-
       {/* Dashed orbit rings */}
       <circle className="sec-orbit" cx="280" cy="280" r={ORBIT_R} fill="none" stroke="rgba(58,165,160,0.35)" strokeWidth="1" strokeDasharray="3 7" />
       <circle className="sec-orbit" cx="280" cy="280" r={ORBIT_R - 42} fill="none" stroke="rgba(58,165,160,0.16)" strokeWidth="1" strokeDasharray="2 9" />
-
-      {/* Verification pulse ring — expands from the core, faded out at rest */}
-      <circle
-        className="sec-ring"
-        cx="280"
-        cy="280"
-        r="96"
-        fill="none"
-        stroke="var(--brand-teal)"
-        strokeWidth="1.5"
-        opacity="0"
-      />
 
       {/* Satellite layer */}
       <g className="sec-orbit-group">
@@ -306,27 +364,20 @@ function OrbitalDiagram() {
         })}
       </g>
 
-      {/* Certified core */}
+      {/* Certified core — the shield itself, built from particles */}
       <g className="sec-core">
-        <circle cx="280" cy="280" r="96" fill="rgba(58,165,160,0.06)" stroke="rgba(58,165,160,0.14)" strokeWidth="1" />
-        <g transform="translate(280 282)">
-          <path
-            className="sec-draw"
-            d="M0 -52 L38 -38 v28 c0 25 -16 40 -38 51 c-22 -11 -38 -26 -38 -51 v-28 Z"
-            fill="none"
-            stroke="var(--brand-teal)"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path
-            className="sec-draw"
-            d="M-16 -2 l12 13 l22 -26"
-            fill="none"
-            stroke="var(--brand-teal)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+        <circle cx="280" cy="280" r="118" fill="rgba(58,165,160,0.05)" stroke="rgba(58,165,160,0.12)" strokeWidth="1" />
+        <g className="sec-shield">
+          {SHIELD_DOTS.map((d, i) => (
+            <circle
+              key={i}
+              className="ps-dot"
+              cx={d.x}
+              cy={d.y}
+              r={d.r}
+              fill={d.check ? "var(--brand-teal)" : `rgba(58,165,160,${d.o})`}
+            />
+          ))}
         </g>
       </g>
     </svg>
