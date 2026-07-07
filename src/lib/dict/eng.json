@@ -295,8 +295,7 @@
     "eyebrow": "Trusted by",
     "status": "in production",
     "title": "We do not have many clients. We have the right ones.",
-    "colOrg": "institution",
-    "colSystem": "system",
+    "indexLabel": "Also in production",
     "more": "more systems in production",
     "groups": [
       "Defense, security & intelligence",

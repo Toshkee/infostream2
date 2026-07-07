@@ -146,6 +146,18 @@ body {
    hydration/layout shift. The media query is the exact string MOTION_QUERY in
    PinnedHero.tsx uses to start ScrollTrigger — same query, so there is no
    client where the pinned variant shows without its JS. */
+/* Services section — same gating idea as the process section below, but the
+   pinned horizontal-panels variant is desktop-only: phones, short viewports and
+   reduced-motion visitors get the static stacked variant, which needs no JS.
+   The media query is the exact string MOTION_QUERY in Services.tsx uses to
+   create the pin, so there is no client where the pinned variant shows without
+   its JS. */
+.services-pinned { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 500px) {
+  .services-pinned { display: block; }
+  .services-static { display: none; }
+}
+
 .process-pinned { display: none; }
 @media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
   .process-pinned { display: block; }
