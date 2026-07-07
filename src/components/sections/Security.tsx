@@ -39,7 +39,7 @@ export default function Security({ dict }: { dict: Dict }) {
 
       if (reducedMotion) {
         gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
-        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".sec-logo-solid"], { opacity: 1, scale: 1 });
+        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".ps-ghost", ".sec-logo-solid"], { opacity: 1, scale: 1 });
         gsap.set(".ps-mark", { opacity: 0 }); // settled state: solid logo, no particle mark
         return;
       }
@@ -104,8 +104,8 @@ export default function Security({ dict }: { dict: Dict }) {
             el,
             {
               keyframes: [
-                { scale: 1.9, fill: flareFill, duration: 0.22, ease: "power2.out" },
-                { scale: 1.5, opacity: 0, duration: 0.45, ease: "power2.in" },
+                { scale: 1.45, fill: flareFill, duration: 0.25, ease: "power2.out" },
+                { scale: 1.25, opacity: 0, duration: 0.5, ease: "power2.in" },
               ],
               transformOrigin: "50% 50%",
             },
@@ -116,11 +116,11 @@ export default function Security({ dict }: { dict: Dict }) {
             el,
             {
               keyframes: [
-                { scale: 1.9, fill: "#7ad8d2", duration: 0.22, ease: "power2.out" },
-                { scale: 1, fill: `rgba(58,165,160,${d.o})`, duration: 0.55, ease: "power2.inOut" },
+                { scale: 1.45, fill: "#7ad8d2", duration: 0.25, ease: "power2.out" },
+                { scale: 1, fill: `rgba(58,165,160,${d.o})`, duration: 0.7, ease: "power2.inOut" },
               ],
               repeat: -1,
-              repeatDelay: WAVE_PERIOD - 0.77,
+              repeatDelay: WAVE_PERIOD - 0.95,
               transformOrigin: "50% 50%",
             },
             at
@@ -138,15 +138,18 @@ export default function Security({ dict }: { dict: Dict }) {
         { clipPath: "inset(0% 0% 0% 0%)", duration: tBottom - tTop + 0.3, ease: "none", immediateRender: false },
         tTop + 0.15
       );
+      // Once the logo has resolved, the carved channel refills at body density
+      // so the mark doesn't sit in a cut-out hole in the dot grid.
+      tl.to(".ps-ghost", { opacity: 1, duration: 0.8, ease: "power2.out", stagger: 0.012 }, tBottom + 0.4);
 
       // Badges glint once per wave, just after it clears the shield; the solid
-      // logo swells with them.
+      // logo swells with them. (Link lines stay quiet — the badge lift alone
+      // carries the beat.)
       const glint = gsap.timeline({ repeat: -1 });
       glint
         .to(".sec-logo-solid", { scale: 1.04, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
         .to(".sec-sat", { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
         .to(".sec-sat-halo", { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
-        .to(".sec-link", { attr: { stroke: "rgba(58,165,160,0.8)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
         .to({}, { duration: WAVE_PERIOD - 0.8 });
       tl.add(glint, WAVE_AT + WAVE_TRAVEL);
     },
@@ -325,14 +328,20 @@ const LOGO_DOTS = [
 // Body dots — grid sampling inside the silhouette, skipping a channel around
 // the logo bars so the mark stays legible; edge dots slightly brighter for
 // contour.
-const SHIELD_DOTS = (() => {
+const SHIELD_FIELD = (() => {
   const dots: { x: number; y: number; r: number; o: number; mark: boolean; fill?: string }[] = [];
+  // Grid points carved out for the logo channel — they fade back in faintly
+  // after the solid logo reveals, so the mark doesn't sit in a cut-out hole.
+  const ghosts: { x: number; y: number }[] = [];
   for (let y = -50; y <= 40; y += 6) {
     const hw = shieldHalfWidth(y);
     if (hw < 1) continue;
     for (let x = -Math.floor(hw / 6) * 6; x <= hw; x += 6) {
       if (Math.abs(x) > hw) continue;
-      if (LOGO_DOTS.some((c) => Math.hypot(c.x - x, c.y - y) < 5.5)) continue;
+      if (LOGO_DOTS.some((c) => Math.hypot(c.x - x, c.y - y) < 5.5)) {
+        ghosts.push({ x, y });
+        continue;
+      }
       const edge = Math.abs(x) > hw - 6 || y < -44 || y > 34;
       dots.push({ x, y, r: edge ? 2.2 : 1.9, o: edge ? 0.75 : 0.4, mark: false });
     }
@@ -340,13 +349,15 @@ const SHIELD_DOTS = (() => {
   // Denser pitch than the body grid — smaller radius keeps a dotted texture.
   for (const c of LOGO_DOTS)
     dots.push({ x: c.x, y: c.y, fill: c.fill, r: c.big ? 3.2 : 2.4, o: 1, mark: true });
-  return dots.map((d) => ({
+  const toScreen = <T extends { x: number; y: number }>(d: T) => ({
     ...d,
     x: 280 + d.x * SHIELD_SCALE,
     y: 280 + d.y * SHIELD_SCALE,
-    r: d.r,
-  }));
+  });
+  return { dots: dots.map(toScreen), ghosts: ghosts.map(toScreen) };
 })();
+const SHIELD_DOTS = SHIELD_FIELD.dots;
+const GHOST_DOTS = SHIELD_FIELD.ghosts;
 
 const SHIELD_Y_MIN = Math.min(...SHIELD_DOTS.map((d) => d.y));
 const SHIELD_Y_MAX = Math.max(...SHIELD_DOTS.map((d) => d.y));
@@ -438,6 +449,18 @@ function OrbitalDiagram() {
       <g className="sec-core">
         <circle cx="280" cy="280" r="118" fill="rgba(58,165,160,0.05)" stroke="rgba(58,165,160,0.12)" strokeWidth="1" />
         <g className="sec-shield">
+          {/* Ghost dots — the carved logo channel, refilled faintly post-reveal */}
+          {GHOST_DOTS.map((d, i) => (
+            <circle
+              key={`g${i}`}
+              className="ps-ghost"
+              cx={d.x}
+              cy={d.y}
+              r={1.9}
+              fill="rgba(58,165,160,0.28)"
+              opacity="0"
+            />
+          ))}
           {SHIELD_DOTS.map((d, i) => (
             <circle
               key={i}
