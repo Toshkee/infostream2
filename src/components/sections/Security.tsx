@@ -62,23 +62,29 @@ export default function Security({ dict }: { dict: Dict }) {
         .to(".sec-sat", { opacity: 1, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.8)" }, 0.7)
         .to(".sec-dot", { opacity: 0.7, duration: 0.5, stagger: 0.04 }, 1);
 
-      // Continuous slow orbit — satellites circle the shield, icons stay upright.
-      gsap.to(".sec-orbit-group", {
-        rotation: 360,
-        duration: 90,
-        repeat: -1,
-        ease: "none",
-        svgOrigin: "280 280",
-      });
-      gsap.utils.toArray<SVGGElement>(".sec-sat").forEach((el) => {
-        gsap.to(el, {
-          rotation: -360,
-          duration: 90,
-          repeat: -1,
-          ease: "none",
-          transformOrigin: "50% 50%",
-        });
-      });
+      // Verification pulse — the core periodically emits a ring; as it crosses
+      // the orbit, every satellite glows and its link brightens, like the
+      // standards being re-verified. The glow lands when the eased ring radius
+      // passes ORBIT_R (~35% of the expansion, ≈0.75s in).
+      const pulse = gsap.timeline({ repeat: -1, repeatDelay: 2.6, delay: 1.8 });
+      pulse
+        .set(".sec-ring", { attr: { r: 96 }, opacity: 0.5 })
+        .to(".sec-ring", { attr: { r: 238 }, opacity: 0, duration: 2.2, ease: "power1.out" }, 0)
+        .to(
+          ".sec-sat",
+          { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" },
+          0.75
+        )
+        .to(
+          ".sec-sat-halo",
+          { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 },
+          0.75
+        )
+        .to(
+          ".sec-link",
+          { attr: { stroke: "rgba(58,165,160,0.8)" }, duration: 0.4, yoyo: true, repeat: 1 },
+          0.75
+        );
 
       // Ambient drift on the scattered dots.
       gsap.utils.toArray<SVGElement>(".sec-dot").forEach((el, i) => {
@@ -246,7 +252,7 @@ function OrbitalDiagram() {
       viewBox="0 0 560 560"
       className="mx-auto w-full max-w-[520px] h-auto"
       role="img"
-      aria-label="Certified standards orbiting a protected core"
+      aria-label="Certified standards linked to a protected core"
     >
       {/* Scattered ambient dots */}
       {[
@@ -264,7 +270,19 @@ function OrbitalDiagram() {
       <circle className="sec-orbit" cx="280" cy="280" r={ORBIT_R} fill="none" stroke="rgba(58,165,160,0.35)" strokeWidth="1" strokeDasharray="3 7" />
       <circle className="sec-orbit" cx="280" cy="280" r={ORBIT_R - 42} fill="none" stroke="rgba(58,165,160,0.16)" strokeWidth="1" strokeDasharray="2 9" />
 
-      {/* Rotating satellite layer */}
+      {/* Verification pulse ring — expands from the core, faded out at rest */}
+      <circle
+        className="sec-ring"
+        cx="280"
+        cy="280"
+        r="96"
+        fill="none"
+        stroke="var(--brand-teal)"
+        strokeWidth="1.5"
+        opacity="0"
+      />
+
+      {/* Satellite layer */}
       <g className="sec-orbit-group">
         {SATS.map(({ angle, icon }, i) => {
           const rad = (angle * Math.PI) / 180;
@@ -278,7 +296,7 @@ function OrbitalDiagram() {
             <g key={i}>
               <line className="sec-link" x1={ix} y1={iy} x2={ox} y2={oy} stroke="rgba(58,165,160,0.35)" strokeWidth="1" />
               <g className="sec-sat" transform={`translate(${x} ${y})`}>
-                <circle r="46" fill="#f2f8f8" stroke="rgba(58,165,160,0.18)" strokeWidth="1" />
+                <circle className="sec-sat-halo" r="46" fill="#f2f8f8" stroke="rgba(58,165,160,0.18)" strokeWidth="1" />
                 <g fill="none" stroke="var(--brand-teal)" strokeWidth="1.5" strokeLinecap="round">
                   {icon}
                 </g>

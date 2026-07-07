@@ -10,14 +10,14 @@
     "cta": "Razgovarajmo"
   },
   "meta": {
-    "description": "Infostream gradi i odrÅ¾ava sisteme iza javnih finansija Crne Gore â poresku administraciju, trezorske budÅ¾ete, registre privrednih subjekata i penzijske evidencije â revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
+    "description": "Infostream gradi i održava sisteme iza javnih finansija Crne Gore — poresku administraciju, trezorske budžete, registre privrednih subjekata i penzijske evidencije — revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
     "ogTagline": "Nacionalna finansijska infrastruktura"
   },
   "hero": {
     "eyebrow": "Infostream / Softver napravljen da traje",
-    "title": "Gradimo softver koji poslovanje drÅ¾i u pokretu.",
-    "body": "VeÄ dvije decenije projektujemo, gradimo i odrÅ¾avamo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih platformi do cloud i AI rjeÅ¡enja, isporuÄujemo tehnologiju koja se razvija zajedno s vaÅ¡im poslovanjem.",
-    "exitTitle": "Äetiri faze. Jedan odgovoran tim.",
+    "title": "Gradimo softver koji poslovanje drži u pokretu.",
+    "body": "Već dvije decenije projektujemo, gradimo i održavamo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih platformi do cloud i AI rješenja, isporučujemo tehnologiju koja se razvija zajedno s vašim poslovanjem.",
+    "exitTitle": "Četiri faze. Jedan odgovoran tim.",
     "exitAccent": "Dvadeset godina na liniji.",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
@@ -31,11 +31,11 @@
       },
       {
         "k": "Platforme",
-        "v": "Oracle â¢ Microsoft"
+        "v": "Oracle • Microsoft"
       },
       {
         "k": "Razvoj",
-        "v": "APEX â¢ .NET"
+        "v": "APEX • .NET"
       },
       {
         "k": "Inovacija",
@@ -54,46 +54,46 @@
     },
     "years": {
       "value": "20+",
-      "label": "Godina rada na kritiÄnim drÅ¾avnim sistemima"
+      "label": "Godina rada na kritičnim državnim sistemima"
     }
   },
   "services": {
-    "eyebrow": "Äime se bavimo",
-    "title": "Gradimo sisteme na kojima poÄiva drÅ¾ava.",
-    "body": "Od 2004. godine projektujemo, gradimo i odrÅ¾avamo sisteme javnih finansija i nacionalne registre â pet disciplina, isporuÄenih od poÄetka do kraja i u potpunosti razvijenih u sopstvenoj reÅ¾iji.",
+    "eyebrow": "Čime se bavimo",
+    "title": "Gradimo sisteme na kojima počiva država.",
+    "body": "Od 2004. godine projektujemo, gradimo i održavamo sisteme javnih finansija i nacionalne registre — pet disciplina, isporučenih od početka do kraja i u potpunosti razvijenih u sopstvenoj režiji.",
     "items": [
       {
         "k": "Razvoj finansijskog softvera",
-        "v": "RjeÅ¡enja za trezor, budÅ¾etiranje, plaÄanja i zakonski propisano izvjeÅ¡tavanje â prilagoÄena naÄinu rada svake institucije, a potom dugoroÄno odrÅ¾avana u produkciji."
+        "v": "Rješenja za trezor, budžetiranje, plaćanja i zakonski propisano izvještavanje — prilagođena načinu rada svake institucije, a potom dugoročno održavana u produkciji."
       },
       {
         "k": "Registri",
-        "v": "Vjerodostojni nacionalni registri kao zavrÅ¡etak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa."
+        "v": "Vjerodostojni nacionalni registri kao završetak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa."
       },
       {
         "k": "Digitalna transformacija",
-        "v": "Institucije oslobaÄamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne."
+        "v": "Institucije oslobađamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne."
       },
       {
         "k": "IT infrastruktura",
-        "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporuÄujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono optereÄenje."
+        "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporučujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono opterećenje."
       },
       {
         "k": "Konsalting",
-        "v": "PomaÅ¾emo klijentima da odmjere moguÄnosti i primijene tehnologiju koja zaista mijenja naÄin na koji rade â praktiÄne odluke, a ne pomodarstvo."
+        "v": "Pomažemo klijentima da odmjere mogućnosti i primijene tehnologiju koja zaista mijenja način na koji rade — praktične odluke, a ne pomodarstvo."
       }
     ]
   },
   "platform": {
     "eyebrow": "Proces",
-    "title": "Äetiri faze. Jedan odgovoran tim.",
-    "body": "Svaki angaÅ¾man prolazi kroz iste Äetiri faze â bez prebacivanja na podizvoÄaÄe, bez iznenaÄenja nakon potpisivanja.",
+    "title": "Četiri faze. Jedan odgovoran tim.",
+    "body": "Svaki angažman prolazi kroz iste četiri faze — bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
     "framework": "Agile okvir isporuke",
     "agileLabel": "Agile u praksi",
     "stages": [
       {
         "name": "Otkrivanje",
-        "description": "Svaki uspjeÅ¡an projekat poÄinje zajedniÄkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklaÄujemo poslovne ciljeve, tehniÄke zahtjeve i oÄekivanja od isporuke.",
+        "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
         "divider": "Ishodi otkrivanja",
         "dividerRight": "",
         "intro": {
@@ -105,7 +105,7 @@
           {
             "n": "01",
             "k": "Poslovni ciljevi",
-            "v": "UsklaÄeni sa stejkholderima"
+            "v": "Usklađeni sa stejkholderima"
           },
           {
             "n": "02",
@@ -128,7 +128,7 @@
         "support": [
           {
             "k": "Saradnja",
-            "v": "Stejkholderi usklaÄeni"
+            "v": "Stejkholderi usklađeni"
           },
           {
             "k": "Prioritizacija",
@@ -140,17 +140,17 @@
           }
         ],
         "stamp": [],
-        "agile": "PrilagoÄavamo se promjenama ne gubeÄi iz vida ciljeve koji su vaÅ¾ni.",
+        "agile": "Prilagođavamo se promjenama ne gubeći iz vida ciljeve koji su važni.",
         "agileTag": ""
       },
       {
         "name": "Arhitektura",
-        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrÄuju â ne izmiÅ¡ljaju se usput.",
+        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju — ne izmišljaju se usput.",
         "divider": "Proces",
         "dividerRight": "Potvrda prije izrade",
         "intro": {
-          "k": "NaÅ¡ arhitektonski proces",
-          "v": "Strukturiran pristup projektovanju otpornih, bezbjednih i rjeÅ¡enja spremnih za buduÄnost."
+          "k": "Naš arhitektonski proces",
+          "v": "Strukturiran pristup projektovanju otpornih, bezbjednih i rješenja spremnih za budućnost."
         },
         "tag": "Arhitektura je mjesto gdje strategija postaje struktura.",
         "grid": [],
@@ -158,12 +158,12 @@
           {
             "n": "01",
             "k": "Plan",
-            "v": "Razumijemo vaÅ¡e poslovne ciljeve i definiÅ¡emo pravu arhitektonsku strategiju."
+            "v": "Razumijemo vaše poslovne ciljeve i definišemo pravu arhitektonsku strategiju."
           },
           {
             "n": "02",
             "k": "Dizajn",
-            "v": "Kreiramo arhitekturu rjeÅ¡enja koja je skalabilna, bezbjedna i efikasna."
+            "v": "Kreiramo arhitekturu rješenja koja je skalabilna, bezbjedna i efikasna."
           },
           {
             "n": "03",
@@ -184,7 +184,7 @@
       },
       {
         "name": "Izrada",
-        "description": "Funkcionalni softver se isporuÄuje u inkrementima, omoguÄavajuÄi povratne informacije, prilagoÄavanje i mjerljiv napredak tokom cijelog projekta.",
+        "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta.",
         "divider": "Isporuka sprinta",
         "dividerRight": "",
         "intro": {
@@ -208,7 +208,7 @@
           {
             "n": "SPR-03",
             "k": "",
-            "v": "Povratne informacije korisnika ukljuÄene"
+            "v": "Povratne informacije korisnika uključene"
           },
           {
             "n": "SPR-04",
@@ -219,11 +219,11 @@
         "support": [
           {
             "k": "Kvalitet",
-            "v": "Kontinuirano testiranje obezbjeÄuje pouzdanost i visoke standarde."
+            "v": "Kontinuirano testiranje obezbjeđuje pouzdanost i visoke standarde."
           },
           {
             "k": "Saradnja",
-            "v": "Povratne informacije stejkholdera vode do boljih rjeÅ¡enja i ishoda."
+            "v": "Povratne informacije stejkholdera vode do boljih rješenja i ishoda."
           },
           {
             "k": "Isporuka",
@@ -232,15 +232,15 @@
         ],
         "stamp": [
           "Izdanje odobreno",
-          "Infostream Â· Podgorica"
+          "Infostream · Podgorica"
         ],
-        "agile": "Funkcionalni softver se isporuÄuje rano i kontinuirano poboljÅ¡ava kroz povratne informacije i iteracije.",
+        "agile": "Funkcionalni softver se isporučuje rano i kontinuirano poboljšava kroz povratne informacije i iteracije.",
         "agileTag": ""
       },
       {
         "name": "Eksploatacija",
-        "description": "PuÅ¡tanje u rad nije kraj puta. Pratimo, podrÅ¾avamo i kontinuirano unapreÄujemo rjeÅ¡enja kako bismo obezbijedili dugoroÄnu poslovnu vrijednost.",
-        "divider": "Stalna podrÅ¡ka",
+        "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
+        "divider": "Stalna podrška",
         "dividerRight": "",
         "intro": {
           "k": "",
@@ -252,42 +252,42 @@
         "list": [
           {
             "n": "01",
-            "k": "PuÅ¡tanje u rad",
-            "v": "RjeÅ¡enje uspjeÅ¡no pokrenuto."
+            "k": "Puštanje u rad",
+            "v": "Rješenje uspješno pokrenuto."
           },
           {
             "n": "02",
             "k": "Monitoring",
-            "v": "Performanse i dostupnost praÄene."
+            "v": "Performanse i dostupnost praćene."
           },
           {
             "n": "03",
             "k": "Optimizacija",
-            "v": "PoboljÅ¡anja identifikovana i isporuÄena."
+            "v": "Poboljšanja identifikovana i isporučena."
           },
           {
             "n": "04",
             "k": "Partnerstvo",
-            "v": "Stalna podrÅ¡ka i savjetodavne usluge."
+            "v": "Stalna podrška i savjetodavne usluge."
           }
         ],
         "support": [
           {
-            "k": "PodrÅ¡ka",
-            "v": "PosveÄena pomoÄ kad vam zatreba."
+            "k": "Podrška",
+            "v": "Posvećena pomoć kad vam zatreba."
           },
           {
             "k": "Monitoring",
             "v": "Uvid u zdravlje sistema i performanse."
           },
           {
-            "k": "UnapreÄenje",
-            "v": "Kontinuirana optimizacija donosi dugoroÄnu vrijednost."
+            "k": "Unapređenje",
+            "v": "Kontinuirana optimizacija donosi dugoročnu vrijednost."
           }
         ],
         "stamp": [],
-        "agile": "Povratne informacije ne prestaju nakon isporuke. Svako izdanje stvara nove prilike za poboljÅ¡anje.",
-        "agileTag": "Kontinuirano unapreÄenje"
+        "agile": "Povratne informacije ne prestaju nakon isporuke. Svako izdanje stvara nove prilike za poboljšanje.",
+        "agileTag": "Kontinuirano unapređenje"
       }
     ]
   },
@@ -298,10 +298,10 @@
     "indexLabel": "Takođe u produkciji",
     "more": "sistema u produkciji",
     "groups": [
-      "Odbrana, bezbjednost i obavjeÅ¡tajni sektor",
+      "Odbrana, bezbjednost i obavještajni sektor",
       "Javne finansije i socijalni sektor",
       "Vlada i ministarstva",
-      "EU i meÄunarodni sektor",
+      "EU i međunarodni sektor",
       "Inovacije i privatni sektor"
     ],
     "projects": [
@@ -322,27 +322,27 @@
         "system": "ERP sistem"
       },
       {
-        "org": "SkupÅ¡tina Crne Gore",
+        "org": "Skupština Crne Gore",
         "system": "ERPStream platforma"
       },
       {
-        "org": "Ministarstvo unutraÅ¡njih poslova",
-        "system": "Licenciranje zaÅ¡titarske djelatnosti"
+        "org": "Ministarstvo unutrašnjih poslova",
+        "system": "Licenciranje zaštitarske djelatnosti"
       },
       {
         "org": "Adresni registar Crne Gore",
         "system": "Nacionalni adresni IT sistem"
       },
       {
-        "org": "SluÅ¾beni list Crne Gore",
+        "org": "Službeni list Crne Gore",
         "system": "Registar propisa i akata"
       },
       {
         "org": "Ministarstvo finansija",
-        "system": "UnapreÄenje REES sistema"
+        "system": "Unapređenje REES sistema"
       },
       {
-        "org": "VojnoobavjeÅ¡tajna sluÅ¾ba",
+        "org": "Vojnoobavještajna služba",
         "system": "Sistem za upravljanje dokumentima"
       },
       {
@@ -370,8 +370,8 @@
         "system": "Sistem za slobodan pristup informacijama"
       },
       {
-        "org": "Fondovi EU pomoÄi â CFCU",
-        "system": "eCES sistem za izvrÅ¡enje ugovora"
+        "org": "Fondovi EU pomoći — CFCU",
+        "system": "eCES sistem za izvršenje ugovora"
       },
       {
         "org": "Uprava za kadrove",
@@ -389,13 +389,13 @@
   },
   "projects": {
     "eyebrow": "Izabrani radovi",
-    "title": "Sistemi koje smo isporuÄili.",
-    "body": "Nekoliko sistema i alata koje smo izgradili i odrÅ¾avamo u produkciji â veÄina pokreÄe institucije javnog sektora Crne Gore.",
+    "title": "Sistemi koje smo isporučili.",
+    "body": "Nekoliko sistema i alata koje smo izgradili i održavamo u produkciji — većina pokreće institucije javnog sektora Crne Gore.",
     "scrollHint": "Skrolujte za pregled",
     "items": [
       {
-        "name": "SluÅ¾beni list â Registar propisa",
-        "summary": "Registar preÄiÅ¡Äenih tekstova zakona i propisa Crne Gore za SluÅ¾beni list â pretraga punog teksta kroz sve objavljene akte.",
+        "name": "Službeni list — Registar propisa",
+        "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list — pretraga punog teksta kroz sve objavljene akte.",
         "tags": [
           "Oracle",
           ".NET",
@@ -405,7 +405,7 @@
       },
       {
         "name": "DotBond",
-        "summary": "Open-source alat koji su izradili naÅ¡i inÅ¾enjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine â front-end i API ugovori ostaju usklaÄeni.",
+        "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine — front-end i API ugovori ostaju usklađeni.",
         "tags": [
           "C#",
           ".NET",
@@ -415,7 +415,7 @@
       },
       {
         "name": "Registar propisa",
-        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa â tokovi izdavaÄa, metapodaci propisa i praÄenje poglavlja EU usklaÄivanja.",
+        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa — tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
         "tags": [
           "Oracle",
           ".NET",
@@ -425,7 +425,7 @@
       },
       {
         "name": "Platforma Fonda za inovacije",
-        "summary": "Informacioni sistem Fonda za inovacije Crne Gore â upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
+        "summary": "Informacioni sistem Fonda za inovacije Crne Gore — upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
         "tags": [
           "Oracle APEX",
           "Oracle",
@@ -434,8 +434,8 @@
         "year": "2024"
       },
       {
-        "name": "Registar NVO i politiÄkih partija",
-        "summary": "Onlajn registracija i evidencija nevladinih organizacija i politiÄkih partija Crne Gore na ngo.gov.me â voÄeno podnoÅ¡enje, podaci o sjediÅ¡tu i Älanstvu, izdavanje dokumenata.",
+        "name": "Registar NVO i političkih partija",
+        "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me — vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
         "tags": [
           "Oracle",
           "Angular",
@@ -447,13 +447,13 @@
   },
   "security": {
     "eyebrow": "Standardi",
-    "title": "PosveÄeni kvalitetu. Sertifikovani po standardima.",
-    "body": "MeÄunarodni standardi, sertifikovani procesi i provjerene tehnologije obezbjeÄuju da svako rjeÅ¡enje bude isporuÄeno uz kvalitet, pouzdanost i bezbjednost informacija.",
+    "title": "Posvećeni kvalitetu. Sertifikovani po standardima.",
+    "body": "Međunarodni standardi, sertifikovani procesi i provjerene tehnologije obezbjeđuju da svako rješenje bude isporučeno uz kvalitet, pouzdanost i bezbjednost informacija.",
     "cards": [
       {
         "id": "bitdefender",
         "name": "Bitdefender",
-        "desc": "ZaÅ¡tita radnih stanica i servera na nivou preduzeÄa.",
+        "desc": "Zaštita radnih stanica i servera na nivou preduzeća.",
         "status": "Aktivno"
       },
       {
@@ -471,16 +471,16 @@
       {
         "id": "iso27001",
         "name": "ISO 27001",
-        "desc": "Sertifikovano upravljanje bezbjednoÅ¡Äu informacija.",
+        "desc": "Sertifikovano upravljanje bezbjednošću informacija.",
         "status": "Sertifikovano"
       }
     ]
   },
   "contact": {
     "eyebrow": "Kontaktirajte nas",
-    "title": "Ako vodite neÅ¡to kritiÄno, treba da razgovaramo.",
+    "title": "Ako vodite nešto kritično, treba da razgovaramo.",
     "body": "Na upite odgovaramo u roku od jednog radnog dana.",
-    "office": "Rista DragiÄeviÄa 4, 81000 Podgorica, Crna Gora",
+    "office": "Rista Dragićevića 4, 81000 Podgorica, Crna Gora",
     "emailLabel": "Email",
     "email": "info@infostream.co.me",
     "phoneLabel": "Telefon",
@@ -488,58 +488,58 @@
   },
   "technology": {
     "eyebrow": "Tehnologija",
-    "title": "GraÄeno na provjerenim tehnologijama.",
-    "builtOn": "GraÄeno na",
+    "title": "Građeno na provjerenim tehnologijama.",
+    "builtOn": "Građeno na",
     "rotate": [
       {
         "word": "Oracle Database",
-        "desc": "Provjeren temelj za bezbjedna, skalabilna i pouzdana softverska rjeÅ¡enja."
+        "desc": "Provjeren temelj za bezbjedna, skalabilna i pouzdana softverska rješenja."
       },
       {
         "word": "Oracle APEX",
-        "desc": "Brz razvoj aplikacija koji isporuÄuje bezbjedna poslovna rjeÅ¡enja uz brzinu i fleksibilnost."
+        "desc": "Brz razvoj aplikacija koji isporučuje bezbjedna poslovna rješenja uz brzinu i fleksibilnost."
       },
       {
         "word": ".NET",
-        "desc": "Moderan razvojni okvir za skalabilne i odrÅ¾ive aplikacije spremne za poslovnu upotrebu."
+        "desc": "Moderan razvojni okvir za skalabilne i održive aplikacije spremne za poslovnu upotrebu."
       }
     ],
     "perimeterLabel": "BEZBJEDNI PERIMETAR",
     "groups": [
       {
         "label": "Osnovne tehnologije",
-        "intro": "Osnovne platforme na koje se oslanjamo za isporuku bezbjednih, skalabilnih rjeÅ¡enja poslovne klase.",
+        "intro": "Osnovne platforme na koje se oslanjamo za isporuku bezbjednih, skalabilnih rješenja poslovne klase.",
         "items": [
           {
             "name": "Oracle Database",
             "icon": "db",
-            "desc": "Baza podataka poslovne klase, graÄena za pouzdanost, bezbjednost i skalabilnost."
+            "desc": "Baza podataka poslovne klase, građena za pouzdanost, bezbjednost i skalabilnost."
           },
           {
             "name": "Oracle APEX",
             "icon": "apex",
-            "desc": "Low-code platforma za brÅ¾i razvoj moÄnih poslovnih aplikacija."
+            "desc": "Low-code platforma za brži razvoj moćnih poslovnih aplikacija."
           },
           {
             "name": "Microsoft .NET",
             "icon": "net",
-            "desc": "Robustan okvir za izgradnju skalabilnih i odrÅ¾ivih aplikacija visokih performansi."
+            "desc": "Robustan okvir za izgradnju skalabilnih i održivih aplikacija visokih performansi."
           }
         ]
       },
       {
-        "label": "PrateÄe tehnologije",
-        "intro": "Tehnologije kojima dopunjujemo i proÅ¡irujemo rjeÅ¡enja u zavisnosti od zahtjeva projekta.",
+        "label": "Prateće tehnologije",
+        "intro": "Tehnologije kojima dopunjujemo i proširujemo rješenja u zavisnosti od zahtjeva projekta.",
         "items": [
           {
             "name": "Java",
             "icon": "java",
-            "desc": "SnaÅ¾na, pouzdana platforma za aplikacije poslovne klase."
+            "desc": "Snažna, pouzdana platforma za aplikacije poslovne klase."
           },
           {
             "name": "Angular",
             "icon": "angular",
-            "desc": "Moderan frontend okvir za izgradnju brzih i dinamiÄnih interfejsa."
+            "desc": "Moderan frontend okvir za izgradnju brzih i dinamičnih interfejsa."
           },
           {
             "name": "JavaScript",
@@ -549,7 +549,7 @@
           {
             "name": "AI",
             "icon": "ai",
-            "desc": "Inteligentna rjeÅ¡enja koja automatizuju procese i otkrivaju poslovne uvide."
+            "desc": "Inteligentna rješenja koja automatizuju procese i otkrivaju poslovne uvide."
           }
         ]
       }
@@ -558,29 +558,29 @@
   "assistant": {
     "eyebrow": "Asistent",
     "title": "Pitajte Infostream",
-    "tag": "AI Â· odgovara samo o Infostreamu",
-    "greeting": "Zdravo â ja sam Infostream asistent. Pitajte me o naÅ¡im sistemima, bezbjednosti, tehnologiji, klijentima ili kako da nas kontaktirate.",
-    "placeholder": "Pitajte o Infostreamuâ¦",
-    "send": "PoÅ¡alji",
+    "tag": "AI · odgovara samo o Infostreamu",
+    "greeting": "Zdravo — ja sam Infostream asistent. Pitajte me o našim sistemima, bezbjednosti, tehnologiji, klijentima ili kako da nas kontaktirate.",
+    "placeholder": "Pitajte o Infostreamu…",
+    "send": "Pošalji",
     "launch": "Otvorite Infostream asistenta",
     "close": "Zatvorite asistenta",
-    "thinking": "RazmiÅ¡ljaâ¦",
-    "error": "DoÅ¡lo je do greÅ¡ke. PokuÅ¡ajte ponovo.",
+    "thinking": "Razmišlja…",
+    "error": "Došlo je do greške. Pokušajte ponovo.",
     "suggestions": [
-      "Äime se Infostream bavi?",
-      "Kako se Äuvaju podaci?",
+      "Čime se Infostream bavi?",
+      "Kako se čuvaju podaci?",
       "Koje tehnologije koristite?",
       "Kako da vas kontaktiram?"
     ]
   },
   "footer": {
-    "tagline": "Nacionalna finansijska infrastruktura, graÄena u Podgorici.",
-    "rights": "Sva prava zadrÅ¾ana.",
-    "location": "Podgorica Â· Crna Gora",
+    "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
+    "rights": "Sva prava zadržana.",
+    "location": "Podgorica · Crna Gora",
     "certifications": "Sertifikati",
     "partner": "Oracle i Microsoft partner",
-    "experience": "20+ godina Â· kritiÄni drÅ¾avni sistemi",
-    "status": "Svi sistemi Â· operativni",
-    "ethos": "bezbjedno Â· odgovorno Â· na liniji"
+    "experience": "20+ godina · kritični državni sistemi",
+    "status": "Svi sistemi · operativni",
+    "ethos": "bezbjedno · odgovorno · na liniji"
   }
 }
