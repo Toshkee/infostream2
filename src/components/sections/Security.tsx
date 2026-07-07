@@ -39,7 +39,8 @@ export default function Security({ dict }: { dict: Dict }) {
 
       if (reducedMotion) {
         gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
-        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot"], { opacity: 1, scale: 1 });
+        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".sec-logo-solid"], { opacity: 1, scale: 1 });
+        gsap.set(".ps-mark", { opacity: 0 }); // settled state: solid logo, no particle mark
         return;
       }
 
@@ -63,8 +64,8 @@ export default function Security({ dict }: { dict: Dict }) {
             scale: 1,
             duration: 0.5,
             ease: "back.out(2)",
-            // DOM order is row-major top→bottom with the check dots appended
-            // last, so the shield assembles downward and the tick lands last.
+            // DOM order is row-major top→bottom with the logo dots appended
+            // last, so the shield assembles downward and the mark lands last.
             stagger: 0.9 / SHIELD_DOTS.length,
           },
           0.15
@@ -82,35 +83,72 @@ export default function Security({ dict }: { dict: Dict }) {
         svgOrigin: "280 280",
       });
 
-      // Verification wave — every WAVE_PERIOD a bright band sweeps down through
-      // the shield particles; each dot flares as it passes. Per-dot repeating
-      // tweens share the period, offset by the dot's height, so the wave stays
-      // coherent forever without a master timeline.
+      // Verification wave — scheduled inside the same scroll-triggered
+      // timeline as the entrance, so the first sweep always plays in view.
+      // A bright band sweeps down through the particles every WAVE_PERIOD,
+      // offset per dot by its height. On the FIRST pass the wave transforms
+      // the mark: each logo particle flares as the band reaches it, then
+      // dissolves, while the solid lockup wipes in top-down at the exact pace
+      // of the band — the wave leaves the real logo behind it. Body dots keep
+      // flaring on every subsequent pass (repeating tweens share the period).
       const WAVE_PERIOD = 6;
       const WAVE_TRAVEL = 1.3;
+      const WAVE_AT = 1.9; // timeline position of the first sweep's top edge
+      const yNorm = (y: number) => (y - SHIELD_Y_MIN) / (SHIELD_Y_MAX - SHIELD_Y_MIN);
       gsap.utils.toArray<SVGCircleElement>(".ps-dot").forEach((el, i) => {
         const d = SHIELD_DOTS[i];
-        const offset = ((d.y - SHIELD_Y_MIN) / (SHIELD_Y_MAX - SHIELD_Y_MIN)) * WAVE_TRAVEL;
-        const restFill = d.check ? "var(--brand-teal)" : `rgba(58,165,160,${d.o})`;
-        gsap.to(el, {
-          keyframes: [
-            { scale: 1.9, fill: "#7ad8d2", duration: 0.22, ease: "power2.out" },
-            { scale: 1, fill: restFill, duration: 0.55, ease: "power2.inOut" },
-          ],
-          repeat: -1,
-          repeatDelay: WAVE_PERIOD - 0.77,
-          delay: 2.2 + offset,
-          transformOrigin: "50% 50%",
-        });
+        const at = WAVE_AT + yNorm(d.y) * WAVE_TRAVEL;
+        if (d.mark) {
+          const flareFill = d.fill === LOGO_RED ? "#e8555a" : "#7ad8d2";
+          tl.to(
+            el,
+            {
+              keyframes: [
+                { scale: 1.9, fill: flareFill, duration: 0.22, ease: "power2.out" },
+                { scale: 1.5, opacity: 0, duration: 0.45, ease: "power2.in" },
+              ],
+              transformOrigin: "50% 50%",
+            },
+            at
+          );
+        } else {
+          tl.to(
+            el,
+            {
+              keyframes: [
+                { scale: 1.9, fill: "#7ad8d2", duration: 0.22, ease: "power2.out" },
+                { scale: 1, fill: `rgba(58,165,160,${d.o})`, duration: 0.55, ease: "power2.inOut" },
+              ],
+              repeat: -1,
+              repeatDelay: WAVE_PERIOD - 0.77,
+              transformOrigin: "50% 50%",
+            },
+            at
+          );
+        }
       });
 
-      // Badges glint once per wave, just after it clears the shield.
-      const glint = gsap.timeline({ repeat: -1, delay: 2.2 + WAVE_TRAVEL });
+      // Solid logo wipes in top-down, tracking the band across the mark's rows.
+      const markYs = SHIELD_DOTS.filter((d) => d.mark).map((d) => d.y);
+      const tTop = WAVE_AT + yNorm(Math.min(...markYs)) * WAVE_TRAVEL;
+      const tBottom = WAVE_AT + yNorm(Math.max(...markYs)) * WAVE_TRAVEL;
+      tl.fromTo(
+        ".sec-logo-solid",
+        { opacity: 1, clipPath: "inset(0% 0% 100% 0%)" },
+        { clipPath: "inset(0% 0% 0% 0%)", duration: tBottom - tTop + 0.3, ease: "none", immediateRender: false },
+        tTop + 0.15
+      );
+
+      // Badges glint once per wave, just after it clears the shield; the solid
+      // logo swells with them.
+      const glint = gsap.timeline({ repeat: -1 });
       glint
+        .to(".sec-logo-solid", { scale: 1.04, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
         .to(".sec-sat", { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
         .to(".sec-sat-halo", { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
         .to(".sec-link", { attr: { stroke: "rgba(58,165,160,0.8)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
         .to({}, { duration: WAVE_PERIOD - 0.8 });
+      tl.add(glint, WAVE_AT + WAVE_TRAVEL);
     },
     { scope: ref, dependencies: [reducedMotion] }
   );
@@ -240,36 +278,68 @@ function shieldHalfWidth(y: number): number {
 
 // 2.0 keeps the peak just inside the badge link lines (inner end at r=104).
 const SHIELD_SCALE = 2.0;
-const CHECK_SEGS: [number, number, number, number][] = [
-  [-16, -2, -4, 11],
-  [-4, 11, 18, -15],
+// Infostream logo mark — geometry and colors measured pixel-exact from
+// public/infostream-logo.webp (301×49): four teal bars plus the red "i" stem,
+// source rects [x0..x1, y0..y1] below, and the "i"'s teal dot on top
+// (x 52–57, y 2–7). Teal rgb(58,147,154), red rgb(208,31,37), both sampled
+// from the file. Each rect becomes two dot columns pinned to its real edges —
+// preserving true bar widths — scaled uniformly into shield-local units
+// around the shield's optical center.
+const LOGO_TEAL = "#3a939a";
+const LOGO_RED = "#d01f25";
+const LOGO_SRC_BARS: [number, number, number, number, string][] = [
+  [0, 6, 10, 36, LOGO_TEAL],
+  [13, 19, 0, 47, LOGO_TEAL],
+  [26, 32, 10, 36, LOGO_TEAL],
+  [39, 45, 0, 47, LOGO_TEAL],
+  [52, 57, 10, 36, LOGO_RED], // the letter "i" stem
+];
+const LOGO_SCALE = 0.85; // source px → shield-local units
+const LOGO_STEP = 3.4; // dot pitch in source px
+const LOGO_SRC_CX = 28.5; // mark bounding-box center in source px
+const LOGO_SRC_CY = 23.5;
+const LOGO_CY = -3; // optical center of the shield interior
+const LOGO_DOTS = [
+  ...LOGO_SRC_BARS.flatMap(([x0, x1, y0, y1, fill]) => {
+    const cols = [x0 + 1.75, x1 - 1.75];
+    const span = y1 - y0 - 3;
+    const rows = Math.round(span / LOGO_STEP);
+    return cols.flatMap((x) =>
+      Array.from({ length: rows + 1 }, (_, j) => ({
+        x: (x - LOGO_SRC_CX) * LOGO_SCALE,
+        y: (y0 + 1.5 + (span * j) / rows - LOGO_SRC_CY) * LOGO_SCALE + LOGO_CY,
+        fill,
+        big: false,
+      }))
+    );
+  }),
+  // The "i"'s teal dot (6×6 at x 52–57, y 2–7) — one larger particle.
+  {
+    x: (54.5 - LOGO_SRC_CX) * LOGO_SCALE,
+    y: (4.5 - LOGO_SRC_CY) * LOGO_SCALE + LOGO_CY,
+    fill: LOGO_TEAL,
+    big: true,
+  },
 ];
 
-// Check-mark dots — sampled along the tick polyline, brighter than the body.
-const CHECK_DOTS = CHECK_SEGS.flatMap(([x1, y1, x2, y2]) => {
-  const len = Math.hypot(x2 - x1, y2 - y1);
-  const steps = Math.round(len / 3.5);
-  return Array.from({ length: steps + 1 }, (_, i) => ({
-    x: x1 + ((x2 - x1) * i) / steps,
-    y: y1 + ((y2 - y1) * i) / steps,
-  }));
-});
-
-// Body dots — grid sampling inside the silhouette, skipping the check-mark
-// channel so the tick stays legible; edge dots slightly brighter for contour.
+// Body dots — grid sampling inside the silhouette, skipping a channel around
+// the logo bars so the mark stays legible; edge dots slightly brighter for
+// contour.
 const SHIELD_DOTS = (() => {
-  const dots: { x: number; y: number; r: number; o: number; check: boolean }[] = [];
+  const dots: { x: number; y: number; r: number; o: number; mark: boolean; fill?: string }[] = [];
   for (let y = -50; y <= 40; y += 6) {
     const hw = shieldHalfWidth(y);
     if (hw < 1) continue;
     for (let x = -Math.floor(hw / 6) * 6; x <= hw; x += 6) {
       if (Math.abs(x) > hw) continue;
-      if (CHECK_DOTS.some((c) => Math.hypot(c.x - x, c.y - y) < 5)) continue;
+      if (LOGO_DOTS.some((c) => Math.hypot(c.x - x, c.y - y) < 5.5)) continue;
       const edge = Math.abs(x) > hw - 6 || y < -44 || y > 34;
-      dots.push({ x, y, r: edge ? 2.2 : 1.9, o: edge ? 0.75 : 0.4, check: false });
+      dots.push({ x, y, r: edge ? 2.2 : 1.9, o: edge ? 0.75 : 0.4, mark: false });
     }
   }
-  for (const c of CHECK_DOTS) dots.push({ ...c, r: 3, o: 1, check: true });
+  // Denser pitch than the body grid — smaller radius keeps a dotted texture.
+  for (const c of LOGO_DOTS)
+    dots.push({ x: c.x, y: c.y, fill: c.fill, r: c.big ? 3.2 : 2.4, o: 1, mark: true });
   return dots.map((d) => ({
     ...d,
     x: 280 + d.x * SHIELD_SCALE,
@@ -371,13 +441,38 @@ function OrbitalDiagram() {
           {SHIELD_DOTS.map((d, i) => (
             <circle
               key={i}
-              className="ps-dot"
+              className={d.mark ? "ps-dot ps-mark" : "ps-dot"}
               cx={d.x}
               cy={d.y}
               r={d.r}
-              fill={d.check ? "var(--brand-teal)" : `rgba(58,165,160,${d.o})`}
+              fill={d.mark && d.fill ? d.fill : `rgba(58,165,160,${d.o})`}
             />
           ))}
+          {/* The real logo mark — capsule bars at the measured rects; the
+              particle mark dissolves into this after the shield assembles. */}
+          <g className="sec-logo-solid" opacity="0">
+            {LOGO_SRC_BARS.map(([x0, x1, y0, y1, fill], i) => {
+              const w = (x1 - x0 + 1) * LOGO_SCALE * SHIELD_SCALE;
+              const h = (y1 - y0 + 1) * LOGO_SCALE * SHIELD_SCALE;
+              return (
+                <rect
+                  key={i}
+                  x={280 + (x0 - LOGO_SRC_CX) * LOGO_SCALE * SHIELD_SCALE}
+                  y={280 + ((y0 - LOGO_SRC_CY) * LOGO_SCALE + LOGO_CY) * SHIELD_SCALE}
+                  width={w}
+                  height={h}
+                  rx={w / 2}
+                  fill={fill}
+                />
+              );
+            })}
+            <circle
+              cx={280 + (55 - LOGO_SRC_CX) * LOGO_SCALE * SHIELD_SCALE}
+              cy={280 + ((5 - LOGO_SRC_CY) * LOGO_SCALE + LOGO_CY) * SHIELD_SCALE}
+              r={3 * LOGO_SCALE * SHIELD_SCALE}
+              fill={LOGO_TEAL}
+            />
+          </g>
         </g>
       </g>
     </svg>
