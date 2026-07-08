@@ -428,24 +428,56 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                           <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} />
                         </div>
                       </div>
-                      {/* Abstract geometric composition — fills the tile so it
-                         reads as ambient art rather than an icon in a box. */}
+                      {/* Instrument panel — the abstract composition sits on a
+                         blueprint grid with HUD corner brackets and a status
+                         caption strip. The layers reveal staggered (frame →
+                         grid → brackets → art → caption) so the panel reads as
+                         assembling while the scene arrives; each layer is a
+                         rev() of the same --u, so it replays in reverse. */}
                       <div
-                        className="hidden md:grid h-52 w-52 lg:h-60 lg:w-60 shrink-0 place-items-center rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.01] text-[var(--brand-teal-bright)]"
-                        style={rev(-0.3, 0.16, 12)}
+                        className="hidden md:block relative h-72 w-64 lg:h-80 lg:w-72 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01]"
+                        style={rev(-0.36, 0.14, 12)}
                       >
-                        <svg
-                          viewBox="0 0 160 160"
-                          className="h-40 w-40 lg:h-46 lg:w-46"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                        {/* blueprint grid */}
+                        <div
                           aria-hidden
+                          className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] [background-size:26px_26px] [mask-image:radial-gradient(120%_90%_at_50%_40%,black_40%,transparent_100%)]"
+                          style={rev(-0.3, 0.14, 0)}
+                        />
+                        {/* corner brackets */}
+                        <div aria-hidden style={rev(-0.24, 0.1, 0)}>
+                          <div className="absolute left-3 top-3 h-3 w-3 border-l border-t border-[var(--brand-teal-bright)]/45" />
+                          <div className="absolute right-3 top-3 h-3 w-3 border-r border-t border-[var(--brand-teal-bright)]/45" />
+                          <div className="absolute left-3 bottom-12 h-3 w-3 border-l border-b border-[var(--brand-teal-bright)]/45" />
+                          <div className="absolute right-3 bottom-12 h-3 w-3 border-r border-b border-[var(--brand-teal-bright)]/45" />
+                        </div>
+                        {/* art */}
+                        <div
+                          className="absolute inset-x-0 top-0 bottom-9 grid place-items-center text-[var(--brand-teal-bright)]"
+                          style={rev(-0.2, 0.18, 14)}
                         >
-                          {SERVICE_ART[i]}
-                        </svg>
+                          <svg
+                            viewBox="0 0 160 160"
+                            className="h-44 w-44 lg:h-52 lg:w-52 drop-shadow-[0_0_18px_rgba(72,184,177,0.14)]"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden
+                          >
+                            {SERVICE_ART[i]}
+                          </svg>
+                        </div>
+                        {/* caption strip */}
+                        <div
+                          className="absolute inset-x-0 bottom-0 flex items-center gap-2.5 border-t border-white/[0.08] bg-white/[0.02] px-4 py-2.5 mono text-[9.5px] tracking-[0.2em] uppercase"
+                          style={rev(-0.08, 0.12, 8)}
+                        >
+                          <span aria-hidden className="svcart-blink h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)]" />
+                          <span className="text-white/35">sys.{String(i + 1).padStart(2, "0")}</span>
+                          <span className="ml-auto truncate text-white/60">{svc.k}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
