@@ -59,28 +59,32 @@
   },
   "services": {
     "eyebrow": "Čime se bavimo",
-    "title": "Gradimo sisteme na kojima počiva država.",
-    "body": "Od 2004. godine projektujemo, gradimo i održavamo sisteme javnih finansija i nacionalne registre — pet disciplina, isporučenih od početka do kraja i u potpunosti razvijenih u sopstvenoj režiji.",
+    "title": "Gradimo softver na koji se biznis oslanja.",
+    "body": "Praktična rješenja. Savremena tehnologija. Stvarni učinak.",
     "items": [
       {
-        "k": "Razvoj finansijskog softvera",
-        "v": "Rješenja za trezor, budžetiranje, plaćanja i zakonski propisano izvještavanje — prilagođena načinu rada svake institucije, a potom dugoročno održavana u produkciji."
+        "k": "Razvoj softvera",
+        "v": "Poslovne aplikacije, portali i interni sistemi razvijeni po mjeri vaših potreba."
       },
       {
-        "k": "Registri",
-        "v": "Vjerodostojni nacionalni registri kao završetak upravnog postupka: izgradili smo Centralni registar privrednih subjekata (CRPS) i Registar digitalnih adresa."
+        "k": "Oracle APEX rješenja",
+        "v": "Brze i bezbjedne poslovne aplikacije izgrađene na Oracle tehnologiji."
       },
       {
         "k": "Digitalna transformacija",
-        "v": "Institucije oslobađamo papira: nestrukturisana dokumenta zahvatamo, digitalizujemo i centralizujemo, tako da informacije ostaju bezbjedne i trenutno dostupne."
+        "v": "Poslovanje bez papira, modernizovani procesi i povezane informacije."
       },
       {
         "k": "IT infrastruktura",
-        "v": "Za svaku potrebu biramo pravu tehnologiju, a zatim je isporučujemo kao fleksibilnu platformu koja stabilno podnosi stvarno produkciono opterećenje."
+        "v": "Pouzdane platforme, hosting, podrška i operativna stabilnost."
+      },
+      {
+        "k": "Sistemske integracije",
+        "v": "Povezivanje aplikacija, baza podataka, API-ja i sistema trećih strana."
       },
       {
         "k": "Konsalting",
-        "v": "Pomažemo klijentima da odmjere mogućnosti i primijene tehnologiju koja zaista mijenja način na koji rade — praktične odluke, a ne pomodarstvo."
+        "v": "Tehnološke smjernice, arhitektonske odluke i podrška u realizaciji projekata."
       }
     ]
   },
@@ -297,12 +301,14 @@
     "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
     "indexLabel": "Takođe u produkciji",
     "more": "sistema u produkciji",
-    "groups": [
-      "Odbrana, bezbjednost i obavještajni sektor",
-      "Javne finansije i socijalni sektor",
-      "Vlada i ministarstva",
-      "EU i međunarodni sektor",
-      "Inovacije i privatni sektor"
+    "categories": [
+      "Javne finansije",
+      "Odbrana i bezbjednost",
+      "Državne institucije",
+      "EU projekti",
+      "Javna bezbjednost",
+      "Socijalno osiguranje",
+      "Finansijski sektor"
     ],
     "projects": [
       {
@@ -316,10 +322,6 @@
       {
         "org": "Ministarstvo odbrane",
         "system": "INFODMS upravljanje dokumentima"
-      },
-      {
-        "org": "Agencija za nacionalnu bezbjednost",
-        "system": "ERP sistem"
       },
       {
         "org": "Skupština Crne Gore",

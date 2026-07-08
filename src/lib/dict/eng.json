@@ -59,28 +59,32 @@
   },
   "services": {
     "eyebrow": "What we do",
-    "title": "We build the systems a state runs on.",
-    "body": "Since 2004 we have designed, built and run public-finance systems and national registers — five disciplines, delivered end to end and kept entirely in house.",
+    "title": "We build software businesses rely on.",
+    "body": "Practical solutions. Modern technology. Real impact.",
     "items": [
       {
-        "k": "Financial software development",
-        "v": "Custom treasury, budgeting, payments and statutory reporting — built to fit how each institution operates, then run in production for the long term."
+        "k": "Software Development",
+        "v": "Custom business applications, portals and internal systems built to fit your needs."
       },
       {
-        "k": "Registers",
-        "v": "Authoritative national registers at the close of administrative procedure: we built the Central Register of Business Entities and the Digital Address Register."
+        "k": "Oracle APEX Solutions",
+        "v": "Fast, secure enterprise applications built on Oracle technology."
       },
       {
-        "k": "Digital transformation",
-        "v": "We move institutions off paper: unstructured documents are captured, digitised and centralised, so information stays secure and instantly available."
+        "k": "Digital Transformation",
+        "v": "Paperless workflows, modernised processes and connected information."
       },
       {
-        "k": "IT infrastructure",
-        "v": "We match the right technology to each need, then deliver it as a flexible platform that holds steady under real production load."
+        "k": "IT Infrastructure",
+        "v": "Reliable platforms, hosting, support and operational stability."
+      },
+      {
+        "k": "System Integrations",
+        "v": "Connecting applications, databases, APIs and third-party systems."
       },
       {
         "k": "Consulting",
-        "v": "We help clients weigh their options and apply technology that genuinely reshapes how they work — practical decisions, not novelty."
+        "v": "Technology guidance, architecture decisions and project support."
       }
     ]
   },
@@ -297,12 +301,14 @@
     "title": "We do not have many clients. We have the right ones.",
     "indexLabel": "Also in production",
     "more": "more systems in production",
-    "groups": [
-      "Defense, security & intelligence",
-      "Public finance & social",
-      "Government & ministries",
-      "EU & international",
-      "Innovation & private sector"
+    "categories": [
+      "Public finance",
+      "Defense & security",
+      "Government",
+      "EU projects",
+      "Public security",
+      "Social insurance",
+      "Financial sector"
     ],
     "projects": [
       {
@@ -316,10 +322,6 @@
       {
         "org": "Ministry of Defense",
         "system": "INFODMS document management"
-      },
-      {
-        "org": "Intelligence Agency of Montenegro",
-        "system": "Enterprise resource planning"
       },
       {
         "org": "Parliament of Montenegro",
