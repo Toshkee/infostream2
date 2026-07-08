@@ -146,14 +146,35 @@ body {
    hydration/layout shift. The media query is the exact string MOTION_QUERY in
    PinnedHero.tsx uses to start ScrollTrigger — same query, so there is no
    client where the pinned variant shows without its JS. */
-/* Services section — decorative connector lines between the zigzag cards,
-   built and positioned from the DOM by Services.tsx (desktop only). */
-.svc-line { stroke: var(--brand-teal-bright); stroke-width: 1; opacity: 0.55; }
-.svc-dot { fill: var(--brand-teal-bright); }
-.svc-signal {
-  fill: var(--brand-teal-soft);
-  visibility: hidden; /* revealed by GSAP just for its run along the line */
-  filter: drop-shadow(0 0 4px var(--brand-teal-soft));
+/* ─── Animated service-scene art (SERVICE_ART in PinnedHero) ───
+   Slow, ambient motion for the abstract geometric compositions. Only rendered
+   inside the pinned variant, which is itself gated on prefers-reduced-motion.
+   Rotating/scaling parts need inline transform-box: view-box + an explicit
+   px transform-origin on the element. */
+@keyframes svcartBlink { 0%, 100% { opacity: 0.25; } 45% { opacity: 1; } }
+.svcart-blink { animation: svcartBlink 2.6s ease-in-out infinite; }
+
+@keyframes svcartFlow { to { stroke-dashoffset: -22; } }
+.svcart-flow { stroke-dasharray: 3 8; animation: svcartFlow 2.4s linear infinite; }
+
+@keyframes svcartSpin { to { transform: rotate(360deg); } }
+.svcart-spin { animation: svcartSpin 30s linear infinite; }
+.svcart-spin-rev { animation: svcartSpin 22s linear infinite reverse; }
+
+@keyframes svcartBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.svcart-breathe { animation: svcartBreathe 5s ease-in-out infinite; }
+
+@keyframes svcartRing { 0% { transform: scale(0.7); opacity: 0.6; } 80%, 100% { transform: scale(2.1); opacity: 0; } }
+.svcart-ring { animation: svcartRing 3.2s ease-out infinite; }
+
+@keyframes svcartFloatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.svcart-floaty { animation: svcartFloatY 4.2s ease-in-out infinite; }
+
+@keyframes svcartSweep { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(110px); } }
+.svcart-sweep { animation: svcartSweep 7s ease-in-out infinite; }
+.svcart-beam {
+  stroke: var(--brand-teal-soft);
+  filter: drop-shadow(0 0 5px var(--brand-teal-soft));
 }
 
 .process-pinned { display: none; }

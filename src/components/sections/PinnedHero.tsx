@@ -40,36 +40,90 @@ const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 5
 // meaningless on touch devices.
 const ENHANCED_QUERY = "(min-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
 
-// ─── Per-stage content model (mirrors platform.stages in the dictionaries) ───
-// Each stage carries the same superset of fields; unused slots are empty
-// strings / arrays. The renderer shows whatever a stage populates, and the icon
-// assignment per slot lives in STAGE_ICONS below (icons aren't translatable).
-type GridItem = { n: string; k: string; v: string };
-type SupportItem = { k: string; v: string };
-type ListRow = { n: string; k: string; v: string };
-type PStage = {
-  name: string;
-  description: string;
-  divider: string;
-  dividerRight: string;
-  intro: { k: string; v: string };
-  tag: string;
-  grid: GridItem[];
-  cards: GridItem[];
-  list: ListRow[];
-  support: SupportItem[];
-  stamp: string[];
-  agile: string;
-  agileTag: string;
-};
-
-// Which line-art glyph rides each item slot, per stage. Kept in code (not the
-// dictionary) because icon choice is presentation, not copy — both locales share it.
-const STAGE_ICONS: { grid: IconName[]; cards: IconName[]; list: IconName[]; support: IconName[] }[] = [
-  { grid: ["targetAccent", "fileText", "alertTriangle", "shieldCheck"], cards: [], list: [], support: ["users", "list", "eye"] },
-  { grid: [], cards: ["targetAccent", "blueprint", "shieldCheck", "rocket"], list: [], support: [] },
-  { grid: [], cards: [], list: ["box", "clipboardCheck", "users", "rocket"], support: ["shieldCheck", "users", "rocket"] },
-  { grid: [], cards: [], list: ["rocket", "monitor", "barChart", "users"], support: ["shield", "radar", "trendingUp"] },
+// ─── Per-scene abstract art (mirror dict.services.items order) ───
+// Not literal icons: each service gets an abstract geometric composition in a
+// 160×160 stroke space — thin concentric forms, orbits, lattices — with slow
+// ambient motion driven by the svcart-* CSS keyframes in globals.css. Rotating
+// or scaling parts carry inline transform-box: view-box + a px transform-origin
+// (SVG CSS transforms default to a broken origin otherwise). Kept in code (not
+// the dictionary) because the art is presentation, not copy.
+const CENTER = { transformBox: "view-box", transformOrigin: "80px 80px" } as const;
+const SERVICE_ART: ReactNode[] = [
+  // Software development — recursion: nested rounded squares counter-rotating
+  <>
+    <rect className="svcart-spin" style={CENTER} x="25" y="25" width="110" height="110" rx="20" opacity="0.3" />
+    <g transform="rotate(15 80 80)">
+      <rect className="svcart-spin-rev" style={CENTER} x="42" y="42" width="76" height="76" rx="15" opacity="0.55" />
+    </g>
+    <g transform="rotate(30 80 80)">
+      <rect className="svcart-spin" style={{ ...CENTER, animationDuration: "16s" }} x="58" y="58" width="44" height="44" rx="10" />
+    </g>
+    <circle className="svcart-blink" cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
+  </>,
+  // Oracle APEX — the stack: floating isometric planes on a data axis
+  <>
+    <path className="svcart-flow" d="M80 16v128" opacity="0.35" />
+    <g className="svcart-floaty" style={CENTER}>
+      <path d="M80 28L128 50L80 72L32 50Z" opacity="0.35" />
+    </g>
+    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "0.7s" }}>
+      <path d="M80 58L128 80L80 102L32 80Z" opacity="0.6" />
+    </g>
+    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.4s" }}>
+      <path d="M80 88L128 110L80 132L32 110Z" />
+    </g>
+    <circle className="svcart-blink" cx="80" cy="28" r="2.5" fill="currentColor" stroke="none" />
+  </>,
+  // Digital transformation — signal: dashed ring resolving into a solid core
+  <>
+    <g className="svcart-spin" style={CENTER}>
+      <circle cx="80" cy="80" r="58" strokeDasharray="4 10" opacity="0.4" />
+      <circle cx="80" cy="22" r="2.5" fill="currentColor" stroke="none" />
+    </g>
+    <circle className="svcart-flow" cx="80" cy="80" r="40" opacity="0.55" />
+    <circle className="svcart-breathe" style={CENTER} cx="80" cy="80" r="22" />
+    <circle className="svcart-blink" cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
+  </>,
+  // IT infrastructure — lattice: layered horizontals swept by a signal line
+  <>
+    <path d="M25 40h110" opacity="0.3" />
+    <path d="M25 60h110" opacity="0.5" />
+    <path d="M25 80h110" opacity="0.7" />
+    <path d="M25 100h110" opacity="0.5" />
+    <path d="M25 120h110" opacity="0.3" />
+    <path d="M52 32v96M80 32v96M108 32v96" opacity="0.12" />
+    <circle className="svcart-blink" cx="52" cy="60" r="2.5" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "0.9s" }} cx="108" cy="80" r="2.5" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "1.7s" }} cx="80" cy="100" r="2.5" fill="currentColor" stroke="none" />
+    <path className="svcart-beam svcart-sweep" d="M25 34v92" />
+  </>,
+  // System integrations — orbit: satellites circling a pulsing hub
+  <>
+    <path d="M95 80l-7.5 13h-15L65 80l7.5-13h15z" />
+    <path className="svcart-ring" style={CENTER} d="M95 80l-7.5 13h-15L65 80l7.5-13h15z" />
+    <circle cx="80" cy="80" r="38" opacity="0.35" />
+    <circle cx="80" cy="80" r="58" opacity="0.2" />
+    <g className="svcart-spin" style={{ ...CENTER, animationDuration: "14s" }}>
+      <circle cx="80" cy="22" r="3.5" fill="currentColor" stroke="none" />
+      <circle cx="80" cy="138" r="2" fill="currentColor" stroke="none" opacity="0.6" />
+    </g>
+    <g className="svcart-spin-rev" style={{ ...CENTER, animationDuration: "9s" }}>
+      <circle cx="80" cy="42" r="3" fill="currentColor" stroke="none" />
+    </g>
+  </>,
+  // AI — neuron: a breathing core feeding six synapses on a slow outer ring
+  <>
+    <circle className="svcart-spin" style={CENTER} cx="80" cy="80" r="62" strokeDasharray="4 10" opacity="0.25" />
+    <path className="svcart-flow" d="M89 80h39M84.5 87.8l19.5 33.8M75.5 87.8l-19.5 33.8M71 80H32M75.5 72.2L56 38.4M84.5 72.2l19.5-33.8" opacity="0.6" />
+    <circle className="svcart-breathe" style={CENTER} cx="80" cy="80" r="10" />
+    <circle cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" cx="128" cy="80" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "0.4s" }} cx="104" cy="121.6" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "0.8s" }} cx="56" cy="121.6" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "1.2s" }} cx="32" cy="80" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "1.6s" }} cx="56" cy="38.4" r="3" fill="currentColor" stroke="none" />
+    <circle className="svcart-blink" style={{ animationDelay: "2s" }} cx="104" cy="38.4" r="3" fill="currentColor" stroke="none" />
+  </>,
 ];
 
 // Hero intro metric chips — one line-art glyph per chip, in dictionary order
@@ -193,28 +247,32 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
       // variant is displayed, and gsap.matchMedia reverts it if that changes.
       mm.add(MOTION_QUERY, () => {
         if (!pin.current) return;
-        const stops = 5; // scenes 0..4 + exit pull-back (4..5)
+        const stops = 7; // intro (0) + six service scenes (1..6) + exit pull-back (6..7)
 
         ScrollTrigger.create({
           trigger: pin.current,
           start: "top top",
-          // Phones get a shorter swipe per scene — 8.5 viewports of thumb
-          // scrolling reads as broken; 6.5 keeps the choreography legible.
-          end: () => `+=${stops * window.innerHeight * (window.innerWidth < 900 ? 1.3 : 1.7)}`,
+          // Phones get a shorter swipe per scene — a long thumb-scroll per
+          // stop reads as broken; services scenes are light, so the per-stop
+          // distance is shorter than the old four-stage choreography used.
+          end: () => `+=${stops * window.innerHeight * (window.innerWidth < 900 ? 1.0 : 1.35)}`,
           pin: pin.current,
           pinSpacing: true,
           scrub: 0.6,
           onUpdate: (self) => {
-            const p = self.progress * stops; // 0..5
+            const p = self.progress * stops; // 0..7
             // One CSS variable drives every scroll-coupled style below; the
             // imperative handles cover the SVG attributes CSS can't reach.
             pin.current?.style.setProperty("--ph", p.toFixed(4));
+            // The 3D pipeline now has six nodes (one per service scene), so it
+            // takes the raw phase; the 2D constellation pan was authored for
+            // the original 0..5 domain, so it gets a scaled copy.
             phaseRef.current = p;
-            constellation.current?.update(p);
+            constellation.current?.update(p * (5 / stops));
             stepper.current?.update(p);
             // Discrete state — React only re-renders on scene boundaries.
-            setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
-            setExitActive(p > 4.55);
+            setActiveScene(Math.max(0, Math.min(6, Math.round(p))));
+            setExitActive(p > 6.55);
           },
         });
 
@@ -230,8 +288,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   );
 
   const titleWords = dict.hero.title.split(" ");
-  const stages = dict.platform.stages as unknown as PStage[];
-  const agileLabel = dict.platform.agileLabel;
+  const services = dict.services.items;
 
   return (
     <div id="platform" ref={outer} className="relative bg-[var(--bg-inset)]">
@@ -282,7 +339,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             {/* Exit darken — fades the scene before unpin */}
             <div
               className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none"
-              style={{ opacity: "calc(clamp(0, calc((var(--ph) - 4.55) / 0.4), 1) * 0.75)" }}
+              style={{ opacity: "calc(clamp(0, calc((var(--ph) - 6.55) / 0.4), 1) * 0.75)" }}
             />
           </div>
 
@@ -304,7 +361,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
           {/* Scene progress indicator */}
           <div aria-hidden className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 flex flex-col gap-3">
-            {[0, 1, 2, 3, 4].map((i) => (
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
               <span
                 key={i}
                 className={`block h-px transition-all duration-500 ${
@@ -317,7 +374,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           {/* All content scenes — wrapper fades everything out together on exit. */}
           <div
             className="absolute inset-0 z-10 pointer-events-none"
-            style={{ opacity: "clamp(0, calc((4.78 - var(--ph)) / 0.33), 1)" }}
+            style={{ opacity: "clamp(0, calc((6.78 - var(--ph)) / 0.33), 1)" }}
           >
             <div className="absolute inset-0 pointer-events-auto">
               {/* Scene 0 — Intro */}
@@ -352,25 +409,44 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 </div>
               </Scene>
 
-              {/* Scenes 1–4 — process stages. Visual layer is decorative; the
-                 canonical, screen-reader-facing copy lives in the sr-only block
-                 below (and in the static variant on small screens). */}
-              {stages.map((stage, i) => (
-                <Scene key={i} target={i + 1} interactive={false} decorative align="top">
-                  <div className="w-full max-w-[940px]" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
-                    <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} />
-                    {/* Discovery carries its own header inside the brief card. */}
-                    {i !== 0 && (
-                      <DividerLabel
-                        index={i}
-                        label={stage.divider}
-                        right={stage.dividerRight}
-                        className="mt-6"
-                        style={rev(-0.36, 0.12, 6)}
-                      />
-                    )}
-                    <div className="mt-7">
-                      <StageBody index={i} stage={stage} agileLabel={agileLabel} />
+              {/* Scenes 1–6 — the services, one per scene, riding the same
+                 scroll choreography the process stages used. Visual layer is
+                 decorative; the canonical, screen-reader-facing copy lives in
+                 the sr-only block below (and in the static variant). */}
+              {services.map((svc, i) => (
+                <Scene key={i} target={i + 1} interactive={false} decorative>
+                  <div className="w-full max-w-[1040px]" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
+                    <div className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
+                      <div>
+                        <div
+                          className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
+                          style={rev(-0.42, 0.12, 6)}
+                        >
+                          {dict.services.eyebrow}
+                        </div>
+                        <div className="mt-5">
+                          <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} />
+                        </div>
+                      </div>
+                      {/* Abstract geometric composition — fills the tile so it
+                         reads as ambient art rather than an icon in a box. */}
+                      <div
+                        className="hidden md:grid h-52 w-52 lg:h-60 lg:w-60 shrink-0 place-items-center rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.01] text-[var(--brand-teal-bright)]"
+                        style={rev(-0.3, 0.16, 12)}
+                      >
+                        <svg
+                          viewBox="0 0 160 160"
+                          className="h-40 w-40 lg:h-46 lg:w-46"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden
+                        >
+                          {SERVICE_ART[i]}
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </Scene>
@@ -378,15 +454,15 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             </div>
           </div>
 
-          {/* Stream stepper — visible across all four stages. Hidden on phones:
-             scaled to a phone width its labels drop below legibility. */}
+          {/* Stream stepper — visible across all six service scenes. Hidden on
+             phones: scaled to a phone width its labels drop below legibility. */}
           <div
             aria-hidden
-            className="process-stepper absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[88vw] max-w-[760px] hidden sm:block"
-            style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((4.75 - var(--ph)) / 0.3)), 1)" }}
+            className="process-stepper absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[92vw] max-w-[1040px] hidden sm:block"
+            style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((6.75 - var(--ph)) / 0.3)), 1)" }}
           >
             <HexStepper
-              labels={stages.map((s) => ({ name: s.name }))}
+              labels={services.map((s) => ({ name: s.k }))}
               activeIndex={Math.max(0, activeScene - 1)}
               handleRef={stepper}
             />
@@ -396,7 +472,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           <div
             aria-hidden
             className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-            style={{ opacity: "clamp(0, calc((var(--ph) - 4.6) / 0.3), 1)" }}
+            style={{ opacity: "clamp(0, calc((var(--ph) - 6.6) / 0.3), 1)" }}
           >
             <div className="text-center px-6">
               <div className="relative mx-auto flex items-center justify-center">
@@ -414,28 +490,18 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           </div>
         </div>
 
-        {/* Canonical process content for assistive tech — the animated scenes
+        {/* Canonical services content for assistive tech — the animated scenes
            above are aria-hidden decoration. Hidden with the pinned variant, so
            small screens never get duplicate content. */}
         <div className="sr-only">
           <h1>{dict.hero.title}</h1>
           <p>{dict.hero.body}</p>
-          <h2>{dict.platform.title}</h2>
-          <p>{dict.platform.body}</p>
-          {stages.map((stage, i) => (
+          <h2>{dict.services.title}</h2>
+          <p>{dict.services.body}</p>
+          {services.map((svc, i) => (
             <section key={i}>
-              <h3>{stage.name}</h3>
-              <p>{stage.description}</p>
-              <p>{agileLabel}: {stage.agile}</p>
-              {[...stage.grid, ...stage.cards].map((it) => (
-                <p key={`g-${it.k}`}>{it.k}: {it.v}</p>
-              ))}
-              {stage.list.map((it) => (
-                <p key={`l-${it.n}`}>{it.k ? `${it.k} — ` : ""}{it.v}</p>
-              ))}
-              {stage.support.map((it) => (
-                <p key={`s-${it.k}`}>{it.k}: {it.v}</p>
-              ))}
+              <h3>{svc.k}</h3>
+              <p>{svc.v}</p>
             </section>
           ))}
         </div>
@@ -475,25 +541,18 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           </div>
         </div>
 
-        {/* Process stages, stacked. --u: 1 renders every block fully settled. */}
+        {/* Services, stacked. --u: 1 renders every block fully settled. */}
         <div className="relative mx-auto max-w-[1280px] px-6 pb-20">
-          <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">{dict.platform.eyebrow}</div>
+          <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">{dict.services.eyebrow}</div>
           <h2 className="mt-3 text-[clamp(1.8rem,6vw,2.6rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
-            {dict.platform.title}
+            {dict.services.title}
           </h2>
-          <p className="mt-4 max-w-xl text-white/70 text-[15.5px] leading-relaxed">{dict.platform.body}</p>
+          <p className="mt-4 max-w-xl text-white/70 text-[15.5px] leading-relaxed">{dict.services.body}</p>
 
-          <div className="mt-12 space-y-16">
-            {stages.map((stage, i) => (
+          <div className="mt-12 space-y-14">
+            {services.map((svc, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
-                <StageHeading index={i} total={stages.length} name={stage.name} description={stage.description} heading />
-                {/* Discovery carries its own header inside the brief card. */}
-                {i !== 0 && (
-                  <DividerLabel index={i} label={stage.divider} right={stage.dividerRight} className="mt-5" />
-                )}
-                <div className="mt-7">
-                  <StageBody index={i} stage={stage} agileLabel={agileLabel} />
-                </div>
+                <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} heading />
               </article>
             ))}
           </div>
@@ -621,57 +680,18 @@ function StageHeading({
   );
 }
 
-// ─── Labeled section divider: "0X · LABEL ———————— RIGHT" ───
-function DividerLabel({
-  index,
-  label,
-  right,
-  className = "",
-  style,
-}: {
-  index: number;
-  label: string;
-  right?: string;
-  className?: string;
-  style?: CSSVars;
-}) {
-  const num = String(index + 1).padStart(2, "0");
-  return (
-    <div className={`flex items-center gap-4 ${className}`} style={style}>
-      <span className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)] whitespace-nowrap shrink-0">
-        {num} · {label}
-      </span>
-      <span
-        aria-hidden
-        className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 via-white/12 to-transparent"
-        style={{ boxShadow: "0 0 6px -2px var(--brand-teal-bright)" }}
-      />
-      {right ? (
-        <span className="mono text-[9px] tracking-[0.22em] uppercase text-white/35 whitespace-nowrap shrink-0">{right}</span>
-      ) : null}
-    </div>
-  );
-}
-
 // ─── Circular line-art icon medallion ───
-// `tone="danger"` paints the ring + glyph red — used for the Discovery "Risks"
-// outcome, the one warning accent in the otherwise all-teal icon set (the cell
-// still carries its triangle glyph + label, so meaning never rides on color).
 function Medallion({
   name,
   size = "md",
-  solidBg = false,
   tone = "teal",
 }: {
   name: IconName;
   size?: "sm" | "md";
-  solidBg?: boolean;
   tone?: "teal" | "danger" | "warn";
 }) {
   const dim = size === "sm" ? "w-9 h-9" : "w-11 h-11";
   const ic = size === "sm" ? "w-4 h-4" : "w-[18px] h-[18px]";
-  // "warn" keeps the uniform teal ring but paints the glyph red — the warning
-  // accent on the Discovery "Risks" outcome (per fo.png). "danger" reddens both.
   const tint =
     tone === "danger"
       ? "border-[var(--brand-red)]/50 text-[var(--brand-red)]"
@@ -679,348 +699,13 @@ function Medallion({
       ? "border-[var(--brand-teal-bright)]/35 text-[var(--brand-red)]"
       : "border-[var(--brand-teal-bright)]/35 text-[var(--brand-teal-bright)]";
   return (
-    <span
-      className={`relative grid place-items-center rounded-full border shrink-0 ${tint} ${dim} ${
-        solidBg ? "bg-[var(--bg-inset)]" : ""
-      }`}
-    >
+    <span className={`relative grid place-items-center rounded-full border shrink-0 ${tint} ${dim}`}>
       <Icon name={name} className={ic} />
     </span>
   );
 }
 
-// ─── "Agile in action" panel — shared across all four stages ───
-function AgileBox({
-  label,
-  text,
-  tag,
-  className = "",
-  style,
-}: {
-  label: string;
-  text: string;
-  tag?: string;
-  className?: string;
-  style?: CSSVars;
-}) {
-  return (
-    <div
-      className={`process-agile relative rounded-xl border border-[var(--brand-teal-bright)]/30 bg-[var(--bg-inset)]/90 p-5 ${className}`}
-      style={{ boxShadow: "inset 0 0 30px -22px var(--brand-teal-bright)", ...style }}
-    >
-      <div className="flex items-start gap-3.5">
-        <span className="grid place-items-center w-9 h-9 rounded-full border border-[var(--brand-teal-bright)]/45 text-[var(--brand-teal-bright)] shrink-0">
-          <Icon name="infinity" className="w-[18px] h-[18px]" />
-        </span>
-        <div className="min-w-0">
-          <div className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]">{label}</div>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-white/80">{text}</p>
-          {tag ? (
-            <span className="mt-3 inline-flex items-center gap-2 mono text-[9px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1">
-              <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
-              {tag}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── "Agile in action" — borderless note (Discovery, Build, Operate) ───
-// The open treatment from the mockups: an infinity medallion + teal label on one
-// line, the agile sentence beneath, no card border. AgileBox (bordered) is kept
-// only for Architecture, where the left rail wants its blocks visually grouped.
-function AgileNote({
-  label,
-  text,
-  tag,
-  className = "",
-  style,
-}: {
-  label: string;
-  text: string;
-  tag?: string;
-  className?: string;
-  style?: CSSVars;
-}) {
-  return (
-    <div className={className} style={style}>
-      <div className="flex items-center gap-3">
-        <span className="grid place-items-center w-10 h-10 rounded-full border border-[var(--brand-teal-bright)]/40 text-[var(--brand-teal-bright)] shrink-0">
-          <Icon name="infinity" className="w-5 h-5" />
-        </span>
-        <span className="mono text-[11px] tracking-[0.26em] uppercase text-[var(--brand-teal-bright)]">{label}</span>
-      </div>
-      <p className="mt-4 max-w-md text-[13.5px] leading-relaxed text-white/70">{text}</p>
-      {tag ? (
-        <span className="mt-4 inline-flex items-center gap-2 mono text-[9px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/35 rounded-full px-3 py-1">
-          <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
-          {tag}
-        </span>
-      ) : null}
-    </div>
-  );
-}
-
-// ─── Support / benefit cell: stacked medallion + heading + copy ───
-// `boxed` wraps the cell in an opaque card — used where the row sits in the
-// right column over the bright 3D orbital (Build), so the teal label + body
-// keep WCAG contrast instead of compositing over the backdrop. In the
-// wash-protected left columns (Discovery, Operate) the cells stay bare.
-function SupportCell({
-  icon,
-  k,
-  v,
-  boxed = false,
-  style,
-}: {
-  icon: IconName;
-  k: string;
-  v: string;
-  boxed?: boolean;
-  style?: CSSVars;
-}) {
-  return (
-    <div
-      className={`flex flex-col gap-2.5 ${
-        boxed ? "rounded-lg border border-white/[0.06] bg-[var(--bg-inset)]/85 px-3.5 py-3.5" : ""
-      }`}
-      style={style}
-    >
-      <Medallion name={icon} size="sm" />
-      <div>
-        <div className="mono text-[10.5px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]">{k}</div>
-        <p className="text-[12.5px] text-white/80 mt-1 leading-relaxed">{v}</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Architecture process card ───
-// Mockup arrangement: a small numbered badge + the step title on the top line,
-// then the icon medallion beside the description below.
-function ProcessCard({ icon, n, k, v, style }: { icon: IconName; n: string; k: string; v: string; style?: CSSVars }) {
-  return (
-    <div
-      className="process-card relative rounded-lg border border-[var(--brand-teal-bright)]/22 bg-[var(--bg-inset)]/90 p-5"
-      style={style}
-    >
-      <div className="flex items-center gap-3">
-        <span className="mono text-[10px] tracking-[0.16em] text-[var(--brand-teal-bright)] border border-[var(--brand-teal-bright)]/35 rounded px-1.5 py-0.5 shrink-0">
-          {n}
-        </span>
-        <span className="mono text-[12px] tracking-[0.22em] uppercase text-white/90">{k}</span>
-      </div>
-      <div className="mt-4 flex items-start gap-3.5">
-        <Medallion name={icon} size="sm" />
-        <p className="process-body-clamp text-[12.5px] leading-relaxed text-white/75">{v}</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Checklist / numbered list card (Build sprint, Operate ongoing support) ───
-function ListCard({ rows, icons, style }: { rows: ListRow[]; icons: IconName[]; style?: CSSVars }) {
-  return (
-    <div
-      className="process-listcard relative rounded-xl border border-[var(--brand-teal-bright)]/20 bg-[var(--bg-inset)]/90 p-4 sm:p-5"
-      style={style}
-    >
-      {/* vertical timeline rail behind the medallions */}
-      <span
-        aria-hidden
-        className="absolute left-[37px] sm:left-[41px] top-9 bottom-9 w-px bg-gradient-to-b from-[var(--brand-teal-bright)]/45 via-[var(--brand-teal-bright)]/15 to-transparent"
-      />
-      <ul className="space-y-3.5">
-        {rows.map((r, i) => (
-          <li key={i} className="relative flex items-center gap-3" style={rev(-0.2 + i * 0.05, 0.08, 4)}>
-            <Medallion name={icons[i]} size="sm" solidBg />
-            <span className="mono text-[10px] tracking-[0.14em] text-[var(--brand-teal-bright)] w-[44px] shrink-0">{r.n}</span>
-            <div className="min-w-0 flex-1">
-              {r.k ? (
-                <div className="mono text-[11px] tracking-[0.18em] uppercase text-white/85 leading-tight">{r.k}</div>
-              ) : null}
-              <div className={`process-body-clamp text-[12.5px] text-white/78 leading-snug ${r.k ? "mt-0.5" : ""}`}>{r.v}</div>
-            </div>
-            <span
-              aria-hidden
-              className="grid place-items-center w-5 h-5 rounded-full border border-[var(--brand-teal-bright)]/50 text-[var(--brand-teal-bright)] shrink-0"
-              style={rev(-0.12 + i * 0.05, 0.06, 0)}
-            >
-              <Icon name="check" className="w-3 h-3" />
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-// ─── "Release approved" ink stamp (Build) ───
-function Stamp({ lines, style }: { lines: string[]; style?: CSSVars }) {
-  return (
-    <div
-      className="release-stamp inline-flex flex-col items-center gap-0.5 border border-[var(--brand-teal-bright)]/55 rounded-sm px-4 py-2 text-[var(--brand-teal-bright)]"
-      style={style}
-    >
-      <span className="mono text-[11px] tracking-[0.28em] uppercase font-medium whitespace-nowrap">{lines[0]}</span>
-      {lines[1] ? (
-        <span className="mono text-[8px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/70 whitespace-nowrap">{lines[1]}</span>
-      ) : null}
-    </div>
-  );
-}
-
-// ─── Per-stage body layouts — each composes the shared blocks per the mockup ───
-function StageBody({ index, stage, agileLabel }: { index: number; stage: PStage; agileLabel: string }) {
-  const icons = STAGE_ICONS[index];
-
-  // Discovery — full-width outcomes row (numbered medallion cells), then an
-  // "Agile in action" note (left) beside the three support benefits (right).
-  if (index === 0) {
-    return (
-      <div>
-        {/* Four outcomes across the full width */}
-        <div className="process-outcome-grid grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-9">
-          {stage.grid.map((g, i) => (
-            <div key={i} className="process-outcome flex flex-col gap-3.5" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
-              <div className="flex items-center gap-3">
-                <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{g.n}</span>
-                <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-[var(--brand-teal-bright)]/40 to-transparent" />
-              </div>
-              <Medallion name={icons.grid[i]} tone={icons.grid[i] === "alertTriangle" ? "warn" : "teal"} />
-              <div>
-                <div className="mono text-[11px] tracking-[0.18em] uppercase text-[var(--brand-teal-bright)] leading-tight">
-                  {g.k}
-                </div>
-                <div className="process-body-clamp text-[13px] text-white/70 mt-1.5 leading-snug">{g.v}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Agile note (left) + support benefits (right) — hidden on phones in
-           the pinned variant (process-aux) so the scene fits the pin. */}
-        <div className="process-aux mt-10 grid lg:grid-cols-12 gap-x-10 gap-y-8 border-t border-white/10 pt-8">
-          <AgileNote label={agileLabel} text={stage.agile} className="lg:col-span-5" style={rev(-0.05, 0.12, 8)} />
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6">
-            {stage.support.map((s, i) => (
-              <div key={i} className="flex items-start gap-3" style={rev(0.02 + i * 0.04, 0.1, 6)}>
-                <Medallion name={icons.support[i]} size="sm" />
-                <div className="min-w-0">
-                  <div className="mono text-[10px] tracking-[0.18em] uppercase text-[var(--brand-teal-bright)] leading-tight">
-                    {s.k}
-                  </div>
-                  <div className="text-[12px] text-white/65 mt-1 leading-snug">{s.v}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Architecture — intro column + agile (left), 2×2 process cards (right).
-  if (index === 1) {
-    return (
-      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-        <div className="process-aux lg:col-span-4">
-          <div className="mono text-[11px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)]" style={rev(-0.3, 0.1, 6)}>
-            {stage.intro.k}
-          </div>
-          <p className="mt-3 text-[13.5px] leading-relaxed text-white/65" style={rev(-0.26, 0.1, 6)}>
-            {stage.intro.v}
-          </p>
-          <div
-            className="mt-5 flex items-start gap-3 border border-[var(--brand-teal-bright)]/25 rounded-lg px-4 py-3"
-            style={rev(-0.2, 0.1, 6)}
-          >
-            <span className="text-[var(--brand-teal-bright)] mt-px shrink-0">
-              <Icon name="info" className="w-4 h-4" />
-            </span>
-            <span className="mono text-[10px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]/90 leading-relaxed">
-              {stage.tag}
-            </span>
-          </div>
-          <AgileBox label={agileLabel} text={stage.agile} className="mt-5" style={rev(-0.12, 0.12, 8)} />
-        </div>
-        <div className="lg:col-span-8">
-          <div className="process-cards-grid grid sm:grid-cols-2 gap-4">
-            {stage.cards.map((c, i) => (
-              <ProcessCard key={i} icon={icons.cards[i]} n={c.n} k={c.k} v={c.v} style={rev(-0.24 + i * 0.05, 0.1, 8)} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Build — sprint list + stamp (left), agile + benefit row (right).
-  if (index === 2) {
-    return (
-      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-10 items-start">
-        <div className="lg:col-span-5 relative">
-          <ListCard rows={stage.list} icons={icons.list} style={rev(-0.3, 0.12, 8)} />
-          {stage.stamp.length > 0 ? (
-            <Stamp
-              lines={stage.stamp}
-              style={{ ...rev(0.06, 0.12, 0), position: "absolute", right: "-0.5rem", bottom: "-1.1rem" }}
-            />
-          ) : null}
-        </div>
-        <div className="process-aux lg:col-span-7">
-          <AgileNote label={agileLabel} text={stage.agile} style={rev(-0.02, 0.12, 8)} />
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-7 gap-y-6 border-t border-white/10 pt-7">
-            {stage.support.map((s, i) => (
-              <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Operate — open numbered list + agile note up top, then the three support
-  // benefits full-width below (per the mockup; no enclosing list card).
-  return (
-    <div>
-      <div className="grid lg:grid-cols-12 gap-x-10 gap-y-8 items-start">
-        <div className="process-oplist lg:col-span-7 space-y-4">
-          {stage.list.map((r, i) => (
-            <div key={i} className="flex items-start gap-4" style={rev(-0.3 + i * 0.05, 0.1, 6)}>
-              <Medallion name={icons.list[i]} size="sm" />
-              <div className="min-w-0 flex-1 border-b border-white/[0.08] pb-4">
-                <div className="flex items-baseline gap-3">
-                  <span className="mono text-[11px] tracking-[0.2em] text-[var(--brand-teal-bright)]">{r.n}</span>
-                  <span className="mono text-[12px] tracking-[0.18em] uppercase text-white/85">{r.k}</span>
-                </div>
-                <p className="process-body-clamp mt-1.5 text-[12.5px] text-white/70 leading-snug">{r.v}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <AgileNote
-          label={agileLabel}
-          text={stage.agile}
-          tag={stage.agileTag}
-          className="process-aux lg:col-span-5"
-          style={rev(-0.02, 0.12, 8)}
-        />
-      </div>
-      <div className="process-aux mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 border-t border-white/10 pt-7">
-        {stage.support.map((s, i) => (
-          <SupportCell key={i} icon={icons.support[i]} k={s.k} v={s.v} style={rev(0.04 + i * 0.04, 0.1, 6)} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────── Line-art icon set ───────────
-   Lucide-style hairline glyphs (1.5px stroke, currentColor) so they inherit the
-   teal medallion color and match the rest of the UI's thin-vector language.
+/* ─── Line-art icon set ───
    No emoji, single consistent stroke weight — one icon family across the section. */
 type IconName =
   | "target"
@@ -1263,10 +948,10 @@ function Icon({ name, className = "" }: { name: IconName; className?: string }) 
    teal droplet rides the curve. Continuous progress (fill + droplet) is written
    imperatively through `handle` by the ScrollTrigger; React only re-renders the
    node/label states on scene changes. */
-const STREAM_W = 760;
+const STREAM_W = 1040;
 const STREAM_H = 72;
-const STREAM_NODES_X = [40, 280, 480, 720];
-const STREAM_NODES_Y = [38, 22, 50, 32];
+const STREAM_NODES_X = [90, 270, 450, 630, 810, 990];
+const STREAM_NODES_Y = [38, 22, 50, 28, 46, 32];
 
 function buildStreamPath(): string {
   const pts = STREAM_NODES_X.map((x, i) => [x, STREAM_NODES_Y[i]] as [number, number]);
@@ -1316,7 +1001,7 @@ function HexStepper({
   useEffect(() => {
     handleRef.current = {
       update(phase: number) {
-        const progress = Math.max(0, Math.min(1, (phase - 1) / 3));
+        const progress = Math.max(0, Math.min(1, (phase - 1) / (STREAM_NODES_X.length - 1)));
         fillRef.current?.setAttribute("stroke-dasharray", `${progress} 1`);
         const pt = streamPoint(progress);
         const cx = pt.x.toFixed(1), cy = pt.y.toFixed(1);
@@ -1403,11 +1088,11 @@ function HexStepper({
               x={nx}
               y={STREAM_H + 22}
               textAnchor="middle"
-              fontSize="9"
+              fontSize="8.5"
               fill={labelMain}
               style={{
                 fontFamily: "var(--font-mono-stack), monospace",
-                letterSpacing: "0.22em",
+                letterSpacing: "0.14em",
                 textTransform: "uppercase",
               }}
             >

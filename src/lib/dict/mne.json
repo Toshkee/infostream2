@@ -17,7 +17,7 @@
     "eyebrow": "Infostream / Softver napravljen da traje",
     "title": "Gradimo softver koji poslovanje drži u pokretu.",
     "body": "Već dvije decenije projektujemo, gradimo i održavamo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih platformi do cloud i AI rješenja, isporučujemo tehnologiju koja se razvija zajedno s vašim poslovanjem.",
-    "exitTitle": "Četiri faze. Jedan odgovoran tim.",
+    "exitTitle": "Jedan odgovoran tim.",
     "exitAccent": "Dvadeset godina na liniji.",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
@@ -83,8 +83,8 @@
         "v": "Povezivanje aplikacija, baza podataka, API-ja i sistema trećih strana."
       },
       {
-        "k": "Konsalting",
-        "v": "Tehnološke smjernice, arhitektonske odluke i podrška u realizaciji projekata."
+        "k": "AI rješenja",
+        "v": "Praktična primjena vještačke inteligencije — automatizacija, asistenti i uvidi iz podataka u vašim sistemima."
       }
     ]
   },

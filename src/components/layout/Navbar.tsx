@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
 
-const SECTIONS = ["platform", "services", "clients", "technology", "projects", "security", "contact"] as const;
+const SECTIONS = ["platform", "clients", "technology", "projects", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
 export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
@@ -66,7 +66,6 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
 
   const links = [
     { id: "platform",   label: dict.nav.platform },
-    { id: "services",   label: dict.nav.services },
     { id: "clients",    label: dict.nav.clients },
     { id: "technology", label: dict.nav.technology },
     { id: "projects",   label: dict.nav.projects },

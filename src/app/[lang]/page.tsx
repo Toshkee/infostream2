@@ -4,7 +4,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PinnedHero from "@/components/sections/PinnedHero";
 import Stats from "@/components/sections/Stats";
-import Services from "@/components/sections/Services";
 import Clients from "@/components/sections/Clients";
 import Technology from "@/components/sections/Technology";
 import Security from "@/components/sections/Security";
@@ -23,7 +22,6 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
       <main id="main-content" tabIndex={-1} className="outline-none">
         <PinnedHero dict={dict} />
         <EdgeBeam><Stats dict={dict} /></EdgeBeam>
-        <EdgeBeam><Services dict={dict} /></EdgeBeam>
         <EdgeBeam><Clients dict={dict} /></EdgeBeam>
         <EdgeBeam><Technology dict={dict} /></EdgeBeam>
         <EdgeBeam><Projects dict={dict} /></EdgeBeam>

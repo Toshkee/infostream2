@@ -10,13 +10,17 @@ import { seededRng } from "@/lib/rng";
 const TEAL = new THREE.Color("#48b8b1");
 const RED = new THREE.Color("#d8413a");
 
-// Four process nodes laid out along a meandering 3D path.
-// Node i lights up when phase ≈ i+1 (phase 1..4 are the four process scenes).
+// Six service nodes laid out along a meandering 3D path.
+// Node i lights up when phase ≈ i+1 (phase 1..6 are the six service scenes) —
+// the camera parks exactly at a node per scene, so the additive dust cloud is
+// only ever flown through briefly between scenes, never dwelt in.
 const NODES: THREE.Vector3[] = [
-  new THREE.Vector3(-10, 1.2, -2),  // 0 — discover
-  new THREE.Vector3(-3.2, -1.4, 2.5), // 1 — design
-  new THREE.Vector3(3.4, 1.6, -1.5),  // 2 — build
-  new THREE.Vector3(10, -0.6, 2.8),   // 3 — run
+  new THREE.Vector3(-12.5, 1.2, -2),
+  new THREE.Vector3(-7.5, -1.4, 2.5),
+  new THREE.Vector3(-2.5, 1.6, -1.5),
+  new THREE.Vector3(2.5, -0.8, 2.6),
+  new THREE.Vector3(7.5, 1.3, -1.8),
+  new THREE.Vector3(12.5, -0.6, 2.8),
 ];
 
 const CURVE = new THREE.CatmullRomCurve3(NODES, false, "catmullrom", 0.4);
@@ -206,10 +210,11 @@ function CameraRig({ phaseRef }: { phaseRef: { current: number } }) {
     // Wide overview during the intro scene (phase 0); transitions to node-tracking by phase 1.
     const intro = Math.max(0, 1 - phase / 1);
 
-    // Active node interpolation (phase 1..4 → segments 0..3)
-    const stage = Math.max(0, Math.min(3, phase - 1));
+    // Active node interpolation (phase 1..6 → segments 0..5)
+    const last = NODES.length - 1;
+    const stage = Math.max(0, Math.min(last, phase - 1));
     const lo = Math.floor(stage);
-    const hi = Math.min(3, lo + 1);
+    const hi = Math.min(last, lo + 1);
     const f = stage - lo;
     const fs = f * f * (3 - 2 * f);
     tmp.copy(NODES[lo]).lerp(NODES[hi], fs);
