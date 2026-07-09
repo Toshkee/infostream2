@@ -109,7 +109,7 @@ export default async function RootLayout({
       contactType: "customer support",
       availableLanguage: ["English", "Montenegrin"],
     },
-    sameAs: [] as string[],
+    sameAs: ["https://www.linkedin.com/company/infostream"],
   };
 
   return (
