@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { TECH_LOGOS } from "@/components/icons/TechLogos";
+import { TECH_LOGOS } from "@/components/TechLogos";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, useGSAP);

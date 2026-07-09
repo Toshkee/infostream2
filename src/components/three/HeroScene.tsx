@@ -4,7 +4,7 @@ import "./silenceClockDeprecation";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useInView } from "./useInView";
+import { useInView } from "@/hooks/useInView";
 import { seededRng } from "@/lib/rng";
 
 const TEAL = new THREE.Color("#48b8b1");

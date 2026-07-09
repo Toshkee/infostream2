@@ -5,7 +5,7 @@ import "../globals.css";
 import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import ScrollProgress from "@/components/layout/ScrollProgress";
-import Assistant from "@/components/assistant/Assistant";
+import Assistant from "@/components/Assistant";
 
 const SITE = "https://infostream.co.me";
 

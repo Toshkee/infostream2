@@ -9,7 +9,7 @@ import Technology from "@/components/sections/Technology";
 import Security from "@/components/sections/Security";
 import Projects from "@/components/sections/Projects";
 import Contact from "@/components/sections/Contact";
-import EdgeBeam from "@/components/effects/EdgeBeam";
+import EdgeBeam from "@/components/EdgeBeam";
 
 export default async function Page({ params }: PageProps<'/[lang]'>) {
   const { lang } = await params;
