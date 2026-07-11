@@ -64,27 +64,91 @@
     "items": [
       {
         "k": "Razvoj softvera",
-        "v": "Poslovne aplikacije, portali i interni sistemi razvijeni po mjeri vaših potreba."
-      },
-      {
-        "k": "Oracle APEX rješenja",
-        "v": "Brze i bezbjedne poslovne aplikacije izgrađene na Oracle tehnologiji."
+        "v": "Razvijamo poslovni softver koji pojednostavljuje operacije, automatizuje poslovne procese i omogućava organizacijama da pružaju bezbjedne, efikasne i skalabilne digitalne servise.",
+        "cards": [
+          {
+            "k": "Razvoj po mjeri",
+            "v": "Od koncepta do produkcije, svako rješenje je dizajnirano oko vaših jedinstvenih poslovnih procesa i ciljeva."
+          },
+          {
+            "k": "Agilna isporuka",
+            "v": "Inkrementalni razvoj uz kontinuiranu saradnju, transparentnu komunikaciju i česta izdanja."
+          },
+          {
+            "k": "Skalabilna arhitektura",
+            "v": "Rješenja građena za performanse, pouzdanost i budući rast, bez kompromisa u pogledu održivosti."
+          },
+          {
+            "k": "Dugoročno partnerstvo",
+            "v": "I nakon isporuke pružamo održavanje, unapređenja i kontinuiranu podršku tokom cijelog životnog ciklusa softvera."
+          }
+        ]
       },
       {
         "k": "Digitalna transformacija",
-        "v": "Poslovanje bez papira, modernizovani procesi i povezane informacije."
+        "v": "Pomažemo organizacijama da modernizuju poslovanje, eliminišu manuelne procese i prihvate digitalne načine rada.",
+        "cards": [
+          {
+            "k": "Procjena",
+            "v": "Razumijevanje postojećih sistema, prepoznavanje uskih grla i definisanje jasnog plana digitalne transformacije."
+          },
+          {
+            "k": "Digitalizacija",
+            "v": "Zamjena papirnih i fragmentisanih procesa povezanim digitalnim tokovima rada."
+          },
+          {
+            "k": "Automatizacija",
+            "v": "Smanjenje manuelnog rada kroz inteligentnu automatizaciju i optimizovane poslovne procese."
+          },
+          {
+            "k": "Optimizacija",
+            "v": "Kontinuirano unapređivanje sistema na osnovu povratnih informacija korisnika, rasta biznisa i novih zahtjeva."
+          }
+        ]
       },
       {
-        "k": "IT infrastruktura",
-        "v": "Pouzdane platforme, hosting, podrška i operativna stabilnost."
+        "k": "Tehnološki konsalting",
+        "v": "Pomažemo organizacijama da izaberu prave tehnologije, definišu skalabilne arhitekture i donose sigurne digitalne odluke.",
+        "cards": [
+          {
+            "k": "Procjena tehnologija",
+            "v": "Evaluacija postojećih sistema i prepoznavanje tehnologija koje najbolje odgovaraju vašim poslovnim ciljevima."
+          },
+          {
+            "k": "Strateško planiranje",
+            "v": "Kreiranje tehnoloških mapa puta koje usklađuju digitalne inicijative sa dugoročnim poslovnim ciljevima."
+          },
+          {
+            "k": "Arhitektura rješenja",
+            "v": "Projektovanje bezbjednih, skalabilnih arhitektura rješenja spremnih za budućnost."
+          },
+          {
+            "k": "Agilni konsalting",
+            "v": "Primjena agilnih principa za kontinuiranu saradnju, transparentnu komunikaciju i informisano odlučivanje tokom čitavog angažmana."
+          }
+        ]
       },
       {
-        "k": "Sistemske integracije",
-        "v": "Povezivanje aplikacija, baza podataka, API-ja i sistema trećih strana."
-      },
-      {
-        "k": "AI rješenja",
-        "v": "Praktična primjena vještačke inteligencije — automatizacija, asistenti i uvidi iz podataka u vašim sistemima."
+        "k": "Sistemska integracija",
+        "v": "Povezujemo aplikacije, baze podataka i poslovne sisteme u jedan pouzdan digitalni ekosistem.",
+        "cards": [
+          {
+            "k": "Integracija aplikacija",
+            "v": "Integracija poslovnih aplikacija koja obezbjeđuje neometanu komunikaciju i efikasnu razmjenu podataka."
+          },
+          {
+            "k": "API povezivanje",
+            "v": "Dizajn i implementacija bezbjednih API-ja za pouzdanu komunikaciju između internih i eksternih sistema."
+          },
+          {
+            "k": "Sinhronizacija podataka",
+            "v": "Sinhronizacija informacija na više platformi radi očuvanja konzistentnosti i tačnosti."
+          },
+          {
+            "k": "Modernizacija legacy sistema",
+            "v": "Povezivanje naslijeđenih sistema sa savremenim tehnologijama bez ometanja postojećeg poslovanja."
+          }
+        ]
       }
     ]
   },

@@ -10,17 +10,17 @@ import { seededRng } from "@/lib/rng";
 const TEAL = new THREE.Color("#48b8b1");
 const RED = new THREE.Color("#d8413a");
 
-// Six service nodes laid out along a meandering 3D path.
-// Node i lights up when phase ≈ i+1 (phase 1..6 are the six service scenes) —
-// the camera parks exactly at a node per scene, so the additive dust cloud is
-// only ever flown through briefly between scenes, never dwelt in.
+// Four process planets laid out along a meandering 3D path.
+// Planet i lights up when phase ≈ i+1 (phase 1..4 are the four process
+// scenes) — the camera parks exactly at a planet per scene, so the additive
+// dust cloud is only ever flown through briefly between scenes, never dwelt
+// in. Count must match the number of process scenes, or the camera parks
+// inside the cloud and the frame whites out.
 const NODES: THREE.Vector3[] = [
-  new THREE.Vector3(-12.5, 1.2, -2),
-  new THREE.Vector3(-7.5, -1.4, 2.5),
-  new THREE.Vector3(-2.5, 1.6, -1.5),
-  new THREE.Vector3(2.5, -0.8, 2.6),
-  new THREE.Vector3(7.5, 1.3, -1.8),
-  new THREE.Vector3(12.5, -0.6, 2.8),
+  new THREE.Vector3(-9.5, 1.2, -2),
+  new THREE.Vector3(-3.2, -1.3, 2.5),
+  new THREE.Vector3(3.2, 1.5, -1.6),
+  new THREE.Vector3(9.5, -0.7, 2.6),
 ];
 
 const CURVE = new THREE.CatmullRomCurve3(NODES, false, "catmullrom", 0.4);
@@ -144,7 +144,68 @@ function FlowingPackets({ count = 60 }: { count?: number }) {
   );
 }
 
-function NodeMesh({
+// Fresnel-rim planet shader — a dark body with a soft fake key light for the
+// terminator and a bright teal glow that hugs the silhouette (the backlit
+// planet look from the mockups). uBoost lifts the rim when the camera parks.
+const PLANET_VERT = /* glsl */ `
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    vNormal = normalize(normalMatrix * normal);
+    vViewDir = normalize(-mvPosition.xyz);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+const PLANET_FRAG = /* glsl */ `
+  uniform vec3 uBody;
+  uniform vec3 uRim;
+  uniform float uBoost;
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  void main() {
+    vec3 n = normalize(vNormal);
+    vec3 v = normalize(vViewDir);
+    float ndv = clamp(dot(n, v), 0.0, 1.0);
+    float fres = pow(1.0 - ndv, 2.6);
+    // Key light from the lower-left — the rim concentrates into a bright
+    // crescent on that side instead of an even outline (mockup look).
+    vec3 lightDir = normalize(vec3(-0.55, -0.4, 0.55));
+    float litRim = clamp(dot(n, lightDir), 0.0, 1.0);
+    float lit = 0.18 + 0.5 * litRim;
+    float rim = fres * (0.22 + 1.25 * pow(litRim, 1.4));
+    vec3 col = uBody * lit + uRim * rim * (1.5 + uBoost * 1.5);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+// Shared halo texture — a hollow radial gradient that peaks just outside the
+// planet's silhouette (planet edge sits at ~0.53 of the sprite half-size for
+// r=0.82 in a 3.1-scaled sprite), so the glow hugs the limb instead of
+// washing over the dark body. Built lazily on the client, shared by all four.
+let _glowTex: THREE.CanvasTexture | null = null;
+function glowTexture(): THREE.CanvasTexture {
+  if (_glowTex) return _glowTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0, "rgba(116, 224, 216, 0)");
+  g.addColorStop(0.44, "rgba(116, 224, 216, 0.04)");
+  g.addColorStop(0.53, "rgba(116, 224, 216, 0.5)");
+  g.addColorStop(0.64, "rgba(116, 224, 216, 0.18)");
+  g.addColorStop(1, "rgba(116, 224, 216, 0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 256);
+  _glowTex = new THREE.CanvasTexture(c);
+  return _glowTex;
+}
+
+// A planet: fresnel-rim body plus an additive atmosphere halo and two tilted
+// orbit rings each carrying moons that circle it continuously. Activation
+// (camera parked at this planet) brightens the rim/rings/atmosphere, grows
+// the planet and speeds the moons up.
+function PlanetMesh({
   index,
   phaseRef,
   position,
@@ -154,43 +215,89 @@ function NodeMesh({
   position: THREE.Vector3;
 }) {
   const group = useRef<THREE.Group>(null);
-  const wireMat = useRef<THREE.MeshBasicMaterial>(null);
-  const coreMat = useRef<THREE.MeshBasicMaterial>(null);
-  const ringMat = useRef<THREE.MeshBasicMaterial>(null);
+  const glowMat = useRef<THREE.SpriteMaterial>(null);
+  const ring1Mat = useRef<THREE.MeshBasicMaterial>(null);
+  const ring2Mat = useRef<THREE.MeshBasicMaterial>(null);
+  const orbit1 = useRef<THREE.Group>(null);
+  const orbit2 = useRef<THREE.Group>(null);
+
+  const uniforms = useMemo(
+    () => ({
+      uBody: { value: new THREE.Color("#24384e") },
+      uRim: { value: new THREE.Color("#74e0d8") },
+      uBoost: { value: 0 },
+    }),
+    []
+  );
 
   useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
     const a = activationFor(phaseRef.current, index);
-    g.rotation.y += delta * (0.18 + a * 0.5);
-    g.rotation.x += delta * 0.08;
-    const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + index) * 0.04 * a;
-    const s = (0.9 + a * 0.55) * pulse;
-    g.scale.setScalar(s);
-    if (wireMat.current) wireMat.current.opacity = 0.22 + a * 0.55;
-    if (coreMat.current) coreMat.current.opacity = 0.25 + a * 0.7;
-    if (ringMat.current) ringMat.current.opacity = a * 0.65;
+    g.rotation.y += delta * 0.05;
+    const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + index) * 0.03 * a;
+    g.scale.setScalar((0.9 + a * 0.5) * pulse);
+    uniforms.uBoost.value = a;
+    if (glowMat.current) glowMat.current.opacity = 0.55 + a * 0.45;
+    if (ring1Mat.current) ring1Mat.current.opacity = 0.35 + a * 0.45;
+    if (ring2Mat.current) ring2Mat.current.opacity = 0.2 + a * 0.35;
+    if (orbit1.current) orbit1.current.rotation.z += delta * (0.25 + a * 0.5);
+    if (orbit2.current) orbit2.current.rotation.z -= delta * (0.18 + a * 0.35);
   });
+
+  // Per-planet ring tilts so the four systems don't read as clones.
+  const tilt1: [number, number, number] = [Math.PI / 2.35, 0, 0.3 + index * 0.35];
+  const tilt2: [number, number, number] = [Math.PI / 2.05, 0.35, -0.5 + index * 0.3];
 
   return (
     <group ref={group} position={position}>
+      {/* planet body — fresnel rim shader */}
       <mesh>
-        <icosahedronGeometry args={[0.85, 1]} />
-        <meshBasicMaterial ref={wireMat} color={TEAL} wireframe transparent />
+        <sphereGeometry args={[0.82, 48, 48]} />
+        <shaderMaterial vertexShader={PLANET_VERT} fragmentShader={PLANET_FRAG} uniforms={uniforms} />
       </mesh>
-      <mesh>
-        <sphereGeometry args={[0.28, 18, 18]} />
-        <meshBasicMaterial ref={coreMat} color={TEAL} transparent />
-      </mesh>
-      <mesh rotation={[Math.PI / 2.4, 0, 0]}>
-        <ringGeometry args={[1.25, 1.32, 48]} />
-        <meshBasicMaterial
-          ref={ringMat}
-          color={TEAL}
+      {/* atmosphere halo — billboard sprite hugging the silhouette; the
+         planet body depth-occludes its center, so only the limb glows */}
+      <sprite scale={[3.1, 3.1, 1]}>
+        <spriteMaterial
+          ref={glowMat}
+          map={glowTexture()}
           transparent
-          side={THREE.DoubleSide}
+          opacity={0.55}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
-      </mesh>
+      </sprite>
+      {/* inner orbit ring + moon */}
+      <group rotation={tilt1}>
+        <mesh>
+          <ringGeometry args={[1.35, 1.42, 72]} />
+          <meshBasicMaterial ref={ring1Mat} color={TEAL} transparent opacity={0.35} side={THREE.DoubleSide} depthWrite={false} />
+        </mesh>
+        <group ref={orbit1} rotation={[0, 0, index * 1.7]}>
+          <mesh position={[1.385, 0, 0]}>
+            <sphereGeometry args={[0.09, 14, 14]} />
+            <meshBasicMaterial color={TEAL} />
+          </mesh>
+        </group>
+      </group>
+      {/* outer orbit ring + two moons (one red accent) */}
+      <group rotation={tilt2}>
+        <mesh>
+          <ringGeometry args={[1.85, 1.91, 80]} />
+          <meshBasicMaterial ref={ring2Mat} color={TEAL} transparent opacity={0.2} side={THREE.DoubleSide} depthWrite={false} />
+        </mesh>
+        <group ref={orbit2} rotation={[0, 0, index * 0.9]}>
+          <mesh position={[1.88, 0, 0]}>
+            <sphereGeometry args={[0.07, 12, 12]} />
+            <meshBasicMaterial color={TEAL} />
+          </mesh>
+          <mesh position={[-1.88, 0, 0]}>
+            <sphereGeometry args={[0.05, 10, 10]} />
+            <meshBasicMaterial color={RED} />
+          </mesh>
+        </group>
+      </group>
     </group>
   );
 }
@@ -210,7 +317,7 @@ function CameraRig({ phaseRef }: { phaseRef: { current: number } }) {
     // Wide overview during the intro scene (phase 0); transitions to node-tracking by phase 1.
     const intro = Math.max(0, 1 - phase / 1);
 
-    // Active node interpolation (phase 1..6 → segments 0..5)
+    // Active planet interpolation (phase 1..4 → segments 0..3)
     const last = NODES.length - 1;
     const stage = Math.max(0, Math.min(last, phase - 1));
     const lo = Math.floor(stage);
@@ -255,7 +362,7 @@ export default function HeroScene({ phaseRef }: { phaseRef: { current: number } 
       <PipelineTube />
       <FlowingPackets />
       {NODES.map((pos, i) => (
-        <NodeMesh key={i} index={i} phaseRef={phaseRef} position={pos} />
+        <PlanetMesh key={i} index={i} phaseRef={phaseRef} position={pos} />
       ))}
     </Canvas>
   );

@@ -7,7 +7,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
-import { seededRng } from "@/lib/rng";
 import type { Dict } from "@/lib/dictionaries";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
@@ -36,95 +35,47 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // block in globals.css) so each scene fits the 100svh pin without clipping.
 // The height floor sends very short windows to the static variant.
 const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px)";
-// Desktop-only extras — currently just the cursor parallax, which is
-// meaningless on touch devices.
-const ENHANCED_QUERY = "(min-width: 900px) and (prefers-reduced-motion: no-preference) and (min-height: 500px)";
 
-// ─── Per-scene abstract art (mirror dict.services.items order) ───
-// Not literal icons: each service gets an abstract geometric composition in a
-// 160×160 stroke space — thin concentric forms, orbits, lattices — with slow
-// ambient motion driven by the svcart-* CSS keyframes in globals.css. Rotating
-// or scaling parts carry inline transform-box: view-box + a px transform-origin
-// (SVG CSS transforms default to a broken origin otherwise). Kept in code (not
-// the dictionary) because the art is presentation, not copy.
-const CENTER = { transformBox: "view-box", transformOrigin: "80px 80px" } as const;
-const SERVICE_ART: ReactNode[] = [
-  // Software development — recursion: nested rounded squares counter-rotating
-  <>
-    <rect className="svcart-spin" style={CENTER} x="25" y="25" width="110" height="110" rx="20" opacity="0.3" />
-    <g transform="rotate(15 80 80)">
-      <rect className="svcart-spin-rev" style={CENTER} x="42" y="42" width="76" height="76" rx="15" opacity="0.55" />
-    </g>
-    <g transform="rotate(30 80 80)">
-      <rect className="svcart-spin" style={{ ...CENTER, animationDuration: "16s" }} x="58" y="58" width="44" height="44" rx="10" />
-    </g>
-    <circle className="svcart-blink" cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
-  </>,
-  // Oracle APEX — the stack: floating isometric planes on a data axis
-  <>
-    <path className="svcart-flow" d="M80 16v128" opacity="0.35" />
-    <g className="svcart-floaty" style={CENTER}>
-      <path d="M80 28L128 50L80 72L32 50Z" opacity="0.35" />
-    </g>
-    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "0.7s" }}>
-      <path d="M80 58L128 80L80 102L32 80Z" opacity="0.6" />
-    </g>
-    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.4s" }}>
-      <path d="M80 88L128 110L80 132L32 110Z" />
-    </g>
-    <circle className="svcart-blink" cx="80" cy="28" r="2.5" fill="currentColor" stroke="none" />
-  </>,
-  // Digital transformation — signal: dashed ring resolving into a solid core
-  <>
-    <g className="svcart-spin" style={CENTER}>
-      <circle cx="80" cy="80" r="58" strokeDasharray="4 10" opacity="0.4" />
-      <circle cx="80" cy="22" r="2.5" fill="currentColor" stroke="none" />
-    </g>
-    <circle className="svcart-flow" cx="80" cy="80" r="40" opacity="0.55" />
-    <circle className="svcart-breathe" style={CENTER} cx="80" cy="80" r="22" />
-    <circle className="svcart-blink" cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
-  </>,
-  // IT infrastructure — lattice: layered horizontals swept by a signal line
-  <>
-    <path d="M25 40h110" opacity="0.3" />
-    <path d="M25 60h110" opacity="0.5" />
-    <path d="M25 80h110" opacity="0.7" />
-    <path d="M25 100h110" opacity="0.5" />
-    <path d="M25 120h110" opacity="0.3" />
-    <path d="M52 32v96M80 32v96M108 32v96" opacity="0.12" />
-    <circle className="svcart-blink" cx="52" cy="60" r="2.5" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "0.9s" }} cx="108" cy="80" r="2.5" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "1.7s" }} cx="80" cy="100" r="2.5" fill="currentColor" stroke="none" />
-    <path className="svcart-beam svcart-sweep" d="M25 34v92" />
-  </>,
-  // System integrations — orbit: satellites circling a pulsing hub
-  <>
-    <path d="M95 80l-7.5 13h-15L65 80l7.5-13h15z" />
-    <path className="svcart-ring" style={CENTER} d="M95 80l-7.5 13h-15L65 80l7.5-13h15z" />
-    <circle cx="80" cy="80" r="38" opacity="0.35" />
-    <circle cx="80" cy="80" r="58" opacity="0.2" />
-    <g className="svcart-spin" style={{ ...CENTER, animationDuration: "14s" }}>
-      <circle cx="80" cy="22" r="3.5" fill="currentColor" stroke="none" />
-      <circle cx="80" cy="138" r="2" fill="currentColor" stroke="none" opacity="0.6" />
-    </g>
-    <g className="svcart-spin-rev" style={{ ...CENTER, animationDuration: "9s" }}>
-      <circle cx="80" cy="42" r="3" fill="currentColor" stroke="none" />
-    </g>
-  </>,
-  // AI — neuron: a breathing core feeding six synapses on a slow outer ring
-  <>
-    <circle className="svcart-spin" style={CENTER} cx="80" cy="80" r="62" strokeDasharray="4 10" opacity="0.25" />
-    <path className="svcart-flow" d="M89 80h39M84.5 87.8l19.5 33.8M75.5 87.8l-19.5 33.8M71 80H32M75.5 72.2L56 38.4M84.5 72.2l19.5-33.8" opacity="0.6" />
-    <circle className="svcart-breathe" style={CENTER} cx="80" cy="80" r="10" />
-    <circle cx="80" cy="80" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" cx="128" cy="80" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "0.4s" }} cx="104" cy="121.6" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "0.8s" }} cx="56" cy="121.6" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "1.2s" }} cx="32" cy="80" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "1.6s" }} cx="56" cy="38.4" r="3" fill="currentColor" stroke="none" />
-    <circle className="svcart-blink" style={{ animationDelay: "2s" }} cx="104" cy="38.4" r="3" fill="currentColor" stroke="none" />
-  </>,
+// ─── Per-scene presentation config (mirror dict.services.items order) ───
+// Icon names for each process's four cards (cards[0..3]); the card layout per
+// scene is hard-coded by index in ProcessSceneBody below. Kept in code (not
+// the dictionary) because icons and layout are presentation, not copy.
+const PROCESS_CARD_ICONS: IconName[][] = [
+  // Software development — custom dev · agile delivery · scalable arch · partnership
+  ["code", "refresh", "layers", "handshake"],
+  // Digital transformation — assess · digitize · automate · optimize
+  ["search", "fileText", "gear", "trendingUp"],
+  // Technology consulting — assessment · planning · architecture · agile
+  ["search", "target", "cubes", "users"],
+  // System integration — apps · APIs · data sync · legacy
+  ["puzzle", "code", "database", "server"],
 ];
+
+// Abstract line-art composition inside the Software Development feature card —
+// a floating app panel feeding a lattice of build blocks, with the same slow
+// ambient motion (svcart-* keyframes in globals.css) the old panels used.
+// Rotating/floating parts carry inline transform-box: view-box + a px origin
+// (SVG CSS transforms default to a broken origin otherwise).
+const CENTER = { transformBox: "view-box", transformOrigin: "80px 80px" } as const;
+const FEATURE_ART: ReactNode = (
+  <>
+    <g className="svcart-floaty" style={CENTER}>
+      <rect x="44" y="20" width="72" height="52" rx="6" opacity="0.8" />
+      <path d="M53 34h26M53 44h38M53 54h32" opacity="0.45" />
+      <circle className="svcart-blink" cx="107" cy="32" r="2.5" fill="currentColor" stroke="none" />
+    </g>
+    <path className="svcart-flow" d="M80 76v22M58 92l-18 20M102 92l18 20" opacity="0.5" />
+    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "0.6s" }}>
+      <path d="M80 102l13 7.5v15L80 132l-13-7.5v-15z" />
+    </g>
+    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.1s" }}>
+      <path d="M36 116l10 6v12l-10 6-10-6v-12z" opacity="0.55" />
+    </g>
+    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.6s" }}>
+      <path d="M124 116l10 6v12l-10 6-10-6v-12z" opacity="0.55" />
+    </g>
+  </>
+);
 
 // Hero intro metric chips — one line-art glyph per chip, in dictionary order
 // (Years of experience · Delivery · Platforms · Development · Innovation). Icon
@@ -177,65 +128,21 @@ type PhaseHandle = { update: (phase: number) => void };
 export default function PinnedHero({ dict }: { dict: Dict }) {
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
-  const parallax = useRef<HTMLDivElement>(null);
   const phaseRef = useRef(0);
-  const constellation = useRef<PhaseHandle | null>(null);
   const stepper = useRef<PhaseHandle | null>(null);
   const [activeScene, setActiveScene] = useState(0);
   const [exitActive, setExitActive] = useState(false);
   // True while the pinned variant is the one displayed — gates the WebGL
   // canvas so the hidden static variant never pays for it.
   const [motionOk, setMotionOk] = useState(false);
-  // Desktop only — gates the cursor-parallax rAF loop.
-  const [enhanced, setEnhanced] = useState(false);
 
   useEffect(() => {
     const motion = window.matchMedia(MOTION_QUERY);
-    const desktop = window.matchMedia(ENHANCED_QUERY);
-    const apply = () => {
-      setMotionOk(motion.matches);
-      setEnhanced(desktop.matches);
-    };
+    const apply = () => setMotionOk(motion.matches);
     apply();
     motion.addEventListener("change", apply);
-    desktop.addEventListener("change", apply);
-    return () => {
-      motion.removeEventListener("change", apply);
-      desktop.removeEventListener("change", apply);
-    };
+    return () => motion.removeEventListener("change", apply);
   }, []);
-
-  // Cursor parallax on the constellation layer — imperative rAF loop, kept out
-  // of React state so it never re-renders the tree.
-  useEffect(() => {
-    if (!enhanced) return;
-    const el = pin.current;
-    const layer = parallax.current;
-    if (!el || !layer) return;
-    let raf = 0;
-    const target = { x: 0, y: 0 };
-    const current = { x: 0, y: 0 };
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      target.x = ((e.clientX - r.left) / r.width) * 2 - 1;
-      target.y = ((e.clientY - r.top) / r.height) * 2 - 1;
-    };
-    const tick = () => {
-      current.x += (target.x - current.x) * 0.08;
-      current.y += (target.y - current.y) * 0.08;
-      layer.style.transform = `translate3d(${(-current.x * 14).toFixed(2)}px, ${(-current.y * 10).toFixed(2)}px, 0)`;
-      raf = requestAnimationFrame(tick);
-    };
-    window.addEventListener("mousemove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(raf);
-      // Clear the residual parallax offset so a later non-enhanced layout
-      // doesn't keep the last cursor-driven translate.
-      layer.style.transform = "";
-    };
-  }, [enhanced]);
 
   useGSAP(
     () => {
@@ -247,7 +154,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
       // variant is displayed, and gsap.matchMedia reverts it if that changes.
       mm.add(MOTION_QUERY, () => {
         if (!pin.current) return;
-        const stops = 7; // intro (0) + six service scenes (1..6) + exit pull-back (6..7)
+        const stops = 5; // intro (0) + four process scenes (1..4) + exit pull-back (4..5)
 
         ScrollTrigger.create({
           trigger: pin.current,
@@ -260,19 +167,16 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           pinSpacing: true,
           scrub: 0.6,
           onUpdate: (self) => {
-            const p = self.progress * stops; // 0..7
+            const p = self.progress * stops; // 0..5
             // One CSS variable drives every scroll-coupled style below; the
             // imperative handles cover the SVG attributes CSS can't reach.
             pin.current?.style.setProperty("--ph", p.toFixed(4));
-            // The 3D pipeline now has six nodes (one per service scene), so it
-            // takes the raw phase; the 2D constellation pan was authored for
-            // the original 0..5 domain, so it gets a scaled copy.
+            // The 3D pipeline has four planets (one per process scene).
             phaseRef.current = p;
-            constellation.current?.update(p * (5 / stops));
             stepper.current?.update(p);
             // Discrete state — React only re-renders on scene boundaries.
-            setActiveScene(Math.max(0, Math.min(6, Math.round(p))));
-            setExitActive(p > 6.55);
+            setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
+            setExitActive(p > 4.55);
           },
         });
 
@@ -310,6 +214,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                   "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
               }}
             />
+            {/* Giant planetary orbit arcs sweeping in from the corners, with
+               satellite dots slowly riding them (per the mockups). */}
+            <OrbitArcs />
             {/* 3D process pipeline — mounted whenever the pinned variant is
                live, phones included, at the same full treatment as desktop. */}
             {motionOk && (
@@ -319,27 +226,14 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 </CanvasErrorBoundary>
               </div>
             )}
-            {/* 2D constellation backdrop — strong during the intro, fades back as
-               the 3D pipeline takes over. */}
-            <div
-              ref={parallax}
-              className="absolute inset-0 will-change-transform"
-              style={{ opacity: "clamp(0.2, calc(1 - var(--ph) * 0.55), 1)" }}
-            >
-              {/* Full strength on every screen size — the "planets" are the
-                 backdrop's identity, same on a phone as on a desktop. */}
-              <div className="absolute inset-0">
-                <Constellation handleRef={constellation} />
-              </div>
-            </div>
-            {/* Left-side wash so the constellation never fights the text column */}
+            {/* Left-side wash so the backdrop never fights the text column */}
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-inset)] from-15% via-[var(--bg-inset)]/55 via-45% to-transparent" />
             <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[var(--bg-inset)] to-transparent" />
             <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
             {/* Exit darken — fades the scene before unpin */}
             <div
               className="absolute inset-0 bg-[var(--bg-inset)] pointer-events-none"
-              style={{ opacity: "calc(clamp(0, calc((var(--ph) - 6.55) / 0.4), 1) * 0.75)" }}
+              style={{ opacity: "calc(clamp(0, calc((var(--ph) - 4.55) / 0.4), 1) * 0.75)" }}
             />
           </div>
 
@@ -361,7 +255,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
           {/* Scene progress indicator */}
           <div aria-hidden className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 flex flex-col gap-3">
-            {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+            {[0, 1, 2, 3, 4].map((i) => (
               <span
                 key={i}
                 className={`block h-px transition-all duration-500 ${
@@ -374,7 +268,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           {/* All content scenes — wrapper fades everything out together on exit. */}
           <div
             className="absolute inset-0 z-10 pointer-events-none"
-            style={{ opacity: "clamp(0, calc((6.78 - var(--ph)) / 0.33), 1)" }}
+            style={{ opacity: "clamp(0, calc((4.78 - var(--ph)) / 0.33), 1)" }}
           >
             <div className="absolute inset-0 pointer-events-auto">
               {/* Scene 0 — Intro */}
@@ -409,91 +303,28 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 </div>
               </Scene>
 
-              {/* Scenes 1–6 — the services, one per scene, riding the same
-                 scroll choreography the process stages used. Visual layer is
-                 decorative; the canonical, screen-reader-facing copy lives in
-                 the sr-only block below (and in the static variant). */}
+              {/* Scenes 1–4 — the processes, one per scene, each with its own
+                 card layout from the mockups. Visual layer is decorative; the
+                 canonical, screen-reader-facing copy lives in the sr-only
+                 block below (and in the static variant). */}
               {services.map((svc, i) => (
                 <Scene key={i} target={i + 1} interactive={false} decorative>
-                  <div className="w-full max-w-[1040px]" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
-                    <div className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
-                      <div>
-                        <div
-                          className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
-                          style={rev(-0.42, 0.12, 6)}
-                        >
-                          {dict.services.eyebrow}
-                        </div>
-                        <div className="mt-5">
-                          <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} />
-                        </div>
-                      </div>
-                      {/* Instrument panel — the abstract composition sits on a
-                         blueprint grid with HUD corner brackets and a status
-                         caption strip. The layers reveal staggered (frame →
-                         grid → brackets → art → caption) so the panel reads as
-                         assembling while the scene arrives; each layer is a
-                         rev() of the same --u, so it replays in reverse. */}
-                      <div
-                        className="hidden md:block relative h-72 w-64 lg:h-80 lg:w-72 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-white/[0.01]"
-                        style={rev(-0.36, 0.14, 12)}
-                      >
-                        {/* blueprint grid */}
-                        <div
-                          aria-hidden
-                          className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] [background-size:26px_26px] [mask-image:radial-gradient(120%_90%_at_50%_40%,black_40%,transparent_100%)]"
-                          style={rev(-0.3, 0.14, 0)}
-                        />
-                        {/* corner brackets */}
-                        <div aria-hidden style={rev(-0.24, 0.1, 0)}>
-                          <div className="absolute left-3 top-3 h-3 w-3 border-l border-t border-[var(--brand-teal-bright)]/45" />
-                          <div className="absolute right-3 top-3 h-3 w-3 border-r border-t border-[var(--brand-teal-bright)]/45" />
-                          <div className="absolute left-3 bottom-12 h-3 w-3 border-l border-b border-[var(--brand-teal-bright)]/45" />
-                          <div className="absolute right-3 bottom-12 h-3 w-3 border-r border-b border-[var(--brand-teal-bright)]/45" />
-                        </div>
-                        {/* art */}
-                        <div
-                          className="absolute inset-x-0 top-0 bottom-9 grid place-items-center text-[var(--brand-teal-bright)]"
-                          style={rev(-0.2, 0.18, 14)}
-                        >
-                          <svg
-                            viewBox="0 0 160 160"
-                            className="h-44 w-44 lg:h-52 lg:w-52 drop-shadow-[0_0_18px_rgba(72,184,177,0.14)]"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden
-                          >
-                            {SERVICE_ART[i]}
-                          </svg>
-                        </div>
-                        {/* caption strip */}
-                        <div
-                          className="absolute inset-x-0 bottom-0 flex items-center gap-2.5 border-t border-white/[0.08] bg-white/[0.02] px-4 py-2.5 mono text-[9.5px] tracking-[0.2em] uppercase"
-                          style={rev(-0.08, 0.12, 8)}
-                        >
-                          <span aria-hidden className="svcart-blink h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)]" />
-                          <span className="text-white/35">sys.{String(i + 1).padStart(2, "0")}</span>
-                          <span className="ml-auto truncate text-white/60">{svc.k}</span>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="w-full" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
+                    <ProcessSceneBody index={i} total={services.length} eyebrow={dict.services.eyebrow} svc={svc} />
                   </div>
                 </Scene>
               ))}
             </div>
           </div>
 
-          {/* Stream stepper — visible across all six service scenes. Hidden on
-             phones: scaled to a phone width its labels drop below legibility. */}
+          {/* Process timeline — visible across all four process scenes. Hidden
+             on phones: scaled to a phone width its labels drop below legibility. */}
           <div
             aria-hidden
             className="process-stepper absolute left-1/2 -translate-x-1/2 bottom-10 z-30 pointer-events-none w-[92vw] max-w-[1040px] hidden sm:block"
-            style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((6.75 - var(--ph)) / 0.3)), 1)" }}
+            style={{ opacity: "clamp(0, min(calc((var(--ph) - 0.3) / 0.3), calc((4.75 - var(--ph)) / 0.3)), 1)" }}
           >
-            <HexStepper
+            <ProcessTimeline
               labels={services.map((s) => ({ name: s.k }))}
               activeIndex={Math.max(0, activeScene - 1)}
               handleRef={stepper}
@@ -504,7 +335,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
           <div
             aria-hidden
             className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-            style={{ opacity: "clamp(0, calc((var(--ph) - 6.6) / 0.3), 1)" }}
+            style={{ opacity: "clamp(0, calc((var(--ph) - 4.6) / 0.3), 1)" }}
           >
             <div className="text-center px-6">
               <div className="relative mx-auto flex items-center justify-center">
@@ -534,6 +365,12 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             <section key={i}>
               <h3>{svc.k}</h3>
               <p>{svc.v}</p>
+              {svc.cards.map((c, j) => (
+                <section key={j}>
+                  <h4>{c.k}</h4>
+                  <p>{c.v}</p>
+                </section>
+              ))}
             </section>
           ))}
         </div>
@@ -585,6 +422,17 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             {services.map((svc, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
                 <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} heading />
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  {svc.cards.map((c, j) => (
+                    <div key={j} className={`${CARD_SHELL} p-5`}>
+                      <div className="flex items-center gap-4">
+                        <Medallion name={PROCESS_CARD_ICONS[i]?.[j] ?? "shapes"} size="sm" />
+                        <h4 className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</h4>
+                      </div>
+                      <p className="mt-3 text-[13.5px] leading-relaxed text-white/60">{c.v}</p>
+                    </div>
+                  ))}
+                </div>
               </article>
             ))}
           </div>
@@ -698,8 +546,13 @@ function StageHeading({
         </div>
         <span
           aria-hidden
-          className="hidden sm:block flex-1 h-px mb-2 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 to-transparent"
+          className="hidden sm:block flex-1 h-px mb-2 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 to-[var(--brand-teal-bright)]/20"
           style={{ boxShadow: "0 0 6px -2px var(--brand-teal-bright)" }}
+        />
+        <span
+          aria-hidden
+          className="hidden sm:block h-1.5 w-1.5 -ml-3 mb-[5px] rounded-full bg-[var(--brand-teal-bright)]"
+          style={{ boxShadow: "0 0 8px var(--brand-teal-bright)" }}
         />
       </div>
       <Title className="mt-3 text-[clamp(1.9rem,4.2vw,3.4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
@@ -712,6 +565,180 @@ function StageHeading({
   );
 }
 
+/* ─── Per-process scene bodies ───
+   Four distinct card layouts, one per process, matching the mockups:
+   0 — feature card + column of three mini cards
+   1 — four numbered step cards in a row, chevrons between
+   2 — four wide icon rows
+   3 — 2×2 grid with ghost numbers
+   Card blocks are hidden below md (the pin can't scroll internally, so phones
+   show heading + description only — full copy stays in the sr-only block and
+   the static variant). Each card is a rev() of the scene's --u, so the stagger
+   replays in reverse when scrolling back. */
+
+type ProcessItem = Dict["services"]["items"][number];
+type ProcessCard = ProcessItem["cards"][number];
+
+const CARD_SHELL =
+  "rounded-2xl border border-white/10 bg-[#0d1728] shadow-[0_14px_40px_rgba(0,0,0,0.4)]";
+
+// Teal accent dash under card titles — every mock card carries one.
+function TitleDash() {
+  return <span aria-hidden className="mt-2 block h-[2px] w-7 rounded-full bg-[var(--brand-teal-bright)]" />;
+}
+
+// Rounded-square icon tile (the feature/mini cards' icon treatment).
+function IconTile({ name }: { name: IconName }) {
+  return (
+    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[var(--brand-teal-bright)]/40 text-[var(--brand-teal-bright)]">
+      <Icon name={name} className="h-5 w-5" />
+    </span>
+  );
+}
+
+function ProcessSceneBody({
+  index,
+  total,
+  eyebrow,
+  svc,
+}: {
+  index: number;
+  total: number;
+  eyebrow: string;
+  svc: ProcessItem;
+}) {
+  const icons = PROCESS_CARD_ICONS[index] ?? [];
+  const left = (
+    <div>
+      <div
+        className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
+        style={rev(-0.42, 0.12, 6)}
+      >
+        {eyebrow}
+      </div>
+      <div className="mt-5">
+        <StageHeading index={index} total={total} name={svc.k} description={svc.v} />
+      </div>
+    </div>
+  );
+
+  if (index === 0) {
+    const [feature, ...side] = svc.cards;
+    return (
+      <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.9fr_1.05fr]">
+        {left}
+        <div className={`hidden lg:block ${CARD_SHELL} p-7`} style={rev(-0.32, 0.16, 14)}>
+          <IconTile name={icons[0]} />
+          <div className="mt-5 text-[16px] font-medium uppercase tracking-[0.08em] text-white">{feature.k}</div>
+          <TitleDash />
+          <p className="mt-4 text-[13px] leading-relaxed text-white/60">{feature.v}</p>
+          <div className="mt-4 grid place-items-center text-[var(--brand-teal-bright)]" style={rev(-0.12, 0.16, 10)}>
+            <svg
+              viewBox="0 0 160 160"
+              className="h-36 w-36 xl:h-44 xl:w-44 drop-shadow-[0_0_18px_rgba(72,184,177,0.14)]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              {FEATURE_ART}
+            </svg>
+          </div>
+        </div>
+        <div className="hidden md:flex flex-col gap-4">
+          {side.map((c, j) => (
+            <div key={j} className={`${CARD_SHELL} p-5`} style={rev(-0.26 + j * 0.09, 0.14, 12)}>
+              <div className="flex items-center gap-4">
+                <IconTile name={icons[j + 1]} />
+                <div className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
+              </div>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (index === 1) {
+    return (
+      <div className="grid items-center gap-8 lg:gap-10 lg:grid-cols-[minmax(260px,330px)_1fr]">
+        {left}
+        <div className="hidden md:grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
+          {svc.cards.map((c, j) => (
+            <div key={j} className={`relative ${CARD_SHELL} p-5`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
+              <div
+                className="mono text-[22px] leading-none text-transparent"
+                style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
+              >
+                {String(j + 1).padStart(2, "0")}
+              </div>
+              <div className="mt-4">
+                <Medallion name={icons[j]} />
+              </div>
+              <div className="mt-4 text-[13.5px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
+              <TitleDash />
+              <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
+              {j < svc.cards.length - 1 && (
+                <span
+                  aria-hidden
+                  className="absolute top-1/2 -right-[22px] hidden xl:block -translate-y-1/2 text-[var(--brand-teal-bright)]/70"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 5 16 12 9 19" />
+                  </svg>
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (index === 2) {
+    return (
+      <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[minmax(260px,350px)_1fr]">
+        {left}
+        <div className="hidden md:flex flex-col gap-4">
+          {svc.cards.map((c, j) => (
+            <div key={j} className={`${CARD_SHELL} flex items-center gap-6 px-6 py-4`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
+              <Medallion name={icons[j]} size="lg" />
+              <span aria-hidden className="hidden lg:block h-12 w-px shrink-0 bg-white/10" />
+              <div className="min-w-0">
+                <div className="text-[14.5px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
+                <TitleDash />
+                <p className="mt-2.5 max-w-xl text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[minmax(260px,350px)_1fr]">
+      {left}
+      <div className="hidden md:grid grid-cols-2 gap-4 lg:gap-5">
+        {svc.cards.map((c: ProcessCard, j: number) => (
+          <div key={j} className={`relative overflow-hidden ${CARD_SHELL} p-6`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
+            <span aria-hidden className="absolute right-5 top-4 mono text-[32px] leading-none text-white/[0.08]">
+              {String(j + 1).padStart(2, "0")}
+            </span>
+            <Medallion name={icons[j]} />
+            <div className="mt-4 pr-10 text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
+            <TitleDash />
+            <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Circular line-art icon medallion ───
 function Medallion({
   name,
@@ -719,11 +746,11 @@ function Medallion({
   tone = "teal",
 }: {
   name: IconName;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   tone?: "teal" | "danger" | "warn";
 }) {
-  const dim = size === "sm" ? "w-9 h-9" : "w-11 h-11";
-  const ic = size === "sm" ? "w-4 h-4" : "w-[18px] h-[18px]";
+  const dim = size === "sm" ? "w-9 h-9" : size === "lg" ? "w-16 h-16" : "w-11 h-11";
+  const ic = size === "sm" ? "w-4 h-4" : size === "lg" ? "w-7 h-7" : "w-[18px] h-[18px]";
   const tint =
     tone === "danger"
       ? "border-[var(--brand-red)]/50 text-[var(--brand-red)]"
@@ -765,7 +792,15 @@ type IconName =
   | "clock"
   | "database"
   | "code"
-  | "network";
+  | "network"
+  | "refresh"
+  | "layers"
+  | "handshake"
+  | "search"
+  | "gear"
+  | "cubes"
+  | "puzzle"
+  | "server";
 
 const ICONS: Record<IconName, ReactNode> = {
   target: (
@@ -944,6 +979,70 @@ const ICONS: Record<IconName, ReactNode> = {
       <line x1="13.5" y1="6" x2="10.5" y2="18" />
     </>
   ),
+  // Circular arrows — agile / iterative delivery.
+  refresh: (
+    <>
+      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+      <path d="M16 16h5v5" />
+    </>
+  ),
+  // Stacked planes — scalable architecture.
+  layers: (
+    <>
+      <path d="M12 2.5 2.5 7.5 12 12.5l9.5-5L12 2.5Z" />
+      <path d="m2.5 12 9.5 5 9.5-5" />
+      <path d="m2.5 16.5 9.5 5 9.5-5" />
+    </>
+  ),
+  // Clasped hands — long-term partnership.
+  handshake: (
+    <>
+      <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+      <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+      <path d="m21 3 1 11h-2" />
+      <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+      <path d="M3 4h8" />
+    </>
+  ),
+  // Magnifier — assess / technology assessment.
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="16.2" y1="16.2" x2="21" y2="21" />
+    </>
+  ),
+  // Cog — automation.
+  gear: (
+    <>
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  // Three isometric blocks — solution architecture.
+  cubes: (
+    <>
+      <path d="M12 2.5 15.8 4.7v4.4L12 11.3 8.2 9.1V4.7Z" />
+      <path d="M7.3 12.2 11.1 14.4v4.4l-3.8 2.2-3.8-2.2v-4.4Z" />
+      <path d="M16.7 12.2l3.8 2.2v4.4l-3.8 2.2-3.8-2.2v-4.4Z" />
+    </>
+  ),
+  // Puzzle piece — application integration.
+  puzzle: (
+    <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z" />
+  ),
+  // Rack units — legacy systems / modernization.
+  server: (
+    <>
+      <rect x="2.5" y="3" width="19" height="7.5" rx="1.5" />
+      <rect x="2.5" y="13.5" width="19" height="7.5" rx="1.5" />
+      <line x1="6.5" y1="6.75" x2="6.51" y2="6.75" />
+      <line x1="6.5" y1="17.25" x2="6.51" y2="17.25" />
+      <line x1="10" y1="6.75" x2="13" y2="6.75" />
+      <line x1="10" y1="17.25" x2="13" y2="17.25" />
+    </>
+  ),
   // Connected nodes — AI / innovation.
   network: (
     <>
@@ -975,46 +1074,25 @@ function Icon({ name, className = "" }: { name: IconName; className?: string }) 
   );
 }
 
-/* ─────────── Stream stepper ───────────
-   Gentle wave curve connecting the 4 stage nodes; dashes flow along it and a
-   teal droplet rides the curve. Continuous progress (fill + droplet) is written
-   imperatively through `handle` by the ScrollTrigger; React only re-renders the
-   node/label states on scene changes. */
+/* ─────────── Process timeline ───────────
+   Straight rail connecting the 4 process nodes (per the mockups): numbered
+   labels below, an outlined ring on the active node, and a teal droplet riding
+   the rail. Continuous progress (fill + droplet) is written imperatively
+   through `handle` by the ScrollTrigger; React only re-renders the node/label
+   states on scene changes. */
 const STREAM_W = 1040;
-const STREAM_H = 72;
-const STREAM_NODES_X = [90, 270, 450, 630, 810, 990];
-const STREAM_NODES_Y = [38, 22, 50, 28, 46, 32];
+const STREAM_H = 64;
+const STREAM_NODES_X = [150, 397, 643, 890];
+const STREAM_Y = 16;
 
-function buildStreamPath(): string {
-  const pts = STREAM_NODES_X.map((x, i) => [x, STREAM_NODES_Y[i]] as [number, number]);
-  let d = `M ${pts[0][0]} ${pts[0][1]}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const [x1, y1] = pts[i];
-    const [x2, y2] = pts[i + 1];
-    const cx1 = x1 + (x2 - x1) * 0.5;
-    const cx2 = x2 - (x2 - x1) * 0.5;
-    d += ` C ${cx1} ${y1}, ${cx2} ${y2}, ${x2} ${y2}`;
-  }
-  return d;
-}
-
-// Cubic bezier evaluation — control points are pulled along x only.
 function streamPoint(progress: number): { x: number; y: number } {
-  const segs = STREAM_NODES_X.length - 1;
+  const x0 = STREAM_NODES_X[0];
+  const x1 = STREAM_NODES_X[STREAM_NODES_X.length - 1];
   const clamped = Math.max(0, Math.min(1, progress));
-  const segIdx = Math.min(segs - 1, Math.floor(clamped * segs));
-  const t = clamped * segs - segIdx;
-  const mt = 1 - t;
-  const p0x = STREAM_NODES_X[segIdx], p0y = STREAM_NODES_Y[segIdx];
-  const p3x = STREAM_NODES_X[segIdx + 1], p3y = STREAM_NODES_Y[segIdx + 1];
-  const c1x = p0x + (p3x - p0x) * 0.5, c1y = p0y;
-  const c2x = p3x - (p3x - p0x) * 0.5, c2y = p3y;
-  const x = mt * mt * mt * p0x + 3 * mt * mt * t * c1x + 3 * mt * t * t * c2x + t * t * t * p3x;
-  const y = mt * mt * mt * p0y + 3 * mt * mt * t * c1y + 3 * mt * t * t * c2y + t * t * t * p3y;
-  return { x, y };
+  return { x: x0 + (x1 - x0) * clamped, y: STREAM_Y };
 }
 
-function HexStepper({
+function ProcessTimeline({
   labels,
   activeIndex,
   handleRef,
@@ -1026,7 +1104,7 @@ function HexStepper({
   const fillRef = useRef<SVGPathElement>(null);
   const dropRef = useRef<SVGCircleElement>(null);
   const glowRef = useRef<SVGCircleElement>(null);
-  const path = buildStreamPath();
+  const spanPath = `M ${STREAM_NODES_X[0]} ${STREAM_Y} H ${STREAM_NODES_X[STREAM_NODES_X.length - 1]}`;
   const start = streamPoint(0);
   const teal = "var(--brand-teal-bright)";
 
@@ -1049,8 +1127,8 @@ function HexStepper({
   return (
     <svg
       width={STREAM_W}
-      height={STREAM_H + 36}
-      viewBox={`0 0 ${STREAM_W} ${STREAM_H + 36}`}
+      height={STREAM_H}
+      viewBox={`0 0 ${STREAM_W} ${STREAM_H}`}
       className="mono w-full h-auto"
       aria-hidden
     >
@@ -1066,24 +1144,13 @@ function HexStepper({
         </radialGradient>
       </defs>
 
-      {/* Idle stream — thin white wash */}
-      <path d={path} stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-
-      {/* Flowing dashes — always animating, gives the water-flow feel */}
-      <path
-        d={path}
-        stroke={teal}
-        strokeWidth="1"
-        fill="none"
-        strokeDasharray="3 11"
-        opacity="0.45"
-        style={{ animation: "roadFlow 6s linear infinite" }}
-      />
+      {/* Idle rail — thin white wash, extended past the end nodes */}
+      <path d={`M 30 ${STREAM_Y} H ${STREAM_W - 30}`} stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
 
       {/* Progress fill — dasharray written imperatively on scroll */}
       <path
         ref={fillRef}
-        d={path}
+        d={spanPath}
         stroke="url(#streamFill)"
         strokeWidth="2"
         fill="none"
@@ -1093,9 +1160,8 @@ function HexStepper({
         style={{ filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" }}
       />
 
-      {/* Nodes */}
+      {/* Nodes + numbered labels */}
       {STREAM_NODES_X.map((nx, i) => {
-        const ny = STREAM_NODES_Y[i];
         const isActive = i === activeIndex;
         const isDone = i < activeIndex;
         const color = isActive || isDone ? teal : "rgba(255,255,255,0.45)";
@@ -1107,28 +1173,31 @@ function HexStepper({
         return (
           <g key={i}>
             {isActive && (
-              <circle cx={nx} cy={ny} r={13} fill="none" stroke={teal} strokeWidth="1" opacity="0.5" />
+              <circle cx={nx} cy={STREAM_Y} r={10} fill="none" stroke={teal} strokeWidth="1.2" opacity="0.7" />
             )}
             <circle
               cx={nx}
-              cy={ny}
-              r={isActive ? 5 : 3.5}
+              cy={STREAM_Y}
+              r={isActive ? 4.5 : 3.5}
               fill={color}
               style={{ filter: isActive ? "drop-shadow(0 0 6px var(--brand-teal-bright))" : "none" }}
             />
             <text
               x={nx}
-              y={STREAM_H + 22}
+              y={STREAM_Y + 32}
               textAnchor="middle"
-              fontSize="8.5"
-              fill={labelMain}
               style={{
                 fontFamily: "var(--font-mono-stack), monospace",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
               }}
             >
-              {labels[i].name}
+              <tspan fontSize="15" fill={isActive ? teal : "rgba(255,255,255,0.28)"}>
+                {String(i + 1).padStart(2, "0")}
+              </tspan>
+              <tspan dx="9" dy="-1" fontSize="8.5" fill={labelMain}>
+                {labels[i].name}
+              </tspan>
             </text>
           </g>
         );
@@ -1188,234 +1257,35 @@ function LogoLockup() {
   );
 }
 
-/* ─────────── Constellation backdrop ───────────
-   Wide virtual canvas with 6 clusters of dots+lines (one per scene). The
-   viewBox pans toward the cluster matching the scroll phase. All per-frame
-   updates (pan, zoom, cluster fades, bubble activation) are written through
-   `handle` directly to the DOM — React renders this SVG exactly once. */
-type CNode = { x: number; y: number; r: number; red: boolean };
-type CCluster = { nodes: CNode[]; edges: [number, number][] };
-
-function buildCluster(seed: number, cx: number, cy: number, count: number, spread: number): CCluster {
-  const rand = seededRng(seed);
-  const nodes: CNode[] = [];
-  for (let i = 0; i < count; i++) {
-    const angle = rand() * Math.PI * 2;
-    const dist = (0.15 + rand() * 0.95) * spread;
-    nodes.push({
-      x: cx + Math.cos(angle) * dist,
-      y: cy + Math.sin(angle) * dist * 0.7,
-      r: 2 + rand() * 2.5,
-      red: rand() < 0.22,
-    });
-  }
-  const edges: [number, number][] = [];
-  const seen = new Set<string>();
-  for (let i = 0; i < nodes.length; i++) {
-    const others = nodes
-      .map((n, j) => ({ j, d: Math.hypot(n.x - nodes[i].x, n.y - nodes[i].y) }))
-      .filter((o) => o.j !== i)
-      .sort((a, b) => a.d - b.d);
-    const link = (j: number) => {
-      const key = i < j ? `${i}-${j}` : `${j}-${i}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-      edges.push([i, j]);
-    };
-    link(others[0].j);
-    if (rand() < 0.55) link(others[1].j);
-    if (rand() < 0.2) link(others[2].j);
-  }
-  return { nodes, edges };
-}
-
-const CLUSTER_X = [400, 1200, 2000, 2800, 3600, 4400]; // phase 0..5
-// Pronounced zigzag — each bubble sits on a different vertical band.
-const CLUSTER_Y = [300, 480, 200, 500, 220, 380];
-const VIEW_W = 1800;
-const VIEW_H = 900;
-const BUBBLE_R = 38;
-
-function buildRoadPath(): string {
-  const pts = CLUSTER_X.map((x, i) => [x, CLUSTER_Y[i]] as [number, number]);
-  let d = `M ${pts[0][0]} ${pts[0][1]}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const [x1, y1] = pts[i];
-    const [x2, y2] = pts[i + 1];
-    const cx1 = x1 + (x2 - x1) * 0.45;
-    const cx2 = x2 - (x2 - x1) * 0.45;
-    d += ` C ${cx1} ${y1}, ${cx2} ${y2}, ${x2} ${y2}`;
-  }
-  return d;
-}
-
-function clusterOpacityAt(ci: number, cx: number): number {
-  const dx = (CLUSTER_X[ci] - cx) / 1200;
-  return Math.max(0.18, 1 - Math.abs(dx) * 0.55);
-}
-
-function bubbleActivationAt(i: number, phase: number): number {
-  const d = Math.abs(phase - i);
-  const a = Math.max(0, 1 - d / 0.35);
-  return a * a * (3 - 2 * a);
-}
-
-function Constellation({ handleRef }: { handleRef: React.MutableRefObject<PhaseHandle | null> }) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const clusterRefs = useRef<(SVGGElement | null)[]>([]);
-  const bubbleRefs = useRef<(SVGGElement | null)[]>([]);
-  const clusters = useConstellationClusters();
-  const road = useRoadPath();
-
-  useEffect(() => {
-    handleRef.current = {
-      update(phase: number) {
-        const svg = svgRef.current;
-        if (!svg) return;
-        const lo = Math.max(0, Math.min(4, Math.floor(phase)));
-        const hi = Math.min(5, lo + 1);
-        const f = phase - lo;
-        const fs = f * f * (3 - 2 * f); // smoothstep camera motion
-        const cx = CLUSTER_X[lo] + (CLUSTER_X[hi] - CLUSTER_X[lo]) * fs;
-        const cy = CLUSTER_Y[lo] + (CLUSTER_Y[hi] - CLUSTER_Y[lo]) * fs;
-        const zoom = 1 + Math.sin(f * Math.PI) * 0.18;
-        const vw = VIEW_W * zoom;
-        const vh = VIEW_H * zoom;
-        // Active bubble sits ~70% from the left, clear of the text column.
-        svg.setAttribute("viewBox", `${cx - vw * 0.7} ${cy - vh / 2} ${vw} ${vh}`);
-        clusterRefs.current.forEach((g, ci) => {
-          if (g) g.style.opacity = String(clusterOpacityAt(ci, cx));
-        });
-        bubbleRefs.current.forEach((g, i) => {
-          if (!g) return;
-          const ea = bubbleActivationAt(i, phase);
-          g.style.opacity = String(ea);
-          g.style.transform = `scale(${(1 + ea * 0.45).toFixed(3)})`;
-        });
-      },
-    };
-    return () => { handleRef.current = null; };
-  }, [handleRef]);
-
-  // Initial attributes match phase 0 so the first paint (and any pre-scroll
-  // frame) is already correct without a JS pass.
-  const initLeft = CLUSTER_X[0] - VIEW_W * 0.7;
-  const initTop = CLUSTER_Y[0] - VIEW_H / 2;
-
+/* ─────────── Orbit arcs backdrop ───────────
+   Two enormous orbit circles centred far off-canvas (top-right and
+   bottom-left) so only their arcs sweep across the frame, each carrying a few
+   glowing satellite dots. The whole ring rotates very slowly (svcart-spin with
+   a multi-minute duration), so the dots creep along their orbits like planets.
+   Pure static SVG — rendered once, animated entirely in CSS. */
+function OrbitArcs() {
+  const glow = { filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" };
   return (
     <svg
-      ref={svgRef}
-      viewBox={`${initLeft} ${initTop} ${VIEW_W} ${VIEW_H}`}
+      viewBox="0 0 1600 900"
       preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 w-full h-full"
+      className="absolute inset-0 h-full w-full"
       aria-hidden
     >
-      <defs>
-        <radialGradient id="bubbleFill" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(72,184,177,0.35)" />
-          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
-        </radialGradient>
-        <radialGradient id="bubbleFillActive" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(72,184,177,0.55)" />
-          <stop offset="60%" stopColor="rgba(72,184,177,0.15)" />
-          <stop offset="100%" stopColor="rgba(72,184,177,0)" />
-        </radialGradient>
-      </defs>
-
-      {/* The road — continuous path connecting all bubbles */}
-      <path d={road} fill="none" stroke="rgba(72,184,177,0.18)" strokeWidth="1.5" />
-      <path
-        d={road}
-        fill="none"
-        stroke="var(--brand-teal-bright)"
-        strokeWidth="1.2"
-        strokeDasharray="6 14"
-        opacity="0.55"
-        style={{ animation: "roadFlow 8s linear infinite" }}
-      />
-
-      {/* Satellite dots + intra-cluster edges */}
-      {clusters.map((cl, ci) => (
-        <g
-          key={ci}
-          ref={(el) => { clusterRefs.current[ci] = el; }}
-          style={{ opacity: clusterOpacityAt(ci, CLUSTER_X[0]) }}
-        >
-          {cl.edges.map(([a, b], i) => (
-            <line
-              key={`e-${ci}-${i}`}
-              x1={cl.nodes[a].x}
-              y1={cl.nodes[a].y}
-              x2={cl.nodes[b].x}
-              y2={cl.nodes[b].y}
-              stroke="rgba(72,184,177,0.35)"
-              strokeWidth="0.6"
-            />
-          ))}
-          {cl.nodes.map((n, i) => (
-            <circle
-              key={`n-${ci}-${i}`}
-              cx={n.x}
-              cy={n.y}
-              r={n.r}
-              fill={n.red ? "var(--brand-red)" : "var(--brand-teal-bright)"}
-              opacity={n.red ? 0.85 : 0.7}
-            />
-          ))}
-        </g>
-      ))}
-
-      {/* Process bubbles — a static base plus an "active" overlay whose
-         opacity/scale are driven imperatively as the camera arrives. */}
-      {CLUSTER_X.map((bx, i) => {
-        const by = CLUSTER_Y[i];
-        const initEa = bubbleActivationAt(i, 0);
-        return (
-          <g key={`b-${i}`}>
-            <circle cx={bx} cy={by} r={BUBBLE_R} fill="url(#bubbleFill)" />
-            <circle cx={bx} cy={by} r={BUBBLE_R} fill="none" stroke="var(--brand-teal-bright)" strokeWidth="1" opacity="0.55" />
-            <g
-              ref={(el) => { bubbleRefs.current[i] = el; }}
-              style={{
-                opacity: initEa,
-                transform: `scale(${1 + initEa * 0.45})`,
-                transformBox: "fill-box",
-                transformOrigin: "center",
-              }}
-            >
-              <circle cx={bx} cy={by} r={BUBBLE_R} fill="url(#bubbleFillActive)" />
-              <circle
-                cx={bx}
-                cy={by}
-                r={BUBBLE_R}
-                fill="none"
-                stroke="var(--brand-teal-bright)"
-                strokeWidth="1.6"
-                opacity="0.9"
-                style={{ filter: "drop-shadow(0 0 12px var(--brand-teal-bright))" }}
-              />
-              <circle cx={bx} cy={by} r={BUBBLE_R + 14} fill="none" stroke="var(--brand-teal-bright)" strokeWidth="1" opacity="0.5" />
-              <circle cx={bx} cy={by - BUBBLE_R - 8} r="3" fill="var(--brand-red)" />
-            </g>
-          </g>
-        );
-      })}
+      {/* top-right system — dots at r840: 180°→(940,120), 150°→(1053,540); r620: 190°→(1169,12) */}
+      <g className="svcart-spin" style={{ ...CENTER, transformOrigin: "1780px 120px", animationDuration: "260s" }}>
+        <circle cx="1780" cy="120" r="840" fill="none" stroke="rgba(72,184,177,0.28)" strokeWidth="1.2" />
+        <circle cx="1780" cy="120" r="620" fill="none" stroke="rgba(72,184,177,0.18)" strokeWidth="1" strokeDasharray="2 10" />
+        <circle cx="940" cy="120" r="4.5" fill="var(--brand-teal-bright)" style={glow} />
+        <circle cx="1053" cy="540" r="3" fill="var(--brand-red)" opacity="0.9" />
+        <circle cx="1169" cy="12" r="3.5" fill="var(--brand-teal-bright)" opacity="0.85" style={glow} />
+      </g>
+      {/* bottom-left system — dots at r720: 0°→(540,760), -45°→(329,251) */}
+      <g className="svcart-spin-rev" style={{ ...CENTER, transformOrigin: "-180px 760px", animationDuration: "320s" }}>
+        <circle cx="-180" cy="760" r="720" fill="none" stroke="rgba(72,184,177,0.24)" strokeWidth="1.2" />
+        <circle cx="540" cy="760" r="4" fill="var(--brand-teal-bright)" style={glow} />
+        <circle cx="329" cy="251" r="3" fill="var(--brand-teal-bright)" opacity="0.8" style={glow} />
+      </g>
     </svg>
   );
-}
-
-let _clusterCache: CCluster[] | null = null;
-function useConstellationClusters(): CCluster[] {
-  if (_clusterCache) return _clusterCache;
-  _clusterCache = CLUSTER_X.map((x, i) =>
-    buildCluster(0x9e37 + i * 7919, x, CLUSTER_Y[i], 9 + (i % 3), 260)
-  );
-  return _clusterCache;
-}
-
-let _roadCache: string | null = null;
-function useRoadPath(): string {
-  if (_roadCache) return _roadCache;
-  _roadCache = buildRoadPath();
-  return _roadCache;
 }
