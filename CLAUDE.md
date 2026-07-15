@@ -33,11 +33,11 @@ Single dynamic segment `[lang]` with locales declared in two places that must st
 Dictionaries live in `src/lib/dict/*.json` and are dynamically imported. Pages fetch the dictionary once in the server component and pass `dict` down as props; child components are typed against `Dict`.
 
 ### Page composition
-`src/app/[lang]/page.tsx` is the only route. It renders a fixed sequence of section components from `src/components/sections/` inside a `SmoothScroll` (Lenis) provider wrapping the whole tree in the layout. `ScrollProgress` and a `grain-overlay` div are layout-level chrome.
+`src/app/[lang]/page.tsx` is the only route. `[lang]/layout.tsx` generates per-locale `Metadata` (title/OG/Twitter/JSON-LD `Organization` schema) and renders `SmoothScroll` (wrapping `ScrollProgress` + `children`), a persistent `Assistant` chat widget, and the `grain-overlay` div as layout-level chrome. The page itself renders `Navbar`, then `PinnedHero` followed by `Stats` / `Clients` / `Technology` / `Projects` / `Security` / `Contact` each wrapped in `EdgeBeam` (an animated teal-hairline frame), then `Footer`.
 
 ### Animation / 3D
-- GSAP-driven pinned/scroll animations live inside the section components (e.g. `PinnedHero`, `StageViz`). Smooth scroll is provided globally by `src/components/providers/SmoothScroll.tsx` — GSAP ScrollTrigger work must integrate with Lenis rather than the native scroller.
-- `src/components/three/HeroScene.tsx` is the R3F canvas mounted inside `PinnedHero`'s backdrop. It's loaded via `next/dynamic` with `ssr: false` and suppressed under `prefers-reduced-motion`. Receives `phase` (0..5) from the parent's ScrollTrigger to couple camera/material to scroll progress.
+- GSAP-driven pinned/scroll animations live inside the section components (e.g. `PinnedHero`) and in `EdgeBeam`. Smooth scroll is provided globally by `src/components/providers/SmoothScroll.tsx` — GSAP ScrollTrigger work must integrate with Lenis rather than the native scroller. Note the deliberate `gsap.ticker.lagSmoothing(500, 33)` call there (see the comment in that file before changing it) — it exists to absorb a one-off cold-load stall from the lazy three.js chunk, not a general Lenis recipe.
+- `src/components/three/HeroScene.tsx` is the R3F canvas mounted inside `PinnedHero`'s backdrop. It's loaded via `next/dynamic` with `ssr: false` and suppressed under `prefers-reduced-motion`. Receives a `phaseRef` from the parent's ScrollTrigger (phase 0 = wide intro, phases 1..4 = the four process-stage planet nodes) to couple camera/material to scroll progress — node/planet count must match the number of pinned scenes or the dust cloud whites out.
 
 ### Styling
 Tailwind v4 is configured purely through `src/app/globals.css` (`@import "tailwindcss"` + `@theme` tokens). There is no `tailwind.config.{js,ts}` — add design tokens in `globals.css`. Fonts are wired via `next/font` in the root layout exposing `--font-sans-stack` / `--font-mono-stack` CSS variables.
