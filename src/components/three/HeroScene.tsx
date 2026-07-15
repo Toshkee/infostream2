@@ -25,6 +25,27 @@ const NODES: THREE.Vector3[] = [
 
 const CURVE = new THREE.CatmullRomCurve3(NODES, false, "catmullrom", 0.4);
 
+// Frenet frames along the curve — lets particles sit *around* the stream
+// (offset along the local normal/binormal) instead of riding the exact
+// centreline like beads on a rail.
+const FRAME_SEGMENTS = 240;
+const FRAMES = CURVE.computeFrenetFrames(FRAME_SEGMENTS, false);
+
+// Writes curve point at u, displaced radially by (radius, angle) in the
+// local cross-section plane, into `out`.
+function streamPoint(u: number, radius: number, angle: number, out: THREE.Vector3) {
+  const uu = THREE.MathUtils.euclideanModulo(u, 1);
+  CURVE.getPointAt(uu, out);
+  const fi = Math.min(FRAME_SEGMENTS - 1, Math.floor(uu * FRAME_SEGMENTS));
+  const n = FRAMES.normals[fi];
+  const b = FRAMES.binormals[fi];
+  const c = Math.cos(angle) * radius;
+  const s = Math.sin(angle) * radius;
+  out.x += n.x * c + b.x * s;
+  out.y += n.y * c + b.y * s;
+  out.z += n.z * c + b.z * s;
+}
+
 function activationFor(phase: number, index: number): number {
   // Smooth bell around phase = index + 1; ~0 when more than 0.7 phases away.
   const d = Math.abs(phase - (index + 1));
@@ -79,50 +100,181 @@ function AmbientCloud({ count = 1100 }: { count?: number }) {
   );
 }
 
-function PipelineTube() {
+// The stream itself — a hot core tube with energy pulses flowing along its
+// length, wrapped in a wide soft halo tube. TubeGeometry's uv.x runs along
+// the curve, so the pulse bands are just moving stripes in uv space; uv.y
+// wraps the circumference and fades the halo toward its edges so the tube
+// reads as a volumetric beam instead of a solid pipe.
+const STREAM_VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const STREAM_FRAG = /* glsl */ `
+  uniform float uTime;
+  uniform vec3 uColor;
+  uniform float uBase;
+  uniform float uCore;
+  varying vec2 vUv;
+
+  float hash(float n) { return fract(sin(n) * 43758.5453123); }
+  float noise1(float x) {
+    float i = floor(x);
+    float f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(hash(i), hash(i + 1.0), f);
+  }
+
+  void main() {
+    // Soft cross-section falloff — brightest at the tube's spine.
+    float section = pow(sin(vUv.y * 3.14159265), 2.0);
+    // Turbulent flow: three octaves of value noise streaming downstream at
+    // different rates — reads as currents and eddies, not a strobe. A slight
+    // circumferential term twists the pattern around the tube so opposite
+    // sides don't flicker in lockstep.
+    float x = vUv.x * 26.0 - uTime * 1.6;
+    float n = noise1(x) * 0.5
+            + noise1(x * 2.7 + 13.7 - uTime * 0.9) * 0.3
+            + noise1(x * 6.3 + 41.3 - uTime * 2.6) * 0.2;
+    n += (noise1(vUv.y * 5.0 + x * 0.6) - 0.5) * 0.25;
+    float flow = 0.3 + 0.9 * n;
+    // Dissolve into the planets' glow at both ends instead of a hard cut.
+    float ends = smoothstep(0.0, 0.05, vUv.x) * (1.0 - smoothstep(0.95, 1.0, vUv.x));
+    float a = (uBase + uCore * flow) * section * ends;
+    gl_FragColor = vec4(uColor * (0.6 + 0.7 * flow), a);
+  }
+`;
+
+function StreamTube({
+  radius,
+  base,
+  core,
+}: {
+  radius: number;
+  base: number;
+  core: number;
+}) {
   const geo = useMemo(
-    () => new THREE.TubeGeometry(CURVE, 240, 0.035, 8, false),
-    []
+    () => new THREE.TubeGeometry(CURVE, 240, radius, 12, false),
+    [radius]
   );
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uColor: { value: TEAL.clone() },
+      uBase: { value: base },
+      uCore: { value: core },
+    }),
+    [base, core]
+  );
+  useFrame((state) => {
+    uniforms.uTime.value = state.clock.elapsedTime;
+  });
   return (
     <mesh geometry={geo}>
-      <meshBasicMaterial
-        color={TEAL}
+      <shaderMaterial
+        vertexShader={STREAM_VERT}
+        fragmentShader={STREAM_FRAG}
+        uniforms={uniforms}
         transparent
-        opacity={0.35}
-        blending={THREE.AdditiveBlending}
         depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
       />
     </mesh>
   );
 }
 
-function FlowingPackets({ count = 60 }: { count?: number }) {
+function PipelineTube() {
+  return (
+    <>
+      {/* hot core */}
+      <StreamTube radius={0.028} base={0.3} core={0.75} />
+      {/* volumetric halo */}
+      <StreamTube radius={0.11} base={0.04} core={0.14} />
+    </>
+  );
+}
+
+// Soft round dot sprite for the packet points — square GL points read as
+// pixels; this radial gradient makes each one a tiny glow.
+let _dotTex: THREE.CanvasTexture | null = null;
+function dotTexture(): THREE.CanvasTexture {
+  if (_dotTex) return _dotTex;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.55)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  _dotTex = new THREE.CanvasTexture(c);
+  return _dotTex;
+}
+
+// Packets as comets: each has a bright head and a short trail of samples
+// pulled backwards along the curve, dimming toward the tail (additive
+// blending, so dimmer vertex colour = fading trail). Speeds vary per packet
+// and a few run brand-red.
+function FlowingPackets({ count = 44, trail = 7 }: { count?: number; trail?: number }) {
   const ref = useRef<THREE.Points>(null);
 
-  const { positions, offsets } = useMemo(() => {
+  const { positions, colors, offsets, speeds, radii, angles, swirls, tints } = useMemo(() => {
     const rng = seededRng(0xbeef);
-    const positions = new Float32Array(count * 3);
+    const total = count * trail;
+    const positions = new Float32Array(total * 3);
+    const colors = new Float32Array(total * 3);
     const offsets = new Float32Array(count);
-    for (let i = 0; i < count; i++) offsets[i] = rng();
-    return { positions, offsets };
-  }, [count]);
+    const speeds = new Float32Array(count);
+    const radii = new Float32Array(count);
+    const angles = new Float32Array(count);
+    const swirls = new Float32Array(count);
+    const tints: THREE.Color[] = [];
+    for (let i = 0; i < count; i++) {
+      offsets[i] = rng();
+      speeds[i] = 0.03 + rng() * 0.045;
+      // Each packet rides its own lane inside the halo and corkscrews
+      // slowly around the core — debris in a current, not beads on a rail.
+      radii[i] = 0.015 + rng() * 0.07;
+      angles[i] = rng() * Math.PI * 2;
+      swirls[i] = (rng() - 0.5) * 1.6;
+      tints.push(rng() < 0.1 ? RED.clone() : TEAL.clone().lerp(new THREE.Color("#bff6f1"), rng() * 0.6));
+    }
+    return { positions, colors, offsets, speeds, radii, angles, swirls, tints };
+  }, [count, trail]);
 
-  // Scratch vector reused across frames — avoids 60 allocations/frame.
+  // Scratch vector reused across frames — avoids allocations per frame.
   const p = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     for (let i = 0; i < count; i++) {
-      const u = (t * 0.05 + offsets[i]) % 1;
-      CURVE.getPointAt(u, p);
-      positions[i * 3 + 0] = p.x;
-      positions[i * 3 + 1] = p.y;
-      positions[i * 3 + 2] = p.z;
+      const head = (t * speeds[i] + offsets[i]) % 1;
+      const angle = angles[i] + t * swirls[i];
+      for (let k = 0; k < trail; k++) {
+        // Trail stretches with speed, so fast packets streak further; each
+        // sample lags the swirl slightly so trails curve with the corkscrew.
+        const u = head - k * speeds[i] * 0.09;
+        streamPoint(u, radii[i], angle - k * swirls[i] * 0.03, p);
+        const j = (i * trail + k) * 3;
+        positions[j] = p.x;
+        positions[j + 1] = p.y;
+        positions[j + 2] = p.z;
+        const fade = Math.pow(1 - k / trail, 1.8);
+        const tint = tints[i];
+        colors[j] = tint.r * fade;
+        colors[j + 1] = tint.g * fade;
+        colors[j + 2] = tint.b * fade;
+      }
     }
     if (ref.current) {
-      const attr = ref.current.geometry.attributes.position as THREE.BufferAttribute;
-      attr.needsUpdate = true;
+      const geo = ref.current.geometry;
+      (geo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+      (geo.attributes.color as THREE.BufferAttribute).needsUpdate = true;
     }
   });
 
@@ -130,10 +282,12 @@ function FlowingPackets({ count = 60 }: { count?: number }) {
     <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color={TEAL}
-        size={0.14}
+        map={dotTexture()}
+        vertexColors
+        size={0.16}
         transparent
         opacity={0.95}
         sizeAttenuation
@@ -144,16 +298,86 @@ function FlowingPackets({ count = 60 }: { count?: number }) {
   );
 }
 
-// Fresnel-rim planet shader — a dark body with a soft fake key light for the
-// terminator and a bright teal glow that hugs the silhouette (the backlit
-// planet look from the mockups). uBoost lifts the rim when the camera parks.
+// Fine spray drifting slowly around the beam — gives the stream physical
+// volume, like vapour caught in the current. Particles further from the core
+// are dimmer, and each breathes radially a little so the cloud isn't rigid.
+function StreamMist({ count = 240 }: { count?: number }) {
+  const ref = useRef<THREE.Points>(null);
+
+  const { positions, colors, offsets, speeds, radii, angles, drifts } = useMemo(() => {
+    const rng = seededRng(0x50f7);
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const offsets = new Float32Array(count);
+    const speeds = new Float32Array(count);
+    const radii = new Float32Array(count);
+    const angles = new Float32Array(count);
+    const drifts = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      offsets[i] = rng();
+      speeds[i] = 0.006 + rng() * 0.014;
+      radii[i] = 0.05 + rng() * 0.22;
+      angles[i] = rng() * Math.PI * 2;
+      drifts[i] = (rng() - 0.5) * 0.5;
+      // Dimmer the further from the core, with slight per-particle variance.
+      const fade = (1 - radii[i] / 0.27) * (0.35 + rng() * 0.4);
+      colors[i * 3 + 0] = TEAL.r * fade;
+      colors[i * 3 + 1] = TEAL.g * fade;
+      colors[i * 3 + 2] = TEAL.b * fade;
+    }
+    return { positions, colors, offsets, speeds, radii, angles, drifts };
+  }, [count]);
+
+  const p = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < count; i++) {
+      const u = (t * speeds[i] + offsets[i]) % 1;
+      const breathe = 1 + Math.sin(t * 0.6 + i * 2.3) * 0.18;
+      streamPoint(u, radii[i] * breathe, angles[i] + t * drifts[i], p);
+      positions[i * 3 + 0] = p.x;
+      positions[i * 3 + 1] = p.y;
+      positions[i * 3 + 2] = p.z;
+    }
+    if (ref.current) {
+      (ref.current.geometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+    }
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        map={dotTexture()}
+        vertexColors
+        size={0.07}
+        transparent
+        opacity={0.5}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+// Night-side Earth shader — a dark ocean body with NASA city-lights glowing
+// along the continents, a soft fake key light for the terminator and a teal
+// atmosphere glow hugging the silhouette. uBoost lifts rim + city lights when
+// the camera parks at this planet.
 const PLANET_VERT = /* glsl */ `
   varying vec3 vNormal;
   varying vec3 vViewDir;
+  varying vec2 vUv;
   void main() {
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     vNormal = normalize(normalMatrix * normal);
     vViewDir = normalize(-mvPosition.xyz);
+    vUv = uv;
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
@@ -161,23 +385,54 @@ const PLANET_FRAG = /* glsl */ `
   uniform vec3 uBody;
   uniform vec3 uRim;
   uniform float uBoost;
+  uniform sampler2D uLights;
+  uniform sampler2D uMap;
   varying vec3 vNormal;
   varying vec3 vViewDir;
+  varying vec2 vUv;
   void main() {
     vec3 n = normalize(vNormal);
     vec3 v = normalize(vViewDir);
     float ndv = clamp(dot(n, v), 0.0, 1.0);
     float fres = pow(1.0 - ndv, 2.6);
-    // Key light from the lower-left — the rim concentrates into a bright
-    // crescent on that side instead of an even outline (mockup look).
+    // Key light from the lower-left — reads as the moon: it shapes a soft
+    // terminator crescent and gives the surface its faint cool wash.
     vec3 lightDir = normalize(vec3(-0.55, -0.4, 0.55));
     float litRim = clamp(dot(n, lightDir), 0.0, 1.0);
-    float lit = 0.18 + 0.5 * litRim;
     float rim = fres * (0.22 + 1.25 * pow(litRim, 1.4));
-    vec3 col = uBody * lit + uRim * rim * (1.5 + uBoost * 1.5);
+
+    // Moonlit surface — the day map desaturated and pushed cold/dark, so
+    // continents and oceans are just barely legible under the night.
+    vec3 day = texture2D(uMap, vUv).rgb;
+    float dayLum = dot(day, vec3(0.299, 0.587, 0.114));
+    vec3 moonlit = mix(vec3(dayLum), day, 0.45) * vec3(0.5, 0.68, 0.85) * (0.10 + 0.30 * litRim);
+
+    // City lights — black-ocean NASA lights map; luminance doubles as the
+    // settlement mask. Warm sodium tint with a slightly hot core, faded a
+    // touch at the limb so the atmosphere stays in charge there.
+    float lum = dot(texture2D(uLights, vUv).rgb, vec3(0.299, 0.587, 0.114));
+    vec3 cityTint = mix(vec3(1.0, 0.68, 0.38), vec3(1.0, 0.9, 0.7), pow(lum, 2.0));
+    vec3 city = cityTint * pow(lum, 1.15) * (1.2 + uBoost * 1.1) * (0.35 + 0.65 * ndv);
+
+    // Atmosphere: a faint blue scattering haze all around the limb, plus the
+    // brand-teal glow concentrated into the lit crescent.
+    vec3 atmo = vec3(0.30, 0.55, 0.75) * fres * 0.5;
+    vec3 col = uBody * (0.14 + 0.4 * litRim) + moonlit + city + atmo + uRim * rim * (1.35 + uBoost * 1.5);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
+
+// Shared Earth textures (NASA imagery via the three.js examples set) —
+// loaded lazily on the client, one instance each for all four planets.
+const _tex: Record<string, THREE.Texture> = {};
+function sharedTexture(url: string): THREE.Texture {
+  if (!_tex[url]) {
+    const t = new THREE.TextureLoader().load(url);
+    t.colorSpace = THREE.SRGBColorSpace;
+    _tex[url] = t;
+  }
+  return _tex[url];
+}
 
 // Shared halo texture — a hollow radial gradient that peaks just outside the
 // planet's silhouette (planet edge sits at ~0.53 of the sprite half-size for
@@ -215,6 +470,8 @@ function PlanetMesh({
   position: THREE.Vector3;
 }) {
   const group = useRef<THREE.Group>(null);
+  const clouds = useRef<THREE.Mesh>(null);
+  const cloudMat = useRef<THREE.MeshBasicMaterial>(null);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
   const ring1Mat = useRef<THREE.MeshBasicMaterial>(null);
   const ring2Mat = useRef<THREE.MeshBasicMaterial>(null);
@@ -223,9 +480,11 @@ function PlanetMesh({
 
   const uniforms = useMemo(
     () => ({
-      uBody: { value: new THREE.Color("#24384e") },
+      uBody: { value: new THREE.Color("#101c30") },
       uRim: { value: new THREE.Color("#74e0d8") },
       uBoost: { value: 0 },
+      uLights: { value: sharedTexture("/textures/earth-night.png") },
+      uMap: { value: sharedTexture("/textures/earth-day.jpg") },
     }),
     []
   );
@@ -238,6 +497,10 @@ function PlanetMesh({
     const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + index) * 0.03 * a;
     g.scale.setScalar((0.9 + a * 0.5) * pulse);
     uniforms.uBoost.value = a;
+    // Clouds drift a little faster than the ground spins, and thicken
+    // slightly when the camera parks.
+    if (clouds.current) clouds.current.rotation.y += delta * 0.022;
+    if (cloudMat.current) cloudMat.current.opacity = 0.09 + a * 0.07;
     if (glowMat.current) glowMat.current.opacity = 0.55 + a * 0.45;
     if (ring1Mat.current) ring1Mat.current.opacity = 0.35 + a * 0.45;
     if (ring2Mat.current) ring2Mat.current.opacity = 0.2 + a * 0.35;
@@ -250,11 +513,25 @@ function PlanetMesh({
   const tilt2: [number, number, number] = [Math.PI / 2.05, 0.35, -0.5 + index * 0.3];
 
   return (
-    <group ref={group} position={position}>
-      {/* planet body — fresnel rim shader */}
-      <mesh>
-        <sphereGeometry args={[0.82, 48, 48]} />
+    // Per-planet starting longitude so the four don't all show the same hemisphere.
+    <group ref={group} position={position} rotation={[0, index * 1.9, 0]}>
+      {/* planet body — night-side Earth shader, slight axial tilt */}
+      <mesh rotation={[0, 0, -0.23]}>
+        <sphereGeometry args={[0.82, 64, 64]} />
         <shaderMaterial vertexShader={PLANET_VERT} fragmentShader={PLANET_FRAG} uniforms={uniforms} />
+      </mesh>
+      {/* cloud shell — additive so the black texture ground vanishes; drifts
+         independently of the surface for a live-planet feel */}
+      <mesh ref={clouds} rotation={[0, 0.9, -0.23]} scale={1.025}>
+        <sphereGeometry args={[0.82, 48, 48]} />
+        <meshBasicMaterial
+          ref={cloudMat}
+          map={sharedTexture("/textures/earth-clouds.png")}
+          transparent
+          opacity={0.09}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
       </mesh>
       {/* atmosphere halo — billboard sprite hugging the silhouette; the
          planet body depth-occludes its center, so only the limb glows */}
@@ -361,6 +638,7 @@ export default function HeroScene({ phaseRef }: { phaseRef: { current: number } 
       <AmbientCloud />
       <PipelineTube />
       <FlowingPackets />
+      <StreamMist />
       {NODES.map((pos, i) => (
         <PlanetMesh key={i} index={i} phaseRef={phaseRef} position={pos} />
       ))}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
@@ -131,7 +130,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
   const phaseRef = useRef(0);
   const stepper = useRef<PhaseHandle | null>(null);
   const [activeScene, setActiveScene] = useState(0);
-  const [exitActive, setExitActive] = useState(false);
   // True while the pinned variant is the one displayed — gates the WebGL
   // canvas so the hidden static variant never pays for it.
   const [motionOk, setMotionOk] = useState(false);
@@ -176,7 +174,6 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             stepper.current?.update(p);
             // Discrete state — React only re-renders on scene boundaries.
             setActiveScene(Math.max(0, Math.min(4, Math.round(p))));
-            setExitActive(p > 4.55);
           },
         });
 
@@ -331,22 +328,15 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             />
           </div>
 
-          {/* Exit overlay — Infostream lockup on the dark backdrop */}
+          {/* Exit overlay — #FollowTheStream brand lockup on the dark backdrop */}
           <div
             aria-hidden
             className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
             style={{ opacity: "clamp(0, calc((var(--ph) - 4.6) / 0.3), 1)" }}
           >
             <div className="text-center px-6">
-              <div className="relative mx-auto flex items-center justify-center">
-                {/* Mount only once the exit actually begins so the lockup plays
-                   its entrance exactly once, here. */}
-                {exitActive && <LogoLockup />}
-              </div>
-              <div className="mt-7 text-[clamp(1.6rem,3.6vw,2.6rem)] leading-[1.1] tracking-[-0.02em] font-medium text-white max-w-3xl mx-auto">
-                {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
-              </div>
-              <div className="mt-7 mono text-[11px] tracking-[0.25em] uppercase text-white/55">
+              <FollowTheStream tag={dict.hero.exitTag} />
+              <div className="mt-8 mono text-[11px] tracking-[0.25em] uppercase text-white/55">
                 ↓ {dict.hero.exitScrollHint}
               </div>
             </div>
@@ -437,9 +427,9 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             ))}
           </div>
 
-          <p className="mt-16 text-[clamp(1.3rem,4.5vw,1.8rem)] leading-[1.15] tracking-[-0.02em] font-medium text-white max-w-2xl">
-            {dict.hero.exitTitle} <span className="text-[var(--brand-teal-bright)]">{dict.hero.exitAccent}</span>
-          </p>
+          <div className="mt-16">
+            <FollowTheStream tag={dict.hero.exitTag} />
+          </div>
         </div>
       </section>
     </div>
@@ -461,6 +451,41 @@ function tealPeriod(text: string): ReactNode {
 }
 
 // Pulsing signal bars used in the hero eyebrow (both variants).
+// #FollowTheStream brand lockup — the logo's equalizer-bar mark scaled up to
+// headline size, with a two-tone wordmark treatment (teal hash, white body,
+// brand-red "Stream") so the exit tag reads as company branding, not copy.
+function FollowTheStream({ tag }: { tag: string }) {
+  const hash = tag.startsWith("#") ? "#" : "";
+  const rest = hash ? tag.slice(1) : tag;
+  const idx = rest.lastIndexOf("Stream");
+  const head = idx === -1 ? rest : rest.slice(0, idx);
+  const tail = idx === -1 ? "" : rest.slice(idx);
+  const bars = [
+    { h: "56%", d: "0s", c: "var(--brand-red)" },
+    { h: "100%", d: "0.15s", c: "var(--brand-red)" },
+    { h: "40%", d: "0.3s", c: "var(--brand-teal-bright)" },
+    { h: "76%", d: "0.45s", c: "var(--brand-red)" },
+  ];
+  return (
+    <div className="inline-flex items-center justify-center gap-[0.32em] text-[clamp(2.4rem,6vw,4.6rem)] leading-none tracking-[-0.03em] font-semibold">
+      <span aria-hidden className="flex items-end gap-[0.085em] h-[0.74em]">
+        {bars.map((b, i) => (
+          <span
+            key={i}
+            className="bar-pulse inline-block w-[0.095em] rounded-[1px]"
+            style={{ height: b.h, background: b.c, animationDelay: b.d }}
+          />
+        ))}
+      </span>
+      <span>
+        <span className="text-[var(--brand-teal-bright)]">{hash}</span>
+        <span className="text-white">{head}</span>
+        <span className="text-[var(--brand-red)]">{tail}</span>
+      </span>
+    </div>
+  );
+}
+
 function EyebrowBars() {
   return (
     <span aria-hidden className="flex items-end gap-[3px] h-3">
@@ -1214,46 +1239,6 @@ function ProcessTimeline({
         style={{ filter: "drop-shadow(0 0 8px var(--brand-teal-bright))" }}
       />
     </svg>
-  );
-}
-
-function LogoLockup() {
-  // Same asset as the navbar, rendered at its native 301×49 so it's pixel-sharp.
-  const accent = "var(--brand-teal-bright)";
-  return (
-    <div
-      className="logo-hold relative inline-flex items-center justify-center"
-      style={{ animationDelay: "0.2s", padding: "24px 36px" }}
-    >
-      {[
-        { top: 0, left: 0, borderTop: 1, borderLeft: 1 },
-        { top: 0, right: 0, borderTop: 1, borderRight: 1 },
-        { bottom: 0, left: 0, borderBottom: 1, borderLeft: 1 },
-        { bottom: 0, right: 0, borderBottom: 1, borderRight: 1 },
-      ].map((style, idx) => (
-        <span
-          key={idx}
-          aria-hidden
-          className="absolute h-3 w-3"
-          style={{
-            ...style,
-            borderColor: accent,
-            borderTopWidth: style.borderTop ? 1 : 0,
-            borderBottomWidth: style.borderBottom ? 1 : 0,
-            borderLeftWidth: style.borderLeft ? 1 : 0,
-            borderRightWidth: style.borderRight ? 1 : 0,
-            borderStyle: "solid",
-          }}
-        />
-      ))}
-      <Image
-        src="/infostream-logo.webp"
-        alt="Infostream"
-        width={301}
-        height={49}
-        priority
-      />
-    </div>
   );
 }
 
