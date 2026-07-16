@@ -10,8 +10,8 @@
     "cta": "Razgovarajmo"
   },
   "meta": {
-    "description": "Infostream gradi i održava sisteme iza javnih finansija Crne Gore: poresku administraciju, trezorske budžete, registre privrednih subjekata i penzijske evidencije. Revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
-    "ogTagline": "Nacionalna finansijska infrastruktura"
+    "description": "Infostream je crnogorska softverska kompanija koja gradi sisteme koji traju: poreske, trezorske, privredne i penzijske registre zemlje. ISO 27001, 20+ godina.",
+    "ogTagline": "Softver koji traje"
   },
   "hero": {
     "eyebrow": "Infostream / Softver napravljen da traje",
@@ -639,7 +639,7 @@
     ]
   },
   "footer": {
-    "tagline": "Nacionalna finansijska infrastruktura, građena u Podgorici.",
+    "tagline": "Softver koji traje, građena u Podgorici.",
     "rights": "Sva prava zadržana.",
     "location": "Podgorica · Crna Gora",
     "certifications": "Sertifikati",

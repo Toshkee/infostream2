@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { maskReveal } from "@/lib/maskReveal";
 import { useRef, type ReactNode } from "react";
 import type { Dict } from "@/lib/dictionaries";
 
@@ -151,10 +152,7 @@ export default function Clients({ dict }: { dict: Dict }) {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduce) return;
 
-      gsap.fromTo(".clients-h2", { clipPath: "inset(0 100% 0 0)" }, {
-        clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power4.out",
-        scrollTrigger: { trigger: ".clients-h2", start: "top 85%" },
-      });
+      maskReveal(".clients-h2");
       gsap.from(".cl-card", {
         opacity: 0, y: 26, duration: 0.8, stagger: 0.08, ease: "power3.out",
         scrollTrigger: { trigger: ".cl-featured", start: "top 80%" },

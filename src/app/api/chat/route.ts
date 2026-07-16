@@ -123,7 +123,7 @@ export async function POST(request: Request) {
     request.headers.get("x-real-ip")?.trim() ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "anon";
-  if (rateLimited(ip)) return fail(429, "Too many requests — please slow down.");
+  if (rateLimited(ip)) return fail(429, "Too many requests. Please slow down.");
 
   // Parse + validate the body.
   let body: unknown;
@@ -185,7 +185,7 @@ export async function POST(request: Request) {
       debug
         ? `Gemini error ${call.status}: ${call.detail.slice(0, 600)}`
         : busy
-          ? "The assistant is busy right now — please try again in a moment."
+          ? "The assistant is busy right now. Please try again in a moment."
           : "The assistant had a problem. Please try again.",
       `Gemini ${call.status}: ${call.detail.slice(0, 1000)}`
     );

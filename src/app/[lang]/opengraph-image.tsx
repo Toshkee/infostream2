@@ -3,7 +3,7 @@ import { getDictionary, hasLocale } from "@/lib/dictionaries";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Infostream — National financial infrastructure";
+export const alt = "Infostream · Software built to last";
 
 export default async function Image({
   params,

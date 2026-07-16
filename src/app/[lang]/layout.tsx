@@ -43,8 +43,8 @@ export async function generateMetadata({
   const url = `${SITE}/${lang}`;
 
   const title = lang === "mne"
-    ? "Infostream — Nacionalna finansijska infrastruktura"
-    : "Infostream — National financial infrastructure";
+    ? "Infostream · Softver koji traje"
+    : "Infostream · Software built to last";
   const description = dict.meta.description;
 
   return {

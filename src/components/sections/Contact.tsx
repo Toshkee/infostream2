@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { maskReveal } from "@/lib/maskReveal";
 import { useRef } from "react";
 import type { Dict } from "@/lib/dictionaries";
 
@@ -15,12 +16,7 @@ export default function Contact({ dict }: { dict: Dict }) {
     () => {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-      gsap.fromTo(".cta-h2", { clipPath: "inset(0 100% 0 0)" }, {
-        clipPath: "inset(0 0% 0 0)",
-        duration: 1.2,
-        ease: "power4.out",
-        scrollTrigger: { trigger: ".cta-h2", start: "top 85%" },
-      });
+      maskReveal(".cta-h2");
       gsap.from(".cta-item", {
         opacity: 0,
         y: 18,

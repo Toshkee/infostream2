@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { maskReveal } from "@/lib/maskReveal";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { useRef } from "react";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -23,12 +24,7 @@ export default function Security({ dict }: { dict: Dict }) {
         return;
       }
 
-      gsap.fromTo(".sec-h2", { clipPath: "inset(0 100% 0 0)" }, {
-        clipPath: "inset(0 0% 0 0)",
-        duration: 1.2,
-        ease: "power4.out",
-        scrollTrigger: { trigger: ".sec-h2", start: "top 85%" },
-      });
+      maskReveal(".sec-h2");
 
       gsap.fromTo(
         ".sec-card",

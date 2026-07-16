@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Infostream — National financial infrastructure",
+    name: "Infostream · Software built to last",
     short_name: "Infostream",
     description:
-      "Infostream builds and runs the systems behind Montenegro's public finance — tax, treasury, business and pension registers.",
+      "Montenegrin software firm building systems that last: the country's tax, treasury, business and pension registers.",
     start_url: "/",
     display: "standalone",
     background_color: "#0d111c",

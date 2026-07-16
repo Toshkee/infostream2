@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { maskReveal } from "@/lib/maskReveal";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -107,12 +108,7 @@ export default function Technology({ dict }: { dict: Dict }) {
         return;
       }
 
-      gsap.fromTo(".tech-h2", { clipPath: "inset(0 100% 0 0)" }, {
-        clipPath: "inset(0 0% 0 0)",
-        duration: 1.1,
-        ease: "power4.out",
-        scrollTrigger: { trigger: ".tech-h2", start: "top 85%" },
-      });
+      maskReveal(".tech-h2");
 
       // Links wire themselves in, then nodes pop on, then packets stream.
       gsap.set(links, { drawSVG: "0%" });

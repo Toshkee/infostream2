@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { maskReveal } from "@/lib/maskReveal";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dict } from "@/lib/dictionaries";
 
@@ -83,16 +84,7 @@ export default function Projects({ dict }: { dict: Dict }) {
     () => {
       if (reducedMotion) return;
 
-      gsap.fromTo(
-        ".pj-h2",
-        { clipPath: "inset(0 100% 0 0)" },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          duration: 1.1,
-          ease: "power4.out",
-          scrollTrigger: { trigger: ".pj-h2", start: "top 85%" },
-        }
-      );
+      maskReveal(".pj-h2");
 
       // Pinned horizontal scroll — desktop only. On touch/small screens the
       // viewport is a native snap-scroll strip (no pin), which feels better.

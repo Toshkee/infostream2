@@ -283,7 +283,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
                 {/* Visual title only — the document's h1 lives in the sr-only
                    block below so it never drops out of the accessibility tree
                    when this scene goes inert mid-scroll. */}
-                <p aria-hidden className="mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
+                <p aria-hidden className="font-display mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
                   {titleWords.map((w, i) => (
                     <span key={i} className="hero-title-word inline-block mr-[0.22em]">
                       {i === titleWords.length - 1 ? tealPeriod(w) : w}
@@ -586,7 +586,10 @@ function StageHeading({
           style={{ boxShadow: "0 0 8px var(--brand-teal-bright)" }}
         />
       </div>
-      <Title className="mt-3 text-[clamp(1.9rem,4.2vw,3.4rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+      {/* 3rem cap (not 3.4): the pinned scenes park this next to a ~330px
+         column and "Transformation" must fit the track without sliding under
+         the cards — measured against Author's advance widths. */}
+      <Title className="font-display mt-3 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
         {name}
       </Title>
       <p className="process-stage-desc mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
@@ -695,7 +698,7 @@ function ProcessSceneBody({
 
   if (index === 1) {
     return (
-      <div className="grid items-center gap-8 lg:gap-10 lg:grid-cols-[minmax(260px,330px)_1fr]">
+      <div className="grid items-center gap-8 lg:gap-10 lg:grid-cols-[minmax(260px,350px)_1fr]">
         {left}
         <div className="hidden md:grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
           {svc.cards.map((c, j) => (

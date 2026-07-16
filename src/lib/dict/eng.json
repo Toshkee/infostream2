@@ -10,8 +10,8 @@
     "cta": "Talk to us"
   },
   "meta": {
-    "description": "Infostream builds and runs the systems behind Montenegro's public finance: tax administration, treasury budgets, business and pension registers. Audited to ISO 27001 and ISO 9001, in production for over 20 years.",
-    "ogTagline": "National financial infrastructure"
+    "description": "Infostream is a Montenegrin software firm building systems that last: the country's tax, treasury, business and pension registers. ISO 27001, 20+ years.",
+    "ogTagline": "Software built to last"
   },
   "hero": {
     "eyebrow": "Infostream / Software Built To Last",
@@ -639,7 +639,7 @@
     ]
   },
   "footer": {
-    "tagline": "National financial infrastructure, built in Podgorica.",
+    "tagline": "Software built to last, built in Podgorica.",
     "rights": "All rights reserved.",
     "location": "Podgorica · Montenegro",
     "certifications": "Certifications",
