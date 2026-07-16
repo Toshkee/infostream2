@@ -81,14 +81,18 @@ export default function Projects({ dict }: { dict: Dict }) {
 
   useGSAP(
     () => {
-      gsap.to(".pj-h2", {
-        clipPath: "inset(0 0% 0 0)",
-        duration: 1.1,
-        ease: "power4.out",
-        scrollTrigger: { trigger: ".pj-h2", start: "top 85%" },
-      });
-
       if (reducedMotion) return;
+
+      gsap.fromTo(
+        ".pj-h2",
+        { clipPath: "inset(0 100% 0 0)" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          duration: 1.1,
+          ease: "power4.out",
+          scrollTrigger: { trigger: ".pj-h2", start: "top 85%" },
+        }
+      );
 
       // Pinned horizontal scroll — desktop only. On touch/small screens the
       // viewport is a native snap-scroll strip (no pin), which feels better.
@@ -172,23 +176,11 @@ export default function Projects({ dict }: { dict: Dict }) {
       ref={sectionRef}
       className="relative bg-[var(--bg-inset)] text-white overflow-hidden py-24 lg:py-0 lg:h-screen lg:flex lg:flex-col lg:justify-center"
     >
-      {/* Grid backdrop */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-          maskImage: "radial-gradient(ellipse at center, black 35%, transparent 80%)",
-        }}
-      />
-
       <div className="relative w-full">
         {/* Heading */}
         <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
           <div className="max-w-2xl">
-            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
+            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
               {pj.eyebrow}
             </div>
             <h2 className="pj-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -218,12 +210,9 @@ export default function Projects({ dict }: { dict: Dict }) {
                     className="pj-media relative overflow-hidden rounded-2xl border border-white/10 aspect-[16/10] bg-[var(--bg-inset-elev)]"
                     style={{ boxShadow: `0 30px 80px -40px ${media.accent}` }}
                   >
-                    {/* window chrome */}
-                    <div className="absolute top-0 inset-x-0 z-20 h-9 flex items-center gap-2 px-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
-                      <span className="h-2.5 w-2.5 rounded-full bg-[var(--brand-red)]/70" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                      <span className="ml-3 mono text-[10px] tracking-[0.15em] text-white/40 truncate">
+                    {/* address strip — real domain, no faux-macOS dots */}
+                    <div className="absolute top-0 inset-x-0 z-20 h-9 flex items-center px-4 bg-black/30 backdrop-blur-sm border-b border-white/10">
+                      <span className="mono text-[10px] tracking-[0.15em] text-white/60 truncate">
                         infostream.co.me / {item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}
                       </span>
                     </div>
@@ -243,7 +232,7 @@ export default function Projects({ dict }: { dict: Dict }) {
                       <h3 className="text-white font-medium text-[clamp(1.15rem,2vw,1.45rem)] tracking-[-0.01em] leading-tight">
                         {item.name}
                       </h3>
-                      <span className="mono text-[11px] tracking-[0.18em] text-white/40 tabular-nums flex-none">
+                      <span className="mono text-[11px] tracking-[0.18em] text-white/55 tabular-nums flex-none">
                         {item.year}
                       </span>
                     </div>
@@ -276,7 +265,7 @@ export default function Projects({ dict }: { dict: Dict }) {
               style={{ transform: "scaleX(0)" }}
             />
           </div>
-          <span className="mono text-[10px] uppercase tracking-[0.22em] text-white/35 flex-none">
+          <span className="mono text-[10px] uppercase tracking-[0.22em] text-white/55 flex-none">
             {pj.scrollHint}
           </span>
         </div>
@@ -403,7 +392,7 @@ function Placeholder({
             </svg>
           </span>
         )}
-        <span className="mono text-[10px] uppercase tracking-[0.25em] text-white/45">
+        <span className="mono text-[10px] uppercase tracking-[0.25em] text-white/60">
           {kind === "video" ? "video pending" : "screenshot pending"}
         </span>
       </div>

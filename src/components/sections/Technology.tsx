@@ -96,13 +96,6 @@ export default function Technology({ dict }: { dict: Dict }) {
 
   useGSAP(
     () => {
-      gsap.to(".tech-h2", {
-        clipPath: "inset(0 0% 0 0)",
-        duration: 1.1,
-        ease: "power4.out",
-        scrollTrigger: { trigger: ".tech-h2", start: "top 85%" },
-      });
-
       const links = gsap.utils.toArray<SVGPathElement>(".tech-link");
       const nodes = gsap.utils.toArray<SVGGElement>(".tech-node");
       const packets = gsap.utils.toArray<SVGCircleElement>(".tech-packet");
@@ -113,6 +106,13 @@ export default function Technology({ dict }: { dict: Dict }) {
         gsap.set(packets, { opacity: 0 });
         return;
       }
+
+      gsap.fromTo(".tech-h2", { clipPath: "inset(0 100% 0 0)" }, {
+        clipPath: "inset(0 0% 0 0)",
+        duration: 1.1,
+        ease: "power4.out",
+        scrollTrigger: { trigger: ".tech-h2", start: "top 85%" },
+      });
 
       // Links wire themselves in, then nodes pop on, then packets stream.
       gsap.set(links, { drawSVG: "0%" });
@@ -176,29 +176,17 @@ export default function Technology({ dict }: { dict: Dict }) {
       ref={ref}
       className="relative bg-[var(--bg-inset)] text-white py-28 lg:py-40 overflow-hidden"
     >
-      {/* Grid backdrop */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-          maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
-        }}
-      />
-
       <div className="relative mx-auto max-w-[1280px] px-6 lg:px-10">
         {/* Heading */}
         <div className="max-w-2xl">
-          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
+          <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
             {tech.eyebrow}
           </div>
           <h2 className="tech-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
             {tech.title}
           </h2>
           <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 text-[clamp(1.05rem,2.2vw,1.55rem)] tracking-[-0.01em]">
-            <span className="text-white/45">{tech.builtOn}</span>
+            <span className="text-white/60">{tech.builtOn}</span>
             <span className="relative inline-flex overflow-hidden">
               <span
                 key={reducedMotion ? "static" : tick}

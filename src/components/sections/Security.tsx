@@ -16,7 +16,14 @@ export default function Security({ dict }: { dict: Dict }) {
 
   useGSAP(
     () => {
-      gsap.to(".sec-h2", {
+      if (reducedMotion) {
+        gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
+        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".ps-ghost", ".sec-logo-solid"], { opacity: 1, scale: 1 });
+        gsap.set(".ps-mark", { opacity: 0 }); // settled state: solid logo, no particle mark
+        return;
+      }
+
+      gsap.fromTo(".sec-h2", { clipPath: "inset(0 100% 0 0)" }, {
         clipPath: "inset(0 0% 0 0)",
         duration: 1.2,
         ease: "power4.out",
@@ -36,13 +43,6 @@ export default function Security({ dict }: { dict: Dict }) {
           scrollTrigger: { trigger: ".sec-cards", start: "top 82%" },
         }
       );
-
-      if (reducedMotion) {
-        gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
-        gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".ps-ghost", ".sec-logo-solid"], { opacity: 1, scale: 1 });
-        gsap.set(".ps-mark", { opacity: 0 }); // settled state: solid logo, no particle mark
-        return;
-      }
 
       // Entrance — rings fade in (drawSVG would flatten their dash pattern),
       // the shield assembles dot by dot from the top, satellites pop.
@@ -161,7 +161,7 @@ export default function Security({ dict }: { dict: Dict }) {
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
-            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal)]">
+            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal)]">
               {dict.security.eyebrow}
             </div>
             <h2 className="sec-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -182,9 +182,8 @@ export default function Security({ dict }: { dict: Dict }) {
           {dict.security.cards.map((c) => (
             <div
               key={c.id}
-              className="sec-card group relative rounded-2xl border border-black/[0.08] bg-white p-6 shadow-[0_1px_2px_rgba(10,14,22,0.04)] hover:border-[rgba(58,165,160,0.45)] hover:-translate-y-1 transition-all duration-300"
+              className="sec-card group relative rounded-2xl border border-black/[0.08] bg-white p-6 shadow-[0_1px_2px_rgba(10,14,22,0.04)] hover:border-[rgba(58,165,160,0.45)] transition-colors duration-300"
             >
-              <span className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-[var(--brand-teal)] opacity-60 group-hover:opacity-100 transition-opacity" />
               <div className="flex items-start gap-4">
                 <CardBadge id={c.id} />
                 <div className="min-w-0">

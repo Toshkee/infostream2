@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
@@ -17,6 +18,16 @@ const sans = Inter({
 const mono = JetBrains_Mono({
   variable: "--font-mono-stack",
   subsets: ["latin"],
+});
+
+// Display face for headlines — Author (Fontshare, free license), self-hosted.
+// Covers Montenegrin Latin (č ć đ š ž — verified in the cmap before adding).
+const display = localFont({
+  variable: "--font-display-stack",
+  src: [
+    { path: "../fonts/Author-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/Author-Semibold.woff2", weight: "600", style: "normal" },
+  ],
 });
 
 export function generateStaticParams() {
@@ -113,7 +124,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang={lang === "mne" ? "sr-ME" : "en"} className={`${sans.variable} ${mono.variable} h-full antialiased`}>
+    <html lang={lang === "mne" ? "sr-ME" : "en"} className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}>
       <body className="min-h-full">
         <a href="#main-content" className="skip-link">{skipLabel}</a>
         <SmoothScroll>

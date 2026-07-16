@@ -47,6 +47,12 @@ body {
 
 .mono { font-family: var(--font-mono-stack), ui-monospace, monospace; letter-spacing: 0.02em; }
 
+/* Headlines carry the display face (Author, self-hosted); body copy stays on
+   the neutral sans. h1–h3 covers every section heading and stage title. */
+h1, h2, h3 {
+  font-family: var(--font-display-stack), var(--font-sans-stack), ui-sans-serif, system-ui, sans-serif;
+}
+
 .hairline { border-color: var(--line); }
 
 ::selection { background: var(--brand-red); color: #fff; }
@@ -88,9 +94,10 @@ body {
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Mask-reveal heading */
+/* Mask-reveal heading — visible by default so the content never depends on
+   JS running (no-JS, chunk failure, screenshot pass). Motion-OK clients get
+   the wipe via a GSAP fromTo, which clips just-in-time on load. */
 .mask-reveal {
-  clip-path: inset(0 100% 0 0);
   will-change: clip-path;
 }
 
@@ -144,8 +151,9 @@ body {
    content the pin's overflow-hidden would make unreachable. Gated purely in
    CSS so the correct layout paints first, with no JS race and no
    hydration/layout shift. The media query is the exact string MOTION_QUERY in
-   PinnedHero.tsx uses to start ScrollTrigger — same query, so there is no
-   client where the pinned variant shows without its JS. */
+   PinnedHero.tsx uses to start ScrollTrigger. One gap: this CSS gate can't
+   detect scripting being disabled — a <noscript> override in PinnedHero.tsx
+   forces the static variant for that case. */
 /* ─── Animated service-scene art (SERVICE_ART in PinnedHero) ───
    Slow, ambient motion for the abstract geometric compositions. Only rendered
    inside the pinned variant, which is itself gated on prefers-reduced-motion.

@@ -60,21 +60,6 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
         { opacity: 0, scale: 0.4, y: 24 },
         { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "back.out(1.7)", delay: 0.7 }
       );
-      const ring = btn.querySelector("[data-ring]");
-      if (ring) {
-        gsap.fromTo(
-          ring,
-          { opacity: 0.5, scale: 0.85 },
-          {
-            opacity: 0,
-            scale: 1.9,
-            duration: 2.2,
-            ease: "power2.out",
-            repeat: -1,
-            delay: 1.4,
-          }
-        );
-      }
     },
     { scope: rootRef }
   );
@@ -266,7 +251,7 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
           className="flex items-center justify-between gap-3 px-4 py-3.5 border-b border-white/[0.07]"
         >
           <div className="min-w-0">
-            <div className="mono text-[10px] tracking-[0.24em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
+            <div className="text-[10px] font-medium tracking-[0.24em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-2">
               <span className="relative flex h-1.5 w-1.5">
                 <span
                   aria-hidden
@@ -400,7 +385,7 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
               className="flex-none grid place-items-center h-8 w-8 rounded-lg bg-[var(--brand-red)] text-white
                          hover:bg-[var(--brand-red-deep)] disabled:opacity-35 disabled:cursor-not-allowed
                          transition-colors"
-              style={{ boxShadow: "0 2px 12px rgba(214,59,59,0.3)" }}
+              style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
@@ -426,15 +411,9 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
                    transition-colors"
       >
         <span
-          data-ring
           aria-hidden
           className="pointer-events-none absolute inset-0 rounded-full"
-          style={{ border: "1.5px solid var(--brand-teal-bright)", opacity: 0 }}
-        />
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-full"
-          style={{ boxShadow: "0 8px 26px -6px rgba(214,59,59,0.6)" }}
+          style={{ boxShadow: "0 3px 10px -2px rgba(214,59,59,0.35)" }}
         />
         {/* chat glyph */}
         <svg

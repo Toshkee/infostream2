@@ -365,19 +365,16 @@ function StreamMist({ count = 240 }: { count?: number }) {
   );
 }
 
-// Night-side Earth shader — a dark ocean body with NASA city-lights glowing
-// along the continents, a soft fake key light for the terminator and a teal
-// atmosphere glow hugging the silhouette. uBoost lifts rim + city lights when
-// the camera parks at this planet.
+// Fresnel-rim planet shader — a dark body with a soft fake key light for the
+// terminator and a bright teal glow that hugs the silhouette (the backlit
+// planet look from the mockups). uBoost lifts the rim when the camera parks.
 const PLANET_VERT = /* glsl */ `
   varying vec3 vNormal;
   varying vec3 vViewDir;
-  varying vec2 vUv;
   void main() {
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     vNormal = normalize(normalMatrix * normal);
     vViewDir = normalize(-mvPosition.xyz);
-    vUv = uv;
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
@@ -385,54 +382,23 @@ const PLANET_FRAG = /* glsl */ `
   uniform vec3 uBody;
   uniform vec3 uRim;
   uniform float uBoost;
-  uniform sampler2D uLights;
-  uniform sampler2D uMap;
   varying vec3 vNormal;
   varying vec3 vViewDir;
-  varying vec2 vUv;
   void main() {
     vec3 n = normalize(vNormal);
     vec3 v = normalize(vViewDir);
     float ndv = clamp(dot(n, v), 0.0, 1.0);
     float fres = pow(1.0 - ndv, 2.6);
-    // Key light from the lower-left — reads as the moon: it shapes a soft
-    // terminator crescent and gives the surface its faint cool wash.
+    // Key light from the lower-left — the rim concentrates into a bright
+    // crescent on that side instead of an even outline (mockup look).
     vec3 lightDir = normalize(vec3(-0.55, -0.4, 0.55));
     float litRim = clamp(dot(n, lightDir), 0.0, 1.0);
+    float lit = 0.38 + 0.55 * litRim;
     float rim = fres * (0.22 + 1.25 * pow(litRim, 1.4));
-
-    // Moonlit surface — the day map desaturated and pushed cold/dark, so
-    // continents and oceans are just barely legible under the night.
-    vec3 day = texture2D(uMap, vUv).rgb;
-    float dayLum = dot(day, vec3(0.299, 0.587, 0.114));
-    vec3 moonlit = mix(vec3(dayLum), day, 0.45) * vec3(0.5, 0.68, 0.85) * (0.10 + 0.30 * litRim);
-
-    // City lights — black-ocean NASA lights map; luminance doubles as the
-    // settlement mask. Warm sodium tint with a slightly hot core, faded a
-    // touch at the limb so the atmosphere stays in charge there.
-    float lum = dot(texture2D(uLights, vUv).rgb, vec3(0.299, 0.587, 0.114));
-    vec3 cityTint = mix(vec3(1.0, 0.68, 0.38), vec3(1.0, 0.9, 0.7), pow(lum, 2.0));
-    vec3 city = cityTint * pow(lum, 1.15) * (1.2 + uBoost * 1.1) * (0.35 + 0.65 * ndv);
-
-    // Atmosphere: a faint blue scattering haze all around the limb, plus the
-    // brand-teal glow concentrated into the lit crescent.
-    vec3 atmo = vec3(0.30, 0.55, 0.75) * fres * 0.5;
-    vec3 col = uBody * (0.14 + 0.4 * litRim) + moonlit + city + atmo + uRim * rim * (1.35 + uBoost * 1.5);
+    vec3 col = uBody * lit + uRim * rim * (1.5 + uBoost * 1.5);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
-
-// Shared Earth textures (NASA imagery via the three.js examples set) —
-// loaded lazily on the client, one instance each for all four planets.
-const _tex: Record<string, THREE.Texture> = {};
-function sharedTexture(url: string): THREE.Texture {
-  if (!_tex[url]) {
-    const t = new THREE.TextureLoader().load(url);
-    t.colorSpace = THREE.SRGBColorSpace;
-    _tex[url] = t;
-  }
-  return _tex[url];
-}
 
 // Shared halo texture — a hollow radial gradient that peaks just outside the
 // planet's silhouette (planet edge sits at ~0.53 of the sprite half-size for
@@ -470,8 +436,6 @@ function PlanetMesh({
   position: THREE.Vector3;
 }) {
   const group = useRef<THREE.Group>(null);
-  const clouds = useRef<THREE.Mesh>(null);
-  const cloudMat = useRef<THREE.MeshBasicMaterial>(null);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
   const ring1Mat = useRef<THREE.MeshBasicMaterial>(null);
   const ring2Mat = useRef<THREE.MeshBasicMaterial>(null);
@@ -480,11 +444,9 @@ function PlanetMesh({
 
   const uniforms = useMemo(
     () => ({
-      uBody: { value: new THREE.Color("#101c30") },
+      uBody: { value: new THREE.Color("#3d5a7c") },
       uRim: { value: new THREE.Color("#74e0d8") },
       uBoost: { value: 0 },
-      uLights: { value: sharedTexture("/textures/earth-night.png") },
-      uMap: { value: sharedTexture("/textures/earth-day.jpg") },
     }),
     []
   );
@@ -497,10 +459,6 @@ function PlanetMesh({
     const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + index) * 0.03 * a;
     g.scale.setScalar((0.9 + a * 0.5) * pulse);
     uniforms.uBoost.value = a;
-    // Clouds drift a little faster than the ground spins, and thicken
-    // slightly when the camera parks.
-    if (clouds.current) clouds.current.rotation.y += delta * 0.022;
-    if (cloudMat.current) cloudMat.current.opacity = 0.09 + a * 0.07;
     if (glowMat.current) glowMat.current.opacity = 0.55 + a * 0.45;
     if (ring1Mat.current) ring1Mat.current.opacity = 0.35 + a * 0.45;
     if (ring2Mat.current) ring2Mat.current.opacity = 0.2 + a * 0.35;
@@ -513,25 +471,11 @@ function PlanetMesh({
   const tilt2: [number, number, number] = [Math.PI / 2.05, 0.35, -0.5 + index * 0.3];
 
   return (
-    // Per-planet starting longitude so the four don't all show the same hemisphere.
-    <group ref={group} position={position} rotation={[0, index * 1.9, 0]}>
-      {/* planet body — night-side Earth shader, slight axial tilt */}
-      <mesh rotation={[0, 0, -0.23]}>
-        <sphereGeometry args={[0.82, 64, 64]} />
-        <shaderMaterial vertexShader={PLANET_VERT} fragmentShader={PLANET_FRAG} uniforms={uniforms} />
-      </mesh>
-      {/* cloud shell — additive so the black texture ground vanishes; drifts
-         independently of the surface for a live-planet feel */}
-      <mesh ref={clouds} rotation={[0, 0.9, -0.23]} scale={1.025}>
+    <group ref={group} position={position}>
+      {/* planet body — fresnel rim shader */}
+      <mesh>
         <sphereGeometry args={[0.82, 48, 48]} />
-        <meshBasicMaterial
-          ref={cloudMat}
-          map={sharedTexture("/textures/earth-clouds.png")}
-          transparent
-          opacity={0.09}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
+        <shaderMaterial vertexShader={PLANET_VERT} fragmentShader={PLANET_FRAG} uniforms={uniforms} />
       </mesh>
       {/* atmosphere halo — billboard sprite hugging the silhouette; the
          planet body depth-occludes its center, so only the limb glows */}

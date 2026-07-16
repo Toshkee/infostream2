@@ -104,7 +104,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
           {/* Desktop nav */}
           <nav
             aria-label="Primary"
-            className="hidden md:flex items-center gap-6 mono text-[11px] tracking-[0.18em] uppercase"
+            className="hidden md:flex items-center gap-7 text-[13.5px] font-medium"
           >
             {links.map(({ id, label }) => {
               const isActive = active === id;
@@ -113,22 +113,11 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                   key={id}
                   href={`#${id}`}
                   aria-current={isActive ? "true" : undefined}
-                  className={`relative pb-0.5 transition-colors duration-200 ${
-                    isActive ? "text-white" : "text-white/60 hover:text-white"
+                  className={`transition-colors duration-200 ${
+                    isActive ? "text-[var(--brand-teal-bright)]" : "text-white/60 hover:text-white"
                   }`}
                 >
                   {label}
-                  {/* Teal underline for active */}
-                  <span
-                    className="absolute bottom-0 left-0 right-0 h-px rounded-full transition-all duration-300"
-                    style={{
-                      background: "var(--brand-teal-bright)",
-                      boxShadow: "0 0 6px var(--brand-teal-bright)",
-                      opacity: isActive ? 1 : 0,
-                      transform: isActive ? "scaleX(1)" : "scaleX(0)",
-                      transformOrigin: "center",
-                    }}
-                  />
                 </a>
               );
             })}
@@ -140,15 +129,15 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
               href={`/${other}`}
               hrefLang={other === "mne" ? "sr-ME" : "en"}
               aria-label={other === "mne" ? "Pređi na crnogorski" : "Switch to English"}
-              className="hidden sm:flex items-center mono text-[10px] tracking-[0.22em] uppercase text-white/55 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
+              className="hidden sm:flex items-center text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
             >
               {other}
             </Link>
 
             <a
               href="#contact"
-              className="mono text-[11px] tracking-[0.18em] uppercase px-4 py-2.5 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
-              style={{ boxShadow: "0 2px 14px rgba(214,59,59,0.3)" }}
+              className="text-[13px] font-medium px-4 py-2.5 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
+              style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
             >
               {dict.nav.cta}
             </a>
@@ -186,7 +175,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                     href={`#${id}`}
                     onClick={() => setMobileOpen(false)}
                     aria-current={isActive ? "true" : undefined}
-                    className={`flex items-center gap-3 px-3 py-3.5 rounded-xl mono text-[11px] tracking-[0.2em] uppercase transition-colors duration-150 ${
+                    className={`flex items-center gap-3 px-3 py-3.5 rounded-xl text-[14px] font-medium transition-colors duration-150 ${
                       isActive
                         ? "text-[var(--brand-teal-bright)] bg-[rgba(72,184,177,0.08)]"
                         : "text-white/60 hover:text-white hover:bg-white/[0.04]"
@@ -201,13 +190,6 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                       transitionTimingFunction: "ease, ease",
                     }}
                   >
-                    <span
-                      className="w-1 h-1 rounded-full flex-none"
-                      style={{
-                        background: isActive ? "var(--brand-teal-bright)" : "rgba(255,255,255,0.18)",
-                        boxShadow: isActive ? "0 0 5px var(--brand-teal-bright)" : "none",
-                      }}
-                    />
                     {label}
                   </a>
                 );
@@ -217,14 +199,14 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             <div className="mt-2 pt-3 border-t border-white/[0.06] flex items-center justify-between px-3">
               <Link
                 href={`/${other}`}
-                className="mono text-[10px] tracking-[0.22em] uppercase text-white/55 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
+                className="text-[12px] font-medium text-white/60 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
               >
                 {other === "mne" ? "Crnogorski" : "English"}
               </Link>
               <a
                 href="#contact"
                 onClick={() => setMobileOpen(false)}
-                className="mono text-[11px] tracking-[0.18em] uppercase px-5 py-2 rounded-xl bg-[var(--brand-red)] text-white"
+                className="text-[13px] font-medium px-5 py-2 rounded-xl bg-[var(--brand-red)] text-white"
               >
                 {dict.nav.cta}
               </a>

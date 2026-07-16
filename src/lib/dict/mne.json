@@ -10,7 +10,7 @@
     "cta": "Razgovarajmo"
   },
   "meta": {
-    "description": "Infostream gradi i održava sisteme iza javnih finansija Crne Gore — poresku administraciju, trezorske budžete, registre privrednih subjekata i penzijske evidencije — revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
+    "description": "Infostream gradi i održava sisteme iza javnih finansija Crne Gore: poresku administraciju, trezorske budžete, registre privrednih subjekata i penzijske evidencije. Revidirano po ISO 27001 i ISO 9001, u produkciji preko 20 godina.",
     "ogTagline": "Nacionalna finansijska infrastruktura"
   },
   "hero": {
@@ -154,7 +154,7 @@
   "platform": {
     "eyebrow": "Proces",
     "title": "Četiri faze. Jedan odgovoran tim.",
-    "body": "Svaki angažman prolazi kroz iste četiri faze — bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
+    "body": "Svaki angažman prolazi kroz iste četiri faze: bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
     "framework": "Agile okvir isporuke",
     "agileLabel": "Agile u praksi",
     "stages": [
@@ -212,7 +212,7 @@
       },
       {
         "name": "Arhitektura",
-        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju — ne izmišljaju se usput.",
+        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju unaprijed, ne izmišljaju se usput.",
         "divider": "Proces",
         "dividerRight": "Potvrda prije izrade",
         "intro": {
@@ -435,7 +435,7 @@
         "system": "Sistem za slobodan pristup informacijama"
       },
       {
-        "org": "Fondovi EU pomoći — CFCU",
+        "org": "Fondovi EU pomoći (CFCU)",
         "system": "eCES sistem za izvršenje ugovora"
       },
       {
@@ -455,12 +455,12 @@
   "projects": {
     "eyebrow": "Izabrani radovi",
     "title": "Sistemi koje smo isporučili.",
-    "body": "Nekoliko sistema i alata koje smo izgradili i održavamo u produkciji — većina pokreće institucije javnog sektora Crne Gore.",
+    "body": "Nekoliko sistema i alata koje smo izgradili i održavamo u produkciji. Većina pokreće institucije javnog sektora Crne Gore.",
     "scrollHint": "Skrolujte za pregled",
     "items": [
       {
-        "name": "Službeni list — Registar propisa",
-        "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list — pretraga punog teksta kroz sve objavljene akte.",
+        "name": "Registar propisa Službenog lista",
+        "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list, sa pretragom punog teksta kroz sve objavljene akte.",
         "tags": [
           "Oracle",
           ".NET",
@@ -470,7 +470,7 @@
       },
       {
         "name": "DotBond",
-        "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine — front-end i API ugovori ostaju usklađeni.",
+        "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine, tako da front-end i API ugovori ostaju usklađeni.",
         "tags": [
           "C#",
           ".NET",
@@ -480,7 +480,7 @@
       },
       {
         "name": "Registar propisa",
-        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa — tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
+        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa: tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
         "tags": [
           "Oracle",
           ".NET",
@@ -490,7 +490,7 @@
       },
       {
         "name": "Platforma Fonda za inovacije",
-        "summary": "Informacioni sistem Fonda za inovacije Crne Gore — upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
+        "summary": "Informacioni sistem Fonda za inovacije Crne Gore: upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
         "tags": [
           "Oracle APEX",
           "Oracle",
@@ -500,7 +500,7 @@
       },
       {
         "name": "Registar NVO i političkih partija",
-        "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me — vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
+        "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me: vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
         "tags": [
           "Oracle",
           "Angular",
@@ -624,7 +624,7 @@
     "eyebrow": "Asistent",
     "title": "Pitajte Infostream",
     "tag": "AI · odgovara samo o Infostreamu",
-    "greeting": "Zdravo — ja sam Infostream asistent. Pitajte me o našim sistemima, bezbjednosti, tehnologiji, klijentima ili kako da nas kontaktirate.",
+    "greeting": "Zdravo, ja sam Infostream asistent. Pitajte me o našim sistemima, bezbjednosti, tehnologiji, klijentima ili kako da nas kontaktirate.",
     "placeholder": "Pitajte o Infostreamu…",
     "send": "Pošalji",
     "launch": "Otvorite Infostream asistenta",

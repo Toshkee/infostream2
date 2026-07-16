@@ -10,7 +10,7 @@
     "cta": "Talk to us"
   },
   "meta": {
-    "description": "Infostream builds and runs the systems behind Montenegro's public finance — tax administration, treasury budgets, business and pension registers — audited to ISO 27001 and ISO 9001, in production for over 20 years.",
+    "description": "Infostream builds and runs the systems behind Montenegro's public finance: tax administration, treasury budgets, business and pension registers. Audited to ISO 27001 and ISO 9001, in production for over 20 years.",
     "ogTagline": "National financial infrastructure"
   },
   "hero": {
@@ -154,7 +154,7 @@
   "platform": {
     "eyebrow": "Process",
     "title": "Four stages. One accountable team.",
-    "body": "Every engagement runs through the same four stages — no handoffs to subcontractors, no surprises after sign-off.",
+    "body": "Every engagement runs through the same four stages: no handoffs to subcontractors, no surprises after sign-off.",
     "framework": "Agile delivery framework",
     "agileLabel": "Agile in action",
     "stages": [
@@ -212,7 +212,7 @@
       },
       {
         "name": "Architecture",
-        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off — not invented mid-build.",
+        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off up front, not invented mid-build.",
         "divider": "Process",
         "dividerRight": "Sign-off before build",
         "intro": {
@@ -435,7 +435,7 @@
         "system": "Freedom-of-information system"
       },
       {
-        "org": "EU Assistance Funds — CFCU",
+        "org": "EU Assistance Funds (CFCU)",
         "system": "eCES contract execution system"
       },
       {
@@ -455,12 +455,12 @@
   "projects": {
     "eyebrow": "Selected work",
     "title": "Systems we've shipped.",
-    "body": "A few of the systems and tools we've built and run in production — most of them powering Montenegro's public institutions.",
+    "body": "A few of the systems and tools we've built and run in production. Most of them power Montenegro's public institutions.",
     "scrollHint": "Scroll to explore",
     "items": [
       {
-        "name": "Official Gazette — Legal Register",
-        "summary": "Register of the refined, consolidated texts of Montenegro's laws and regulations for the Official Gazette — full-text search across every published act.",
+        "name": "Official Gazette Legal Register",
+        "summary": "Register of the refined, consolidated texts of Montenegro's laws and regulations for the Official Gazette, with full-text search across every published act.",
         "tags": [
           "Oracle",
           ".NET",
@@ -470,7 +470,7 @@
       },
       {
         "name": "DotBond",
-        "summary": "An open-source toolchain our engineers built to generate fully-typed TypeScript clients from C#/.NET back-ends — keeping front-end and API contracts in lockstep.",
+        "summary": "An open-source toolchain our engineers built to generate fully-typed TypeScript clients from C#/.NET back-ends, keeping front-end and API contracts in lockstep.",
         "tags": [
           "C#",
           ".NET",
@@ -480,7 +480,7 @@
       },
       {
         "name": "Regulations Register",
-        "summary": "Back-office register for classifying and publishing national regulations — issuer workflows, regulation metadata and EU-harmonisation chapter tracking.",
+        "summary": "Back-office register for classifying and publishing national regulations: issuer workflows, regulation metadata and EU-harmonisation chapter tracking.",
         "tags": [
           "Oracle",
           ".NET",
@@ -490,7 +490,7 @@
       },
       {
         "name": "Innovation Fund Platform",
-        "summary": "The information system behind the Innovation Fund of Montenegro — managing funding programmes and applications, searchable by programme and year.",
+        "summary": "The information system behind the Innovation Fund of Montenegro, managing funding programmes and applications, searchable by programme and year.",
         "tags": [
           "Oracle APEX",
           "Oracle",
@@ -500,7 +500,7 @@
       },
       {
         "name": "Register of NGOs & Political Parties",
-        "summary": "Online registration and records for Montenegro's NGOs and political parties at ngo.gov.me — guided submission, seat and membership data, document issuance.",
+        "summary": "Online registration and records for Montenegro's NGOs and political parties at ngo.gov.me: guided submission, seat and membership data, document issuance.",
         "tags": [
           "Oracle",
           "Angular",
@@ -624,7 +624,7 @@
     "eyebrow": "Assistant",
     "title": "Ask Infostream",
     "tag": "AI · answers about Infostream only",
-    "greeting": "Hi — I'm the Infostream assistant. Ask me about our systems, security, technology, clients, or how to reach the team.",
+    "greeting": "Hi, I'm the Infostream assistant. Ask me about our systems, security, technology, clients, or how to reach the team.",
     "placeholder": "Ask about Infostream…",
     "send": "Send",
     "launch": "Open the Infostream assistant",

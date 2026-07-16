@@ -193,6 +193,12 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
   return (
     <div id="platform" ref={outer} className="relative bg-[var(--bg-inset)]">
+      {/* With scripting disabled the pinned variant would be a dead 100svh pin
+         with its scenes stuck at opacity 0 (their opacity rides the JS-written
+         --ph var), so force the static variant for no-JS clients. */}
+      <noscript>
+        <style>{`.process-pinned{display:none !important}.process-static{display:block !important}`}</style>
+      </noscript>
       {/* ════ Pinned scroll-scrubbed variant (all motion-OK visitors — gated in CSS) ════ */}
       <div className="process-pinned">
         <div
@@ -270,7 +276,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
             <div className="absolute inset-0 pointer-events-auto">
               {/* Scene 0 — Intro */}
               <Scene target={0} interactive={activeScene === 0}>
-                <div className="hero-eyebrow mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
+                <div className="hero-eyebrow text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
                   <EyebrowBars />
                   {dict.hero.eyebrow}
                 </div>
@@ -379,7 +385,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
         {/* Hero */}
         <div className="relative mx-auto max-w-[1280px] px-6 pt-32 pb-16">
-          <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
+          <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
             <EyebrowBars />
             {dict.hero.eyebrow}
           </div>
@@ -402,7 +408,7 @@ export default function PinnedHero({ dict }: { dict: Dict }) {
 
         {/* Services, stacked. --u: 1 renders every block fully settled. */}
         <div className="relative mx-auto max-w-[1280px] px-6 pb-20">
-          <div className="mono text-[10px] tracking-[0.28em] uppercase text-white/55">{dict.services.eyebrow}</div>
+          <div className="text-[10px] font-medium tracking-[0.28em] uppercase text-white/55">{dict.services.eyebrow}</div>
           <h2 className="mt-3 text-[clamp(1.8rem,6vw,2.6rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
             {dict.services.title}
           </h2>
@@ -567,7 +573,7 @@ function StageHeading({
           >
             {num}
           </span>
-          <span className="mono text-[11px] tracking-[0.22em] text-white/45">/ {tot}</span>
+          <span className="mono text-[11px] tracking-[0.22em] text-white/55">/ {tot}</span>
         </div>
         <span
           aria-hidden
@@ -636,7 +642,7 @@ function ProcessSceneBody({
   const left = (
     <div>
       <div
-        className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
+        className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
         style={rev(-0.42, 0.12, 6)}
       >
         {eyebrow}

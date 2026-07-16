@@ -73,14 +73,16 @@ export default function EdgeBeam({ children }: { children: ReactNode }) {
           boxShadow: "0 0 8px rgba(72,184,177,0.5)",
         }}
       />
-      {/* corner ticks — snap in when the top beam lands */}
+      {/* corner ticks — snap in when the top beam lands. Visible by default;
+         the fromTo below hides them just-in-time on motion-OK clients, so
+         reduced-motion/no-JS visitors still get the full static frame. */}
       <span
         aria-hidden
-        className="edge-tick pointer-events-none absolute top-0 left-0 h-2 w-2 border-t border-l border-[var(--brand-teal-bright)] z-10 opacity-0"
+        className="edge-tick pointer-events-none absolute top-0 left-0 h-2 w-2 border-t border-l border-[var(--brand-teal-bright)] z-10"
       />
       <span
         aria-hidden
-        className="edge-tick pointer-events-none absolute top-0 right-0 h-2 w-2 border-t border-r border-[var(--brand-teal-bright)] z-10 opacity-0"
+        className="edge-tick pointer-events-none absolute top-0 right-0 h-2 w-2 border-t border-r border-[var(--brand-teal-bright)] z-10"
       />
       {/* bottom beam — R→L, draws as section is leaving */}
       <span

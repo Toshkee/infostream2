@@ -149,12 +149,9 @@ export default function Clients({ dict }: { dict: Dict }) {
   useGSAP(
     () => {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce) {
-        gsap.set(".clients-h2", { clipPath: "inset(0 0% 0 0)" });
-        return;
-      }
+      if (reduce) return;
 
-      gsap.to(".clients-h2", {
+      gsap.fromTo(".clients-h2", { clipPath: "inset(0 100% 0 0)" }, {
         clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power4.out",
         scrollTrigger: { trigger: ".clients-h2", start: "top 85%" },
       });
@@ -180,22 +177,11 @@ export default function Clients({ dict }: { dict: Dict }) {
       ref={ref}
       className="relative py-24 lg:py-32 bg-[var(--bg-inset)] text-white overflow-hidden"
     >
-      {/* decorative grid */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
-        }}
-      />
-
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
         {/* header */}
         <div className="clients-heading flex items-start justify-between gap-6">
           <div className="max-w-3xl">
-            <div className="mono text-[11px] tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
+            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
               {c.eyebrow}
             </div>
             <h2 className="clients-h2 mask-reveal mt-5 text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -203,7 +189,8 @@ export default function Clients({ dict }: { dict: Dict }) {
               {titleParts.length > 1 && (
                 <>
                   <br className="hidden sm:block" />
-                  <span className="text-[var(--brand-teal-bright)]">
+                  {/* tonal emphasis, not a saturated accent pop */}
+                  <span className="text-white/55">
                     {titleParts.slice(1).join(" ")}
                   </span>
                 </>
@@ -213,7 +200,7 @@ export default function Clients({ dict }: { dict: Dict }) {
 
           {/* quiet "in production" status chip */}
           <span className="mono shrink-0 mt-1 inline-flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90 border border-[var(--brand-teal-bright)]/30 rounded-full px-3 py-1.5">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)]" />
             {c.status}
           </span>
         </div>
@@ -253,12 +240,13 @@ export default function Clients({ dict }: { dict: Dict }) {
               <div className="mt-auto pt-5">
                 <div className="flex items-center justify-between border-t border-white/[0.07] pt-3.5">
                   <span className="mono inline-flex items-center gap-2 text-[9px] tracking-[0.2em] uppercase text-[var(--brand-teal-bright)]/80">
-                    <span aria-hidden className="h-1 w-1 rounded-full bg-[var(--brand-teal-bright)] viz-pulse" />
+                    <span aria-hidden className="h-1 w-1 rounded-full bg-[var(--brand-teal-bright)]" />
                     {c.status}
                   </span>
+                  {/* diagonal up-right arrow — not the stock horizontal → */}
                   <svg
                     viewBox="0 0 24 24"
-                    className="h-4 w-4 text-white/35 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[var(--brand-teal-bright)]"
+                    className="h-4 w-4 text-white/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--brand-teal-bright)]"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
@@ -266,7 +254,7 @@ export default function Clients({ dict }: { dict: Dict }) {
                     strokeLinejoin="round"
                     aria-hidden
                   >
-                    <path d="M4 12h16M14 6l6 6-6 6" />
+                    <path d="M7 17 17 7M9 7h8v8" />
                   </svg>
                 </div>
               </div>
@@ -278,7 +266,7 @@ export default function Clients({ dict }: { dict: Dict }) {
         <div className="cl-index mt-14 lg:mt-16">
           <div className="flex items-center gap-5">
             <span aria-hidden className="h-px flex-1 bg-white/10" />
-            <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">
+            <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/60">
               {c.indexLabel}
             </span>
             <span aria-hidden className="h-px flex-1 bg-white/10" />
