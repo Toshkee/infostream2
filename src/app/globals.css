@@ -50,8 +50,8 @@ body {
 /* Headlines carry the display face (Author, self-hosted); body copy stays on
    the neutral sans. h1–h3 covers every section heading and stage title.
    .font-display is for display-scale text that is deliberately NOT a heading
-   element (PinnedHero's visual hero title and pinned stage titles, whose real
-   headings live in the sr-only block). */
+   element (the pinned Expertise/Process stage titles, whose real headings
+   live in the sr-only blocks). */
 h1, h2, h3,
 .font-display {
   font-family: var(--font-display-stack), var(--font-sans-stack), ui-sans-serif, system-ui, sans-serif;
@@ -165,10 +165,10 @@ h1, h2, h3,
    content the pin's overflow-hidden would make unreachable. Gated purely in
    CSS so the correct layout paints first, with no JS race and no
    hydration/layout shift. The media query is the exact string MOTION_QUERY in
-   PinnedHero.tsx uses to start ScrollTrigger. One gap: this CSS gate can't
-   detect scripting being disabled — a <noscript> override in PinnedHero.tsx
-   forces the static variant for that case. */
-/* ─── Animated service-scene art (SERVICE_ART in PinnedHero) ───
+   sections/visuals.tsx that PinnedProcess/Expertise use to start
+   ScrollTrigger. One gap: this CSS gate can't detect scripting being disabled
+   — <noscript> overrides in those components force the static variants. */
+/* ─── Animated service-scene art (FEATURE_ART in PinnedProcess) ───
    Slow, ambient motion for the abstract geometric compositions. Only rendered
    inside the pinned variant, which is itself gated on prefers-reduced-motion.
    Rotating/scaling parts need inline transform-box: view-box + an explicit
@@ -178,6 +178,21 @@ h1, h2, h3,
 
 @keyframes svcartFlow { to { stroke-dashoffset: -22; } }
 .svcart-flow { stroke-dasharray: 3 8; animation: svcartFlow 2.4s linear infinite; }
+
+/* Starfield ambience (Starfield in sections/visuals.tsx) — a slow positional
+   drift for every star, plus an opacity breathe on a subset. Durations/delays
+   are per-star CSS vars so the field never moves in lockstep; translate is in
+   viewBox units (1600×900), so ~6 units reads as a few px on screen. */
+@keyframes starDrift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, -7px); } }
+.star-drift { animation: starDrift var(--sd, 14s) ease-in-out infinite; animation-delay: var(--sdd, 0s); }
+@keyframes starTwinkle { 0%, 100% { opacity: var(--so, 0.4); } 50% { opacity: calc(var(--so, 0.4) * 0.3); } }
+.star-twinkle {
+  animation: starDrift var(--sd, 14s) ease-in-out infinite, starTwinkle var(--st, 3.4s) ease-in-out infinite;
+  animation-delay: var(--sdd, 0s), var(--std, 0s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .star-drift, .star-twinkle { animation: none; }
+}
 
 @keyframes svcartSpin { to { transform: rotate(360deg); } }
 .svcart-spin { animation: svcartSpin 30s linear infinite; }
@@ -200,9 +215,12 @@ h1, h2, h3,
 }
 
 .process-pinned { display: none; }
+.expertise-pinned { display: none; }
 @media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
   .process-pinned { display: block; }
   .process-static { display: none; }
+  .expertise-pinned { display: block; }
+  .expertise-static { display: none; }
 }
 
 /* On shorter laptops (1366×768 / 1280×800 / 1536×864) the pinned scene has
@@ -254,7 +272,7 @@ h1, h2, h3,
 }
 
 /* Per-stage blocks (grids, cards, list rails, the "Agile in action" panel) are
-   inline-styled in PinnedHero.tsx — each carries its own translucent fill,
+   inline-styled in PinnedProcess.tsx — each carries its own translucent fill,
    hairline border and reveal, so no dedicated class is needed here. The one
    exception is the Build "release approved" stamp, which needs a static tilt
    the scroll-reveal inline style must not clobber (the reveal animates opacity

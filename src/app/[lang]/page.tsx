@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import PinnedHero from "@/components/sections/PinnedHero";
-import Clients from "@/components/sections/Clients";
+import Hero from "@/components/sections/Hero";
+import Expertise from "@/components/sections/Expertise";
+import PinnedProcess from "@/components/sections/PinnedProcess";
 import Technology from "@/components/sections/Technology";
 import Security from "@/components/sections/Security";
 import Projects from "@/components/sections/Projects";
@@ -19,8 +20,9 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
     <>
       <Navbar dict={dict} lang={lang} />
       <main id="main-content" tabIndex={-1} className="outline-none">
-        <PinnedHero dict={dict} />
-        <EdgeBeam><Clients dict={dict} /></EdgeBeam>
+        <Hero dict={dict} />
+        <Expertise dict={dict} lang={lang} />
+        <PinnedProcess dict={dict} />
         <EdgeBeam><Technology dict={dict} /></EdgeBeam>
         <EdgeBeam><Projects dict={dict} /></EdgeBeam>
         <EdgeBeam><Security dict={dict} /></EdgeBeam>

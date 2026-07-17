@@ -59,8 +59,13 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
     .map((c) => `- ${c.name}: ${c.desc} (${c.status})`)
     .join("\n");
 
-  const clients = dict.clients.projects
-    .map((p) => `- ${p.org} — ${p.system}`)
+  const clients = dict.expertise.items
+    .map((d) =>
+      [
+        `- ${d.name}: ${d.short}`,
+        ...d.clients.map((p) => `  - ${p.org} — ${p.system}`),
+      ].join("\n")
+    )
     .join("\n");
 
   const projects = dict.projects.items

@@ -5,12 +5,15 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
 
-const SECTIONS = ["platform", "clients", "technology", "projects", "security", "contact"] as const;
+const SECTIONS = ["expertise", "platform", "technology", "projects", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
 export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
   const other: Locale = lang === "eng" ? "mne" : "eng";
   const [scrolled, setScrolled] = useState(false);
+  // The pill stays hidden over the hero and slides in as the visitor scrolls
+  // toward the expertise section (~60% of the first viewport).
+  const [shown, setShown] = useState(false);
   const [active, setActive] = useState<Section | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const intersecting = useRef(new Set<Section>());
@@ -20,6 +23,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 24);
+      setShown(y > window.innerHeight * 0.6);
       const nearTop = y < 80;
       if (nearTop) {
         setActive(null);
@@ -65,8 +69,8 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
   }, [mobileOpen]);
 
   const links = [
+    { id: "expertise",  label: dict.nav.expertise },
     { id: "platform",   label: dict.nav.platform },
-    { id: "clients",    label: dict.nav.clients },
     { id: "technology", label: dict.nav.technology },
     { id: "projects",   label: dict.nav.projects },
     { id: "security",   label: dict.nav.security },
@@ -74,7 +78,11 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
   ] as const;
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50">
+    <header
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
+        shown ? "translate-y-0 opacity-100" : "-translate-y-[120%] opacity-0 pointer-events-none"
+      }`}
+    >
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10 pt-5">
 
         {/* ── Pill ── */}

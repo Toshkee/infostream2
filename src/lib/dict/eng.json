@@ -2,7 +2,7 @@
   "nav": {
     "platform": "Process",
     "services": "Services",
-    "clients": "Clients",
+    "expertise": "Expertise",
     "technology": "Tech",
     "projects": "Work",
     "security": "Standards",
@@ -15,8 +15,8 @@
   },
   "hero": {
     "eyebrow": "Infostream / Software Built To Last",
-    "title": "Building software that keeps business moving.",
-    "body": "For two decades, we've designed, built and operated software that organisations rely on every day. From enterprise platforms to cloud and AI solutions, we deliver technology that evolves with your business.",
+    "title": "Where complex processes become simple software",
+    "body": "We design, build, and implement software that organizations rely on every day. From enterprise information systems to cloud solutions, we deliver secure, scalable technology built to evolve and last.",
     "exitTag": "#FollowTheStream",
     "exitScrollHint": "scroll to see who's connected",
     "meta": [
@@ -358,97 +358,122 @@
       }
     ]
   },
-  "clients": {
-    "eyebrow": "Trusted by",
+  "expertise": {
+    "eyebrow": "Expertise",
+    "title": "Four domains, known from the inside.",
+    "body": "Two decades of building for institutions concentrates into four fields where we know the regulations, the data and the daily reality — not just the technology.",
     "status": "in production",
-    "title": "We do not have many clients. We have the right ones.",
-    "indexLabel": "Also in production",
-    "more": "more systems in production",
-    "categories": [
-      "Public finance",
-      "Defense & security",
-      "Government",
-      "EU projects",
-      "Public security",
-      "Social insurance",
-      "Financial sector"
-    ],
-    "projects": [
+    "clientsLabel": "Selected clients",
+    "linkLabel": "All clients",
+    "comingSoon": "Reference list available on request.",
+    "backLabel": "Back to the homepage",
+    "items": [
       {
-        "org": "Pension & Disability Insurance Fund",
-        "system": "National information system"
+        "slug": "finance",
+        "name": "Finance",
+        "short": "Budget, revenue and registry systems for the state — and ERP platforms for banks. Software where every figure has to reconcile.",
+        "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to banking, where ERPStream runs on Oracle at ERSTE Bank.",
+        "clients": [
+          {
+            "org": "Tax Administration of Montenegro",
+            "system": "Central Register of Business Entities"
+          },
+          {
+            "org": "Ministry of Finance",
+            "system": "REES system upgrade"
+          },
+          {
+            "org": "ERSTE Bank",
+            "system": "ERPStream on Oracle 12c"
+          },
+          {
+            "org": "EU Assistance Funds (CFCU)",
+            "system": "eCES contract execution system"
+          },
+          {
+            "org": "Innovation Fund of Montenegro",
+            "system": "Information system"
+          },
+          {
+            "org": "Government of Montenegro",
+            "system": "COVID-19 state-aid platform"
+          }
+        ]
       },
       {
-        "org": "Tax Administration of Montenegro",
-        "system": "Central Register of Business Entities"
+        "slug": "hr",
+        "name": "Human Resources",
+        "short": "HR and payroll platforms for the public sector — including the systems that manage the civil service and pay the country's pensions.",
+        "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund.",
+        "clients": [
+          {
+            "org": "Human Resources Management Authority",
+            "system": "HR management information system"
+          },
+          {
+            "org": "Pension & Disability Insurance Fund",
+            "system": "National information system"
+          }
+        ]
       },
       {
-        "org": "Ministry of Defense",
-        "system": "INFODMS document management"
+        "slug": "healthcare",
+        "name": "Healthcare",
+        "short": "Information systems for health and social insurance — records, entitlements and claims, treated with the discretion medical data demands.",
+        "body": "Health systems are where our domain disciplines meet: identity, entitlements, sensitive records and long institutional memory. We bring the same ISO-certified engineering and information-security practice that runs our public-sector platforms.",
+        "clients": []
       },
       {
-        "org": "Parliament of Montenegro",
-        "system": "ERPStream platform"
-      },
-      {
-        "org": "Ministry of Interior",
-        "system": "Security & detective activity licensing"
-      },
-      {
-        "org": "Address Register of Montenegro",
-        "system": "National address IT system"
-      },
-      {
-        "org": "Official Gazette of Montenegro",
-        "system": "Register of regulations & acts"
-      },
-      {
-        "org": "Ministry of Finance",
-        "system": "REES system upgrade"
-      },
-      {
-        "org": "Military Intelligence Department",
-        "system": "Document management system"
-      },
-      {
-        "org": "Innovation Fund of Montenegro",
-        "system": "Information system"
-      },
-      {
-        "org": "einovacije.gov.me",
-        "system": "National innovation portal"
-      },
-      {
-        "org": "Ministry of European Affairs",
-        "system": "ERPStream"
-      },
-      {
-        "org": "Ministry of Energy & Mining",
-        "system": "ERPStream"
-      },
-      {
-        "org": "Maritime Security Administration",
-        "system": "ERPStream"
-      },
-      {
-        "org": "EU Delegation to Montenegro",
-        "system": "Freedom-of-information system"
-      },
-      {
-        "org": "EU Assistance Funds (CFCU)",
-        "system": "eCES contract execution system"
-      },
-      {
-        "org": "Human Resources Management Authority",
-        "system": "HR management information system"
-      },
-      {
-        "org": "Government of Montenegro",
-        "system": "COVID-19 state-aid platform"
-      },
-      {
-        "org": "ERSTE Bank",
-        "system": "ERPStream on Oracle 12c"
+        "slug": "dms",
+        "name": "DMS & Workflow",
+        "short": "Document management, registries and case workflows — InfoDMS and ERPStream carry the paper trail of ministries, parliament and the armed forces.",
+        "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defense — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
+        "clients": [
+          {
+            "org": "Ministry of Defense",
+            "system": "INFODMS document management"
+          },
+          {
+            "org": "Parliament of Montenegro",
+            "system": "ERPStream platform"
+          },
+          {
+            "org": "Military Intelligence Department",
+            "system": "Document management system"
+          },
+          {
+            "org": "Ministry of Interior",
+            "system": "Security & detective activity licensing"
+          },
+          {
+            "org": "Official Gazette of Montenegro",
+            "system": "Register of regulations & acts"
+          },
+          {
+            "org": "Address Register of Montenegro",
+            "system": "National address IT system"
+          },
+          {
+            "org": "Ministry of European Affairs",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Ministry of Energy & Mining",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Maritime Security Administration",
+            "system": "ERPStream"
+          },
+          {
+            "org": "EU Delegation to Montenegro",
+            "system": "Freedom-of-information system"
+          },
+          {
+            "org": "einovacije.gov.me",
+            "system": "National innovation portal"
+          }
+        ]
       }
     ]
   },

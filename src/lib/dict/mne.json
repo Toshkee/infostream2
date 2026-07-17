@@ -2,7 +2,7 @@
   "nav": {
     "platform": "Proces",
     "services": "Usluge",
-    "clients": "Klijenti",
+    "expertise": "Ekspertiza",
     "technology": "Tehnologija",
     "projects": "Radovi",
     "security": "Standardi",
@@ -15,8 +15,8 @@
   },
   "hero": {
     "eyebrow": "Infostream / Softver napravljen da traje",
-    "title": "Gradimo softver koji poslovanje drži u pokretu.",
-    "body": "Već dvije decenije projektujemo, gradimo i održavamo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih platformi do cloud i AI rješenja, isporučujemo tehnologiju koja se razvija zajedno s vašim poslovanjem.",
+    "title": "Gdje složeni procesi postaju jednostavan softver",
+    "body": "Projektujemo, gradimo i implementiramo softver na koji se organizacije oslanjaju svakog dana. Od poslovnih informacionih sistema do cloud rješenja, isporučujemo bezbjednu i skalabilnu tehnologiju napravljenu da se razvija i traje.",
     "exitTag": "#FollowTheStream",
     "exitScrollHint": "skrolujte da vidite ko je povezan",
     "meta": [
@@ -358,97 +358,122 @@
       }
     ]
   },
-  "clients": {
-    "eyebrow": "Vjeruju nam",
+  "expertise": {
+    "eyebrow": "Ekspertiza",
+    "title": "Četiri oblasti koje poznajemo iznutra.",
+    "body": "Dvije decenije rada za institucije sažete su u četiri oblasti u kojima poznajemo propise, podatke i svakodnevicu — ne samo tehnologiju.",
     "status": "u produkciji",
-    "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
-    "indexLabel": "Takođe u produkciji",
-    "more": "sistema u produkciji",
-    "categories": [
-      "Javne finansije",
-      "Odbrana i bezbjednost",
-      "Državne institucije",
-      "EU projekti",
-      "Javna bezbjednost",
-      "Socijalno osiguranje",
-      "Finansijski sektor"
-    ],
-    "projects": [
+    "clientsLabel": "Odabrani klijenti",
+    "linkLabel": "Svi klijenti",
+    "comingSoon": "Referentna lista dostupna na upit.",
+    "backLabel": "Nazad na početnu",
+    "items": [
       {
-        "org": "Fond PIO Crne Gore",
-        "system": "Nacionalni informacioni sistem"
+        "slug": "finance",
+        "name": "Finansije",
+        "short": "Budžetski, poreski i registarski sistemi za državu — i ERP platforme za banke. Softver u kome se svaka cifra mora slagati.",
+        "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u bankarstvo, gdje ERPStream radi na Oracle-u u ERSTE banci.",
+        "clients": [
+          {
+            "org": "Poreska uprava Crne Gore",
+            "system": "Centralni registar privrednih subjekata"
+          },
+          {
+            "org": "Ministarstvo finansija",
+            "system": "Unapređenje REES sistema"
+          },
+          {
+            "org": "Erste banka",
+            "system": "ERPStream na Oracle 12c platformi"
+          },
+          {
+            "org": "Fondovi EU pomoći (CFCU)",
+            "system": "eCES sistem za izvršenje ugovora"
+          },
+          {
+            "org": "Fond za inovacije Crne Gore",
+            "system": "Informacioni sistem"
+          },
+          {
+            "org": "Vlada Crne Gore",
+            "system": "Platforma za COVID-19 subvencije"
+          }
+        ]
       },
       {
-        "org": "Poreska uprava Crne Gore",
-        "system": "Centralni registar privrednih subjekata"
+        "slug": "hr",
+        "name": "Ljudski resursi",
+        "short": "HR i platni sistemi za javni sektor — uključujući sisteme koji vode državnu upravu i isplaćuju penzije cijele zemlje.",
+        "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO.",
+        "clients": [
+          {
+            "org": "Uprava za kadrove",
+            "system": "Informacioni sistem za upravljanje kadrovima"
+          },
+          {
+            "org": "Fond PIO Crne Gore",
+            "system": "Nacionalni informacioni sistem"
+          }
+        ]
       },
       {
-        "org": "Ministarstvo odbrane",
-        "system": "INFODMS upravljanje dokumentima"
+        "slug": "healthcare",
+        "name": "Zdravstvo",
+        "short": "Informacioni sistemi za zdravstvo i socijalno osiguranje — evidencije, prava i zahtjevi, uz diskreciju koju medicinski podaci zahtijevaju.",
+        "body": "Zdravstveni sistemi su tačka u kojoj se naše discipline susrijeću: identitet, prava, osjetljivi podaci i dugo institucionalno pamćenje. Donosimo istu ISO sertifikovanu inženjersku praksu i praksu bezbjednosti informacija koja pokreće naše platforme u javnom sektoru.",
+        "clients": []
       },
       {
-        "org": "Skupština Crne Gore",
-        "system": "ERPStream platforma"
-      },
-      {
-        "org": "Ministarstvo unutrašnjih poslova",
-        "system": "Licenciranje zaštitarske djelatnosti"
-      },
-      {
-        "org": "Adresni registar Crne Gore",
-        "system": "Nacionalni adresni IT sistem"
-      },
-      {
-        "org": "Službeni list Crne Gore",
-        "system": "Registar propisa i akata"
-      },
-      {
-        "org": "Ministarstvo finansija",
-        "system": "Unapređenje REES sistema"
-      },
-      {
-        "org": "Vojnoobavještajna služba",
-        "system": "Sistem za upravljanje dokumentima"
-      },
-      {
-        "org": "Fond za inovacije Crne Gore",
-        "system": "Informacioni sistem"
-      },
-      {
-        "org": "einovacije.gov.me",
-        "system": "Nacionalni portal za inovacije"
-      },
-      {
-        "org": "Ministarstvo evropskih poslova",
-        "system": "ERPStream"
-      },
-      {
-        "org": "Ministarstvo energetike i rudarstva",
-        "system": "ERPStream"
-      },
-      {
-        "org": "Uprava pomorske sigurnosti",
-        "system": "ERPStream"
-      },
-      {
-        "org": "Delegacija EU u Crnoj Gori",
-        "system": "Sistem za slobodan pristup informacijama"
-      },
-      {
-        "org": "Fondovi EU pomoći (CFCU)",
-        "system": "eCES sistem za izvršenje ugovora"
-      },
-      {
-        "org": "Uprava za kadrove",
-        "system": "Informacioni sistem za upravljanje kadrovima"
-      },
-      {
-        "org": "Vlada Crne Gore",
-        "system": "Platforma za COVID-19 subvencije"
-      },
-      {
-        "org": "Erste banka",
-        "system": "ERPStream na Oracle 12c platformi"
+        "slug": "dms",
+        "name": "DMS i tokovi rada",
+        "short": "Upravljanje dokumentima, registri i tokovi predmeta — InfoDMS i ERPStream nose dokumentaciju ministarstava, Skupštine i vojske.",
+        "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS — uveden po NATO standardima dokumentacije u Ministarstvu odbrane — i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
+        "clients": [
+          {
+            "org": "Ministarstvo odbrane",
+            "system": "INFODMS upravljanje dokumentima"
+          },
+          {
+            "org": "Skupština Crne Gore",
+            "system": "ERPStream platforma"
+          },
+          {
+            "org": "Vojnoobavještajna služba",
+            "system": "Sistem za upravljanje dokumentima"
+          },
+          {
+            "org": "Ministarstvo unutrašnjih poslova",
+            "system": "Licenciranje zaštitarske djelatnosti"
+          },
+          {
+            "org": "Službeni list Crne Gore",
+            "system": "Registar propisa i akata"
+          },
+          {
+            "org": "Adresni registar Crne Gore",
+            "system": "Nacionalni adresni IT sistem"
+          },
+          {
+            "org": "Ministarstvo evropskih poslova",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Ministarstvo energetike i rudarstva",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Uprava pomorske sigurnosti",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Delegacija EU u Crnoj Gori",
+            "system": "Sistem za slobodan pristup informacijama"
+          },
+          {
+            "org": "einovacije.gov.me",
+            "system": "Nacionalni portal za inovacije"
+          }
+        ]
       }
     ]
   },
