@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -47,6 +47,23 @@ const drev = (start: number, len = 0.12, lift = 10): CSSVars => ({
   transform: `translateY(calc((1 - var(--r)) * ${lift}px))`,
 });
 
+// Scroll-drawn stroke: dash the whole element (L generously overestimates its
+// length) and retract the offset as the scene-local --u passes `start`, so the
+// line traces itself in — and un-traces on reverse scroll. Same completion rule
+// as drev: start + len <= 0. In the static variant --u is never set, so the
+// invalid var() collapses stroke-dashoffset to its initial 0 = fully drawn.
+const draw = (L: number, start: number, len = 0.14): React.CSSProperties => ({
+  strokeDasharray: L,
+  strokeDashoffset: `calc((1 - clamp(0, calc((var(--u) - ${start}) / ${len}), 1)) * ${L}px)`,
+});
+
+// Fade-in for art parts that can't dash-draw (filled dots, the svcart-flow
+// traces whose dasharray belongs to their ambient animation) — put on a <g>
+// wrapper so it composes with svcart-blink's own opacity animation.
+const fadeIn = (start: number, len = 0.1): React.CSSProperties => ({
+  opacity: `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
+});
+
 // Domain title — clip-path wipe from the top, like the process descriptions.
 const titleStyle: CSSVars = {
   "--r": "clamp(0, calc((var(--u) + 0.45) / 0.25), 1)",
@@ -54,9 +71,20 @@ const titleStyle: CSSVars = {
   opacity: "calc(0.2 + 0.8 * var(--r))",
 };
 
+// Per-domain atmosphere — a faint hue tint layered over the shared nebula,
+// crossfaded by --xp proximity. Alphas stay ≤ ~0.1 so the stops read as
+// weather changing over one sky, not four color-coded slides.
+const DOMAIN_TINT: Record<string, string> = {
+  finance: "rgba(196, 150, 74, 0.09)",
+  hr: "rgba(148, 118, 214, 0.09)",
+  healthcare: "rgba(74, 196, 142, 0.09)",
+  dms: "rgba(92, 142, 214, 0.1)",
+};
+
 export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) {
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
+  const st = useRef<ScrollTrigger | null>(null);
   const [active, setActive] = useState(0);
 
   const x = dict.expertise;
@@ -69,7 +97,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
       const mm = gsap.matchMedia();
       mm.add(MOTION_QUERY, () => {
         if (!pin.current) return;
-        ScrollTrigger.create({
+        st.current = ScrollTrigger.create({
           trigger: pin.current,
           start: "top top",
           end: () => `+=${last * window.innerHeight * (window.innerWidth < 900 ? 0.9 : 1.2)}`,
@@ -82,9 +110,24 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
             setActive(Math.max(0, Math.min(last, Math.round(p))));
           },
         });
+        return () => {
+          st.current = null;
+        };
       });
     },
     { scope: outer }
+  );
+
+  // Rail navigation — map a domain index onto the pin's scroll span. Native
+  // smooth scrolling coexists with Lenis the same way the navbar's
+  // scroll-to-top does; ScrollTrigger's onUpdate keeps --xp/active in sync.
+  const jumpTo = useCallback(
+    (i: number) => {
+      const t = st.current;
+      if (!t) return;
+      window.scrollTo({ top: t.start + (i / last) * (t.end - t.start), behavior: "smooth" });
+    },
+    [last]
   );
 
   return (
@@ -112,6 +155,20 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 "radial-gradient(ellipse 100% 80% at 70% 30%, #131b2e 0%, #0d111c 60%, #0d111c 100%)",
             }}
           />
+          {/* per-domain hue tint over the shared nebula, crossfaded by --xp */}
+          {items.map((it, i) => (
+            <div
+              key={it.slug}
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                background: `radial-gradient(ellipse 100% 80% at 70% 30%, ${
+                  DOMAIN_TINT[it.slug] ?? "transparent"
+                } 0%, transparent 62%)`,
+                opacity: `clamp(0, min(calc(var(--xp) - ${i - 1}), calc(${i + 1} - var(--xp))), 1)`,
+              }}
+            />
+          ))}
           {/* sparser continuation of the hero's star dust */}
           <Starfield count={85} seed={0x21c7} strength={0.6} bias={false} />
           {/* top + bottom dissolve into --bg-inset so no seam line shows
@@ -134,9 +191,10 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
 
             <div className="mt-10 grid flex-1 min-h-0 gap-10 lg:mt-16 lg:grid-cols-[minmax(230px,290px)_1fr] lg:gap-16">
               {/* Domain rail — compact stack with a scrub-driven fill; self-start
-                 so the track hugs the list instead of stretching to the pin. */}
-              <div aria-hidden className="hidden self-start lg:flex gap-5">
-                <div className="relative w-px self-stretch bg-white/10">
+                 so the track hugs the list instead of stretching to the pin.
+                 Each name is a real button that scrolls the pin to its stop. */}
+              <div className="hidden self-start lg:flex gap-5">
+                <div aria-hidden className="relative w-px self-stretch bg-white/10">
                   <div
                     className="absolute left-0 top-0 w-px bg-[var(--brand-teal-bright)]"
                     style={{ height: `calc((var(--xp) / ${last}) * 100%)` }}
@@ -144,13 +202,17 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 </div>
                 <ul className="flex flex-col gap-9 py-1.5">
                   {items.map((it, i) => (
-                    <li
-                      key={it.slug}
-                      className={`text-[16px] leading-snug tracking-[0.01em] transition-colors duration-500 ${
-                        i === active ? "text-white" : i < active ? "text-white/45" : "text-white/30"
-                      }`}
-                    >
-                      {it.name}
+                    <li key={it.slug}>
+                      <button
+                        type="button"
+                        onClick={() => jumpTo(i)}
+                        aria-current={i === active ? "true" : undefined}
+                        className={`cursor-pointer text-left text-[16px] leading-snug tracking-[0.01em] transition-colors duration-500 hover:text-white ${
+                          i === active ? "text-white" : i < active ? "text-white/45" : "text-white/30"
+                        }`}
+                      >
+                        {it.name}
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -247,10 +309,22 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                       </div>
 
                       {/* Domain artwork — abstract line-art in the process
-                         section's visual language, one composition per field */}
-                      <div className="hidden xl:grid place-items-center" style={drev(-0.26, 0.18, 14)}>
+                         section's visual language, one composition per field.
+                         The container only fades the dashed meridian in; the
+                         strokes draw themselves via draw()/fadeIn() below. */}
+                      <div className="hidden xl:grid place-items-center" style={drev(-0.44, 0.1, 8)}>
                         <DomainArt slug={it.slug} />
                       </div>
+                      </div>
+
+                      {/* Below xl the art column has no room — echo it as a
+                         quiet watermark so smaller screens keep the domain's
+                         signature (draw-in still runs off the inherited --u) */}
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute bottom-1 right-0 w-36 opacity-20 sm:w-44 md:w-56 md:opacity-30 xl:hidden"
+                      >
+                        <DomainArt slug={it.slug} />
                       </div>
                     </div>
                   );
@@ -287,29 +361,36 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
 
           <div className="mt-14 space-y-14">
             {items.map((it) => (
-              <article key={it.slug}>
-                <h3 className="font-display text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.02] tracking-[-0.025em] font-medium">
-                  {it.name}
-                </h3>
-                <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
-                {it.clients.length > 0 ? (
-                  <ul className="mt-6 grid max-w-3xl gap-x-10 sm:grid-cols-2">
-                    {it.clients.map((c, j) => (
-                      <li key={j} className="border-t border-white/10 py-3 text-[14.5px] leading-snug text-white/85">
-                        {c.org}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-white/40">{x.comingSoon}</p>
-                )}
-                <div className="mt-6">
-                  <Link
-                    href={`/${lang}/expertise/${it.slug}`}
-                    className="text-[13px] text-[var(--brand-teal-bright)] border-b border-[var(--brand-teal-bright)]/30 pb-0.5"
-                  >
-                    {x.linkLabel}
-                  </Link>
+              <article key={it.slug} className="md:grid md:grid-cols-[minmax(0,1fr)_230px] md:items-center md:gap-14">
+                <div>
+                  <h3 className="font-display text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.02] tracking-[-0.025em] font-medium">
+                    {it.name}
+                  </h3>
+                  <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
+                  {it.clients.length > 0 ? (
+                    <ul className="mt-6 grid max-w-3xl gap-x-10 sm:grid-cols-2">
+                      {it.clients.map((c, j) => (
+                        <li key={j} className="border-t border-white/10 py-3 text-[14.5px] leading-snug text-white/85">
+                          {c.org}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-white/40">{x.comingSoon}</p>
+                  )}
+                  <div className="mt-6">
+                    <Link
+                      href={`/${lang}/expertise/${it.slug}`}
+                      className="text-[13px] text-[var(--brand-teal-bright)] border-b border-[var(--brand-teal-bright)]/30 pb-0.5"
+                    >
+                      {x.linkLabel}
+                    </Link>
+                  </div>
+                </div>
+                {/* fully drawn here — --u is unset, so every draw()/fadeIn()
+                   collapses to its resting state */}
+                <div className="hidden md:block">
+                  <DomainArt slug={it.slug} />
                 </div>
               </article>
             ))}
@@ -347,6 +428,10 @@ function DomainArt({ slug }: { slug: string }) {
   );
 }
 
+/* Draw choreography: baseline → bars left-to-right → trend line → dots, all
+   inside the scene's approach window (--u ≈ -0.44..0). L values overestimate
+   each element's true length — overshoot only skews timing, never the final
+   fully-drawn state. */
 const ART: Record<string, React.ReactNode> = {
   // Finance — figures that reconcile: rising outlined bars under a trend line,
   // a dashed meridian arc behind, the peak marked in brand red.
@@ -354,16 +439,18 @@ const ART: Record<string, React.ReactNode> = {
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <path d="M42 168h136" opacity="0.5" />
-        <rect x="56" y="132" width="18" height="36" rx="2" opacity="0.55" />
-        <rect x="90" y="112" width="18" height="56" rx="2" opacity="0.7" />
-        <rect x="124" y="88" width="18" height="80" rx="2" opacity="0.85" />
-        <rect x="158" y="60" width="18" height="108" rx="2" />
-        <path d="M58 118 92 98l34-22 36-26" opacity="0.6" />
-        <circle cx="58" cy="118" r="2.2" fill="currentColor" stroke="none" />
-        <circle cx="92" cy="98" r="2.2" fill="currentColor" stroke="none" />
-        <circle cx="126" cy="76" r="2.2" fill="currentColor" stroke="none" />
-        <circle className="svcart-blink" cx="162" cy="50" r="3" fill="var(--brand-red)" stroke="none" />
+        <path d="M42 168h136" opacity="0.5" style={draw(140, -0.42)} />
+        <rect x="56" y="132" width="18" height="36" rx="2" opacity="0.55" style={draw(115, -0.38)} />
+        <rect x="90" y="112" width="18" height="56" rx="2" opacity="0.7" style={draw(155, -0.34)} />
+        <rect x="124" y="88" width="18" height="80" rx="2" opacity="0.85" style={draw(205, -0.3)} />
+        <rect x="158" y="60" width="18" height="108" rx="2" style={draw(260, -0.26)} />
+        <path d="M58 118 92 98l34-22 36-26" opacity="0.6" style={draw(130, -0.22, 0.16)} />
+        <g style={fadeIn(-0.1, 0.08)}>
+          <circle cx="58" cy="118" r="2.2" fill="currentColor" stroke="none" />
+          <circle cx="92" cy="98" r="2.2" fill="currentColor" stroke="none" />
+          <circle cx="126" cy="76" r="2.2" fill="currentColor" stroke="none" />
+          <circle className="svcart-blink" cx="162" cy="50" r="3" fill="var(--brand-red)" stroke="none" />
+        </g>
       </g>
     </>
   ),
@@ -373,53 +460,66 @@ const ART: Record<string, React.ReactNode> = {
     <>
       <circle cx="110" cy="104" r="86" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <circle cx="110" cy="78" r="17" />
-        <path d="M78 132a32 32 0 0 1 64 0" />
-        <circle cx="110" cy="104" r="42" opacity="0.4" />
+        <circle cx="110" cy="78" r="17" style={draw(112, -0.36)} />
+        <path d="M78 132a32 32 0 0 1 64 0" style={draw(106, -0.3)} />
+        <circle cx="110" cy="104" r="42" opacity="0.4" style={draw(270, -0.42, 0.18)} />
       </g>
       <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "0.7s" }}>
-        <circle cx="46" cy="150" r="10" opacity="0.7" />
-        <path d="M28 176a18 18 0 0 1 36 0" opacity="0.7" />
+        <circle cx="46" cy="150" r="10" opacity="0.7" style={draw(66, -0.26, 0.12)} />
+        <path d="M28 176a18 18 0 0 1 36 0" opacity="0.7" style={draw(60, -0.22, 0.12)} />
       </g>
       <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "1.3s" }}>
-        <circle cx="174" cy="150" r="10" opacity="0.7" />
-        <path d="M156 176a18 18 0 0 1 36 0" opacity="0.7" />
+        <circle cx="174" cy="150" r="10" opacity="0.7" style={draw(66, -0.24, 0.12)} />
+        <path d="M156 176a18 18 0 0 1 36 0" opacity="0.7" style={draw(60, -0.2, 0.12)} />
       </g>
-      <path d="M74 128 58 141M146 128l16 13" opacity="0.5" />
-      <circle className="svcart-blink" cx="110" cy="34" r="2.6" fill="var(--brand-red)" stroke="none" />
+      <path d="M74 128 58 141M146 128l16 13" opacity="0.5" style={draw(44, -0.16, 0.12)} />
+      <g style={fadeIn(-0.08, 0.06)}>
+        <circle className="svcart-blink" cx="110" cy="34" r="2.6" fill="var(--brand-red)" stroke="none" />
+      </g>
     </>
   ),
-  // Healthcare — shield-cross with a vital trace running through it.
+  // Healthcare — shield-cross with a vital trace running beneath it. The trace
+  // is a solid stroke drawn left-to-right (an ECG writing itself), not an
+  // svcart-flow dash — the 3/8 dash pattern shreds the pulse shape.
   healthcare: (
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <rect x="66" y="56" width="88" height="88" rx="18" opacity="0.85" />
-        <path d="M110 82v36M92 100h36" />
+        <rect x="66" y="62" width="88" height="88" rx="18" opacity="0.85" style={draw(330, -0.42, 0.2)} />
+        <path d="M110 88v36M92 106h36" style={draw(76, -0.24, 0.12)} />
       </g>
-      <path className="svcart-flow" d="M26 168h40l12-20 14 32 12-24 10 12h80" opacity="0.7" />
-      <circle className="svcart-blink" cx="196" cy="168" r="2.8" fill="var(--brand-red)" stroke="none" />
+      <path d="M26 168h44l10-16 12 32 10-30 8 14h84" opacity="0.7" style={draw(258, -0.16, 0.14)} />
+      <g style={fadeIn(-0.05, 0.04)}>
+        <circle className="svcart-blink" cx="196" cy="168" r="2.8" fill="var(--brand-red)" stroke="none" />
+      </g>
     </>
   ),
-  // DMS & Workflow — documents cascading through a flow into the archive.
+  // DMS & Workflow — documents cascading down into the archive directly below,
+  // so the whole flow reads as one centered column: cascade → dashed drop →
+  // archive tray, blink dot terminating the tray lid. Text lines sit in the
+  // front doc's clear lower band so they never run along another doc's edge.
   dms: (
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <path d="M56 44h34l12 12v44H56z" opacity="0.5" />
-        <path d="M90 44v12h12" opacity="0.5" />
-        <path d="M72 60h34l12 12v44H72z" opacity="0.75" />
-        <path d="M106 60v12h12" opacity="0.75" />
-        <path d="M88 76h34l12 12v44H88z" />
-        <path d="M122 76v12h12" />
-        <path d="M98 104h24M98 116h18" opacity="0.6" />
+        <path d="M70 32h34l12 12v44H70z" opacity="0.5" style={draw(205, -0.42, 0.12)} />
+        <path d="M104 32v12h12" opacity="0.5" style={draw(26, -0.34, 0.08)} />
+        <path d="M86 48h34l12 12v44H86z" opacity="0.75" style={draw(205, -0.38, 0.12)} />
+        <path d="M120 48v12h12" opacity="0.75" style={draw(26, -0.3, 0.08)} />
+        <path d="M102 64h34l12 12v44H102z" style={draw(205, -0.34, 0.12)} />
+        <path d="M136 64v12h12" style={draw(26, -0.26, 0.08)} />
+        <path d="M112 107h24M112 114h16" opacity="0.6" style={draw(45, -0.22, 0.1)} />
       </g>
-      <path className="svcart-flow" d="M134 148c22 8 28 14 30 28" opacity="0.7" />
+      <g style={fadeIn(-0.18)}>
+        <path className="svcart-flow" d="M120 124c0 14-4 25-10 36" opacity="0.7" />
+      </g>
       <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "0.9s" }}>
-        <path d="M140 176h48v26h-48z" opacity="0.85" />
-        <path d="M136 176h56M158 186h12" opacity="0.6" />
+        <path d="M86 164h48v26h-48z" opacity="0.85" style={draw(155, -0.16, 0.12)} />
+        <path d="M82 164h56M104 174h12" opacity="0.6" style={draw(72, -0.12, 0.1)} />
       </g>
-      <circle className="svcart-blink" cx="188" cy="164" r="2.6" fill="var(--brand-red)" stroke="none" />
+      <g style={fadeIn(-0.06, 0.05)}>
+        <circle className="svcart-blink" cx="138" cy="164" r="2.6" fill="var(--brand-red)" stroke="none" />
+      </g>
     </>
   ),
 };

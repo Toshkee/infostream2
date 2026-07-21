@@ -168,11 +168,13 @@ h1, h2, h3,
    sections/visuals.tsx that PinnedProcess/Expertise use to start
    ScrollTrigger. One gap: this CSS gate can't detect scripting being disabled
    — <noscript> overrides in those components force the static variants. */
-/* ─── Animated service-scene art (FEATURE_ART in PinnedProcess) ───
-   Slow, ambient motion for the abstract geometric compositions. Only rendered
-   inside the pinned variant, which is itself gated on prefers-reduced-motion.
-   Rotating/scaling parts need inline transform-box: view-box + an explicit
-   px transform-origin on the element. */
+/* ─── Animated service-scene art (FEATURE_ART in PinnedProcess, DomainArt in
+   Expertise) ───
+   Slow, ambient motion for the abstract geometric compositions. The Expertise
+   static variant renders DomainArt for reduced-motion users too, so these are
+   stilled under prefers-reduced-motion below (svcart-flow keeps its dasharray
+   — it doubles as the line's texture). Rotating/scaling parts need inline
+   transform-box: view-box + an explicit px transform-origin on the element. */
 @keyframes svcartBlink { 0%, 100% { opacity: 0.25; } 45% { opacity: 1; } }
 .svcart-blink { animation: svcartBlink 2.6s ease-in-out infinite; }
 
@@ -192,6 +194,8 @@ h1, h2, h3,
 }
 @media (prefers-reduced-motion: reduce) {
   .star-drift, .star-twinkle { animation: none; }
+  .svcart-blink, .svcart-flow, .svcart-spin, .svcart-spin-rev, .svcart-breathe,
+  .svcart-ring, .svcart-floaty, .svcart-sweep { animation: none; }
 }
 
 @keyframes svcartSpin { to { transform: rotate(360deg); } }
