@@ -72,7 +72,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
     { id: "expertise",  label: dict.nav.expertise },
     { id: "platform",   label: dict.nav.platform },
     { id: "technology", label: dict.nav.technology },
-    { id: "projects",   label: dict.nav.projects },
+    { id: "about",      label: dict.nav.about },
     { id: "security",   label: dict.nav.security },
     { id: "contact",    label: dict.nav.contact },
   ] as const;

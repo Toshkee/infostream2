@@ -255,7 +255,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
               {services.map((svc, i) => (
                 <Scene key={i} target={i + 1}>
                   <div className="w-full" style={{ "--u": `calc(var(--ph) - ${i + 1})` } as CSSVars}>
-                    <ProcessSceneBody index={i} total={services.length} eyebrow={dict.services.eyebrow} svc={svc} />
+                    <ProcessSceneBody index={i} eyebrow={dict.services.eyebrow} svc={svc} />
                   </div>
                 </Scene>
               ))}
@@ -334,7 +334,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
           <div className="mt-12 space-y-14">
             {services.map((svc, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
-                <StageHeading index={i} total={services.length} name={svc.k} description={svc.v} heading />
+                <StageHeading name={svc.k} description={svc.v} heading />
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
                   {svc.cards.map((c, j) => (
                     <div key={j} className={`${CARD_SHELL} p-5`}>
@@ -381,53 +381,26 @@ function Scene({ target, children }: { target: number; children: React.ReactNode
   );
 }
 
-// ─── Stage heading: hollow stage number + title + description ───
+// ─── Stage heading: title + description ───
 // `heading` renders the title as a real <h3> (static variant, where this is the
 // canonical, visible content); the pinned variant leaves it a <div> because that
 // scene is aria-hidden decoration and the real headings live in the sr-only block.
 function StageHeading({
-  index,
-  total,
   name,
   description,
   heading = false,
 }: {
-  index: number;
-  total: number;
   name: string;
   description: string;
   heading?: boolean;
 }) {
-  const num = String(index + 1).padStart(2, "0");
-  const tot = String(total).padStart(2, "0");
   const Title = heading ? "h3" : "div";
   return (
     <div>
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-        <div className="flex items-baseline gap-2 leading-none shrink-0">
-          <span
-            className="font-medium text-[clamp(2rem,3.4vw,3rem)] leading-none tracking-[-0.04em] text-transparent"
-            style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
-          >
-            {num}
-          </span>
-          <span className="mono text-[11px] tracking-[0.22em] text-white/55">/ {tot}</span>
-        </div>
-        <span
-          aria-hidden
-          className="hidden sm:block flex-1 h-px mb-2 bg-gradient-to-r from-[var(--brand-teal-bright)]/55 to-[var(--brand-teal-bright)]/20"
-          style={{ boxShadow: "0 0 6px -2px var(--brand-teal-bright)" }}
-        />
-        <span
-          aria-hidden
-          className="hidden sm:block h-1.5 w-1.5 -ml-3 mb-[5px] rounded-full bg-[var(--brand-teal-bright)]"
-          style={{ boxShadow: "0 0 8px var(--brand-teal-bright)" }}
-        />
-      </div>
       {/* 3rem cap (not 3.4): the pinned scenes park this next to a ~330px
          column and "Transformation" must fit the track without sliding under
          the cards — measured against Author's advance widths. */}
-      <Title className="font-display mt-3 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
+      <Title className="font-display text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
         {name}
       </Title>
       <p className="process-stage-desc mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
@@ -467,12 +440,10 @@ function IconTile({ name }: { name: IconName }) {
 
 function ProcessSceneBody({
   index,
-  total,
   eyebrow,
   svc,
 }: {
   index: number;
-  total: number;
   eyebrow: string;
   svc: ProcessItem;
 }) {
@@ -486,7 +457,7 @@ function ProcessSceneBody({
         {eyebrow}
       </div>
       <div className="mt-5">
-        <StageHeading index={index} total={total} name={svc.k} description={svc.v} />
+        <StageHeading name={svc.k} description={svc.v} />
       </div>
     </div>
   );
@@ -538,15 +509,7 @@ function ProcessSceneBody({
         <div className="hidden md:grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
           {svc.cards.map((c, j) => (
             <div key={j} className={`relative ${CARD_SHELL} p-5`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
-              <div
-                className="mono text-[22px] leading-none text-transparent"
-                style={{ WebkitTextStroke: "1px var(--brand-teal-bright)" }}
-              >
-                {String(j + 1).padStart(2, "0")}
-              </div>
-              <div className="mt-4">
-                <Medallion name={icons[j]} />
-              </div>
+              <Medallion name={icons[j]} />
               <div className="mt-4 text-[13.5px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
               <TitleDash />
               <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
@@ -594,11 +557,8 @@ function ProcessSceneBody({
       <div className="hidden md:grid grid-cols-2 gap-4 lg:gap-5">
         {svc.cards.map((c: ProcessCard, j: number) => (
           <div key={j} className={`relative overflow-hidden ${CARD_SHELL} p-6`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
-            <span aria-hidden className="absolute right-5 top-4 mono text-[32px] leading-none text-white/[0.08]">
-              {String(j + 1).padStart(2, "0")}
-            </span>
             <Medallion name={icons[j]} />
-            <div className="mt-4 pr-10 text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
+            <div className="mt-4 text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
             <TitleDash />
             <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
           </div>
@@ -718,20 +678,17 @@ function ProcessTimeline({
             />
             <text
               x={nx}
-              y={STREAM_Y + 32}
+              y={STREAM_Y + 30}
               textAnchor="middle"
+              fontSize="8.5"
+              fill={labelMain}
               style={{
                 fontFamily: "var(--font-mono-stack), monospace",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
               }}
             >
-              <tspan fontSize="15" fill={isActive ? teal : "rgba(255,255,255,0.28)"}>
-                {String(i + 1).padStart(2, "0")}
-              </tspan>
-              <tspan dx="9" dy="-1" fontSize="8.5" fill={labelMain}>
-                {labels[i].name}
-              </tspan>
+              {labels[i].name}
             </text>
           </g>
         );

@@ -428,97 +428,115 @@ function DomainArt({ slug }: { slug: string }) {
   );
 }
 
-/* Draw choreography: baseline → bars left-to-right → trend line → dots, all
-   inside the scene's approach window (--u ≈ -0.44..0). L values overestimate
-   each element's true length — overshoot only skews timing, never the final
-   fully-drawn state. */
+/* Draw choreography: outer structure → inner geometry → accents, all inside
+   the scene's approach window (--u ≈ -0.44..0). L values overestimate each
+   element's true length — overshoot only skews timing, never the final
+   fully-drawn state.
+
+   Every composition is built ON the circle itself — concentric geometry with
+   a shared center at (110,110), nothing extending past the dashed ring — so
+   the four read as variations of one instrument, not four unrelated icons. */
 const ART: Record<string, React.ReactNode> = {
-  // Finance — figures that reconcile: rising outlined bars under a trend line,
-  // a dashed meridian arc behind, the peak marked in brand red.
+  // Finance — a precision dial: tick ring, two concentric circles, a rising
+  // sweep arc and a needle pointing to the peak, marked in brand red.
   finance: (
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <path d="M42 168h136" opacity="0.5" style={draw(140, -0.42)} />
-        <rect x="56" y="132" width="18" height="36" rx="2" opacity="0.55" style={draw(115, -0.38)} />
-        <rect x="90" y="112" width="18" height="56" rx="2" opacity="0.7" style={draw(155, -0.34)} />
-        <rect x="124" y="88" width="18" height="80" rx="2" opacity="0.85" style={draw(205, -0.3)} />
-        <rect x="158" y="60" width="18" height="108" rx="2" style={draw(260, -0.26)} />
-        <path d="M58 118 92 98l34-22 36-26" opacity="0.6" style={draw(130, -0.22, 0.16)} />
-        <g style={fadeIn(-0.1, 0.08)}>
-          <circle cx="58" cy="118" r="2.2" fill="currentColor" stroke="none" />
-          <circle cx="92" cy="98" r="2.2" fill="currentColor" stroke="none" />
-          <circle cx="126" cy="76" r="2.2" fill="currentColor" stroke="none" />
-          <circle className="svcart-blink" cx="162" cy="50" r="3" fill="var(--brand-red)" stroke="none" />
+        <g style={fadeIn(-0.44, 0.12)}>
+          {Array.from({ length: 36 }, (_, k) => {
+            const a = (k * 10 * Math.PI) / 180;
+            const s = Math.sin(a);
+            const c = Math.cos(a);
+            return (
+              <line
+                key={k}
+                x1={(110 + 78 * s).toFixed(1)}
+                y1={(110 - 78 * c).toFixed(1)}
+                x2={(110 + 84 * s).toFixed(1)}
+                y2={(110 - 84 * c).toFixed(1)}
+                opacity="0.3"
+              />
+            );
+          })}
+        </g>
+        <circle cx="110" cy="110" r="62" opacity="0.5" style={draw(390, -0.36, 0.16)} />
+        <circle cx="110" cy="110" r="30" opacity="0.3" style={draw(190, -0.3, 0.12)} />
+        <path d="M110 40A70 70 0 0 1 164 65" opacity="0.8" style={draw(65, -0.2, 0.12)} />
+        <path d="M110 110 157 70" style={draw(64, -0.14, 0.1)} />
+        <g style={fadeIn(-0.06, 0.05)}>
+          <circle cx="110" cy="110" r="2.4" fill="currentColor" stroke="none" />
+          <circle className="svcart-blink" cx="157" cy="70" r="3" fill="var(--brand-red)" stroke="none" />
         </g>
       </g>
     </>
   ),
-  // Human Resources — a constellation of people: central figure ringed by a
-  // slow dashed orbit, two colleagues linked in.
+  // Human Resources — a constellation: an irregular ring of nodes linked
+  // around a hub, one node lit in brand red. Link endpoints are trimmed back
+  // from each node center so strokes never cross the node circles.
   hr: (
     <>
-      <circle cx="110" cy="104" r="86" strokeDasharray="2 10" opacity="0.35" />
+      <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <circle cx="110" cy="78" r="17" style={draw(112, -0.36)} />
-        <path d="M78 132a32 32 0 0 1 64 0" style={draw(106, -0.3)} />
-        <circle cx="110" cy="104" r="42" opacity="0.4" style={draw(270, -0.42, 0.18)} />
-      </g>
-      <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "0.7s" }}>
-        <circle cx="46" cy="150" r="10" opacity="0.7" style={draw(66, -0.26, 0.12)} />
-        <path d="M28 176a18 18 0 0 1 36 0" opacity="0.7" style={draw(60, -0.22, 0.12)} />
-      </g>
-      <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "1.3s" }}>
-        <circle cx="174" cy="150" r="10" opacity="0.7" style={draw(66, -0.24, 0.12)} />
-        <path d="M156 176a18 18 0 0 1 36 0" opacity="0.7" style={draw(60, -0.2, 0.12)} />
-      </g>
-      <path d="M74 128 58 141M146 128l16 13" opacity="0.5" style={draw(44, -0.16, 0.12)} />
-      <g style={fadeIn(-0.08, 0.06)}>
-        <circle className="svcart-blink" cx="110" cy="34" r="2.6" fill="var(--brand-red)" stroke="none" />
+        <circle cx="110" cy="110" r="5.5" style={draw(36, -0.4, 0.1)} />
+        <path
+          d="M130 55 160 95M163 106 142 156M134 161 90 156M80 150 51 110M52 101 83 75M93 68 121 53"
+          opacity="0.45"
+          style={draw(360, -0.34, 0.18)}
+        />
+        <path d="M118 109 158 101M102 109 53 106" opacity="0.3" style={draw(100, -0.24, 0.12)} />
+        <circle cx="164" cy="100" r="4" style={draw(26, -0.3, 0.1)} />
+        <circle cx="140" cy="162" r="4" style={draw(26, -0.27, 0.1)} />
+        <circle cx="84" cy="155" r="4" style={draw(26, -0.24, 0.1)} />
+        <circle cx="47" cy="105" r="4" style={draw(26, -0.21, 0.1)} />
+        <circle cx="88" cy="71" r="4" style={draw(26, -0.18, 0.1)} />
+        <g style={fadeIn(-0.08, 0.06)}>
+          <circle cx="110" cy="110" r="1.8" fill="currentColor" stroke="none" />
+          <circle className="svcart-blink" cx="126" cy="50" r="3" fill="var(--brand-red)" stroke="none" />
+        </g>
       </g>
     </>
   ),
-  // Healthcare — shield-cross with a vital trace running beneath it. The trace
-  // is a solid stroke drawn left-to-right (an ECG writing itself), not an
-  // svcart-flow dash — the 3/8 dash pattern shreds the pulse shape.
+  // Healthcare — concentric pulse ripples with one ECG trace written through
+  // the shared center, terminating in brand red. The trace is a solid stroke
+  // drawn left-to-right — an svcart-flow dash would shred the pulse shape.
   healthcare: (
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <rect x="66" y="62" width="88" height="88" rx="18" opacity="0.85" style={draw(330, -0.42, 0.2)} />
-        <path d="M110 88v36M92 106h36" style={draw(76, -0.24, 0.12)} />
-      </g>
-      <path d="M26 168h44l10-16 12 32 10-30 8 14h84" opacity="0.7" style={draw(258, -0.16, 0.14)} />
-      <g style={fadeIn(-0.05, 0.04)}>
-        <circle className="svcart-blink" cx="196" cy="168" r="2.8" fill="var(--brand-red)" stroke="none" />
+        <circle cx="110" cy="110" r="68" opacity="0.3" style={draw(430, -0.42, 0.16)} />
+        <circle cx="110" cy="110" r="48" opacity="0.5" style={draw(305, -0.36, 0.14)} />
+        <circle cx="110" cy="110" r="28" opacity="0.7" style={draw(180, -0.3, 0.12)} />
+        <path
+          d="M34 110h44l8-14 10 28 8-24 6 10h68"
+          opacity="0.85"
+          style={draw(250, -0.22, 0.18)}
+        />
+        <g style={fadeIn(-0.05, 0.04)}>
+          <circle className="svcart-blink" cx="184" cy="110" r="2.8" fill="var(--brand-red)" stroke="none" />
+        </g>
       </g>
     </>
   ),
-  // DMS & Workflow — documents cascading down into the archive directly below,
-  // so the whole flow reads as one centered column: cascade → dashed drop →
-  // archive tray, blink dot terminating the tray lid. Text lines sit in the
-  // front doc's clear lower band so they never run along another doc's edge.
+  // DMS & Workflow — strata: the circle rendered purely as layered horizontal
+  // chords, like archive layers in section; the middle layer carries the red
+  // index mark. Chord widths are sqrt(72² − dy²) for the r=72 disc.
   dms: (
     <>
       <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
       <g className="svcart-floaty" style={ART_CENTER}>
-        <path d="M70 32h34l12 12v44H70z" opacity="0.5" style={draw(205, -0.42, 0.12)} />
-        <path d="M104 32v12h12" opacity="0.5" style={draw(26, -0.34, 0.08)} />
-        <path d="M86 48h34l12 12v44H86z" opacity="0.75" style={draw(205, -0.38, 0.12)} />
-        <path d="M120 48v12h12" opacity="0.75" style={draw(26, -0.3, 0.08)} />
-        <path d="M102 64h34l12 12v44H102z" style={draw(205, -0.34, 0.12)} />
-        <path d="M136 64v12h12" style={draw(26, -0.26, 0.08)} />
-        <path d="M112 107h24M112 114h16" opacity="0.6" style={draw(45, -0.22, 0.1)} />
-      </g>
-      <g style={fadeIn(-0.18)}>
-        <path className="svcart-flow" d="M120 124c0 14-4 25-10 36" opacity="0.7" />
-      </g>
-      <g className="svcart-floaty" style={{ ...ART_CENTER, animationDelay: "0.9s" }}>
-        <path d="M86 164h48v26h-48z" opacity="0.85" style={draw(155, -0.16, 0.12)} />
-        <path d="M82 164h56M104 174h12" opacity="0.6" style={draw(72, -0.12, 0.1)} />
-      </g>
-      <g style={fadeIn(-0.06, 0.05)}>
-        <circle className="svcart-blink" cx="138" cy="164" r="2.6" fill="var(--brand-red)" stroke="none" />
+        <path d="M70 50h80" opacity="0.35" style={draw(90, -0.42, 0.1)} />
+        <path d="M54 65h112" opacity="0.45" style={draw(122, -0.385, 0.1)} />
+        <path d="M45 80h130" opacity="0.55" style={draw(140, -0.35, 0.1)} />
+        <path d="M40 95h140" opacity="0.7" style={draw(150, -0.315, 0.1)} />
+        <path d="M38 110h144" style={draw(154, -0.28, 0.1)} />
+        <path d="M40 125h140" opacity="0.7" style={draw(150, -0.245, 0.1)} />
+        <path d="M45 140h130" opacity="0.55" style={draw(140, -0.21, 0.1)} />
+        <path d="M54 155h112" opacity="0.45" style={draw(122, -0.175, 0.1)} />
+        <path d="M70 170h80" opacity="0.35" style={draw(90, -0.14, 0.1)} />
+        <g style={fadeIn(-0.06, 0.05)}>
+          <circle className="svcart-blink" cx="188" cy="110" r="2.6" fill="var(--brand-red)" stroke="none" />
+        </g>
       </g>
     </>
   ),

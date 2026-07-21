@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,7 +9,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  // The expertise subpages are short static documents (often barely taller
+  // than the viewport) with no scroll-scrubbed animation. Lenis easing there
+  // reads as broken — a wheel flick glides for ~a second and dead-stops at
+  // the bottom — so those routes get native scroll; the homepage keeps Lenis
+  // for the pinned ScrollTrigger scrub feel.
+  const nativeScroll = pathname.includes("/expertise/");
+
   useEffect(() => {
+    if (nativeScroll) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const lenis = new Lenis({
@@ -35,7 +45,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       gsap.ticker.remove(raf);
       lenis.destroy();
     };
-  }, []);
+  }, [nativeScroll]);
 
   return <>{children}</>;
 }
