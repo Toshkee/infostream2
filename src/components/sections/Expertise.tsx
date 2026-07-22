@@ -6,16 +6,18 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Dict, Locale } from "@/lib/dictionaries";
-import { EyebrowBars, MOTION_QUERY, Starfield, type CSSVars } from "./visuals";
+import { EyebrowBars, MOTION_QUERY, Starfield, tealPeriod, type CSSVars } from "./visuals";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /* ─── Expertise — pinned domain showcase ───
-   Four scroll stops (finance / HR / healthcare / DMS & workflow), sharing the
-   process section's animation language: one --xp variable (0..3) written per
-   scrubbed frame, every reveal a pure CSS function of it — deterministic and
-   replayed in reverse when scrolling back. No timers, no GSAP time-tweens
-   (see reveal-animations guidance: scrubbed vars survive occluded tabs).
+   Five scroll stops — an intro beat (the section title + body over the empty
+   sky) followed by the four domains (finance / HR / healthcare / DMS &
+   workflow) — sharing the process section's animation language: one --xp
+   variable (0..4, stop 0 = intro, stop i+1 = domain i) written per scrubbed
+   frame, every reveal a pure CSS function of it — deterministic and replayed
+   in reverse when scrolling back. No timers, no GSAP time-tweens (see
+   reveal-animations guidance: scrubbed vars survive occluded tabs).
 
    Unlike the process scenes (decoration backed by an sr-only block), the
    active domain here is the real content — it carries a live link to the
@@ -85,11 +87,15 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
   const st = useRef<ScrollTrigger | null>(null);
-  const [active, setActive] = useState(0);
+  // Active domain index; -1 = the intro beat.
+  const [active, setActive] = useState(-1);
 
   const x = dict.expertise;
   const items = x.items;
   const last = items.length - 1;
+  // Scroll units in the pin: intro → first domain is one unit, then one per
+  // remaining domain. --xp runs [0, span]; domain i sits at stop i + 1.
+  const span = items.length;
 
   useGSAP(
     () => {
@@ -100,14 +106,14 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
         st.current = ScrollTrigger.create({
           trigger: pin.current,
           start: "top top",
-          end: () => `+=${last * window.innerHeight * (window.innerWidth < 900 ? 0.9 : 1.2)}`,
+          end: () => `+=${span * window.innerHeight * (window.innerWidth < 900 ? 0.9 : 1.2)}`,
           pin: pin.current,
           pinSpacing: true,
           scrub: 0.6,
           onUpdate: (self) => {
-            const p = self.progress * last;
+            const p = self.progress * span;
             pin.current?.style.setProperty("--xp", p.toFixed(4));
-            setActive(Math.max(0, Math.min(last, Math.round(p))));
+            setActive(Math.max(-1, Math.min(last, Math.round(p) - 1)));
           },
         });
         return () => {
@@ -118,16 +124,17 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
     { scope: outer }
   );
 
-  // Rail navigation — map a domain index onto the pin's scroll span. Native
-  // smooth scrolling coexists with Lenis the same way the navbar's
-  // scroll-to-top does; ScrollTrigger's onUpdate keeps --xp/active in sync.
+  // Rail navigation — map a domain index onto the pin's scroll span (offset by
+  // the intro stop). Native smooth scrolling coexists with Lenis the same way
+  // the navbar's scroll-to-top does; ScrollTrigger's onUpdate keeps
+  // --xp/active in sync.
   const jumpTo = useCallback(
     (i: number) => {
       const t = st.current;
       if (!t) return;
-      window.scrollTo({ top: t.start + (i / last) * (t.end - t.start), behavior: "smooth" });
+      window.scrollTo({ top: t.start + ((i + 1) / span) * (t.end - t.start), behavior: "smooth" });
     },
-    [last]
+    [span]
   );
 
   return (
@@ -165,7 +172,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 background: `radial-gradient(ellipse 100% 80% at 70% 30%, ${
                   DOMAIN_TINT[it.slug] ?? "transparent"
                 } 0%, transparent 62%)`,
-                opacity: `clamp(0, min(calc(var(--xp) - ${i - 1}), calc(${i + 1} - var(--xp))), 1)`,
+                opacity: `clamp(0, min(calc(var(--xp) - ${i}), calc(${i + 2} - var(--xp))), 1)`,
               }}
             />
           ))}
@@ -197,7 +204,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 <div aria-hidden className="relative w-px self-stretch bg-white/10">
                   <div
                     className="absolute left-0 top-0 w-px bg-[var(--brand-teal-bright)]"
-                    style={{ height: `calc((var(--xp) / ${last}) * 100%)` }}
+                    style={{ height: `calc(clamp(0, calc((var(--xp) - 1) / ${last}), 1) * 100%)` }}
                   />
                 </div>
                 <ul className="flex flex-col gap-9 py-1.5">
@@ -218,8 +225,28 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 </ul>
               </div>
 
-              {/* Domain scenes — stacked, crossfaded by --xp */}
+              {/* Domain scenes — stacked, crossfaded by --xp. Stop 0 is the
+                 intro beat: the section's framing title + body, previously
+                 only rendered in the static variant. It is fully revealed the
+                 moment the section scrolls into view (--u never goes negative
+                 at stop 0) and hands off to the first domain via the same
+                 sequential fade as every other stop. */}
               <div className="relative min-h-0">
+                <div
+                  className="absolute inset-0 flex flex-col justify-start pt-1 lg:pt-2"
+                  style={{
+                    ...domainStyle(0),
+                    pointerEvents: "none",
+                    willChange: "opacity, transform",
+                  } as CSSVars}
+                  aria-hidden={active !== -1}
+                  inert={active !== -1}
+                >
+                  <h2 className="font-display max-w-3xl text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.04] tracking-[-0.028em] font-medium text-white">
+                    {tealPeriod(x.title)}
+                  </h2>
+                  <p className="mt-6 max-w-2xl text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
+                </div>
                 {items.map((it, i) => {
                   const isActive = i === active;
                   const shown = it.clients.slice(0, MAX_HOME_CLIENTS);
@@ -229,8 +256,8 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                       key={it.slug}
                       className="absolute inset-0 flex flex-col justify-start pt-1 lg:pt-2"
                       style={{
-                        ...domainStyle(i),
-                        "--u": `calc(var(--xp) - ${i})`,
+                        ...domainStyle(i + 1),
+                        "--u": `calc(var(--xp) - ${i + 1})`,
                         pointerEvents: isActive ? "auto" : "none",
                         willChange: "opacity, transform",
                       } as CSSVars}
@@ -332,15 +359,26 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
               </div>
             </div>
 
-            {/* Mobile progress — four dashes, mirroring the process indicator */}
-            <div aria-hidden className="mt-6 flex gap-3 lg:hidden">
+            {/* Mobile progress — four dashes, mirroring the process indicator.
+               Each is a real button (the rail is hidden below lg, so this is
+               the only way to skip between stops on touch); generous padding
+               gives the hairline a usable hit target. */}
+            <div className="mt-3 flex lg:hidden">
               {items.map((it, i) => (
-                <span
+                <button
                   key={it.slug}
-                  className={`block h-px transition-all duration-500 ${
-                    i === active ? "w-10 bg-[var(--brand-teal-bright)]" : "w-5 bg-white/25"
-                  }`}
-                />
+                  type="button"
+                  onClick={() => jumpTo(i)}
+                  aria-label={it.name}
+                  aria-current={i === active ? "true" : undefined}
+                  className="cursor-pointer py-3 pr-3"
+                >
+                  <span
+                    className={`block h-px transition-all duration-500 ${
+                      i === active ? "w-10 bg-[var(--brand-teal-bright)]" : "w-5 bg-white/25"
+                    }`}
+                  />
+                </button>
               ))}
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dict } from "@/lib/dictionaries";
-import { EyebrowBars, Medallion, Starfield, tealPeriod, type IconName } from "./visuals";
+import { EyebrowBars, Starfield, tealPeriod } from "./visuals";
 
 // Warm the heavy three.js chunk as early as the client bundle evaluates. The
 // hero itself no longer mounts a canvas (the planets belong to the process
@@ -14,11 +14,6 @@ import { EyebrowBars, Medallion, Starfield, tealPeriod, type IconName } from "./
 if (typeof window !== "undefined") {
   void import("@/components/three/HeroScene");
 }
-
-// Hero metric chips — one line-art glyph per chip, in dictionary order
-// (Years of experience · Delivery · Platforms · Development · Innovation). Icon
-// choice is presentation, so it lives in code rather than the translatable copy.
-const HERO_META_ICONS: IconName[] = ["clock", "infinity", "database", "code", "network"];
 
 // The intro is pure CSS (`.hero-rise` in globals.css), not a GSAP timeline:
 // it starts with the first painted frame — before the JS bundle hydrates —
@@ -51,6 +46,50 @@ export default function Hero({ dict }: { dict: Dict }) {
           }}
         />
         <Starfield />
+        {/* Signature instrument — one large dashed ring in the DomainArt
+           language (same 2/10 dash, hairline stroke, one red accent),
+           positioned right and cropped by the viewport edge. Foreshadows the
+           four domain instruments below without duplicating the 3D planets.
+           Authored at natural size (viewBox ≈ render size) so the dash pattern
+           lands at the same px scale as the expertise art. Rotation rides the
+           existing svcart-spin keyframes — reduced-motion already stops them. */}
+        <div
+          aria-hidden
+          className="absolute top-1/2 right-[-12%] hidden -translate-y-1/2 lg:block"
+          style={{ width: "min(82vh, 880px)", height: "min(82vh, 880px)" }}
+        >
+          <svg
+            viewBox="0 0 900 900"
+            className="h-full w-full text-[var(--brand-teal-bright)]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          >
+            <g
+              className="svcart-spin"
+              style={{ transformBox: "view-box", transformOrigin: "450px 450px", animationDuration: "300s" }}
+            >
+              <circle cx="450" cy="450" r="430" strokeDasharray="2 10" opacity="0.3" />
+              <circle cx="450" cy="450" r="300" opacity="0.08" />
+              {/* four quiet nodes riding the outer ring — one per domain */}
+              <circle
+                cx="696.7"
+                cy="97.8"
+                r="3.5"
+                fill="currentColor"
+                stroke="none"
+                opacity="0.9"
+                style={{ filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" }}
+              />
+              <circle cx="726.5" cy="779.4" r="3" fill="currentColor" stroke="none" opacity="0.55" />
+              <circle cx="120.6" cy="726.5" r="3" fill="currentColor" stroke="none" opacity="0.55" />
+              <circle cx="173.5" cy="120.6" r="3" fill="currentColor" stroke="none" opacity="0.55" />
+              {/* the single brand-red accent, on the inner orbit */}
+              <circle cx="160.2" cy="527.7" r="2.6" fill="var(--brand-red)" stroke="none" opacity="0.8" />
+            </g>
+          </svg>
+        </div>
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
       </div>
 
@@ -77,22 +116,44 @@ export default function Hero({ dict }: { dict: Dict }) {
           {dict.hero.body}
         </p>
 
-        {/* Capability chips — what we do, what we build on */}
-        <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-white/10 border border-white/10 rounded-lg overflow-hidden max-w-4xl">
+        {/* Primary action — same red-pill affordance as the navbar CTA */}
+        <div className="hero-rise mt-9" style={{ animationDelay: "0.52s" }}>
+          <a
+            href="#contact"
+            className="inline-block text-[14px] font-medium px-6 py-3 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
+            style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
+          >
+            {dict.hero.cta}
+          </a>
+        </div>
+
+        {/* Key facts — hairline key/value rows in the expertise client-list
+           register, no boxes or icons */}
+        <div className="mt-14 grid max-w-3xl grid-cols-2 gap-x-10 gap-y-7 sm:grid-cols-4">
           {dict.hero.meta.map((m, i) => (
             <div
               key={i}
-              className="hero-rise bg-[var(--bg-inset-elev)] px-4 py-3.5 flex items-center gap-3"
-              style={{ animationDelay: `${0.55 + i * 0.06}s` }}
+              className="hero-rise border-t border-white/15 pt-3.5"
+              style={{ animationDelay: `${0.62 + i * 0.07}s` }}
             >
-              <Medallion name={HERO_META_ICONS[i] ?? "infinity"} size="sm" />
-              <div className="min-w-0">
-                <div className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/55 leading-tight">{m.k}</div>
-                <div className="mono text-[15px] mt-1 text-white/90 leading-tight">{m.v}</div>
-              </div>
+              <div className="mono text-[9.5px] tracking-[0.2em] uppercase text-white/50 leading-tight">{m.k}</div>
+              <div className="mono text-[15px] mt-1.5 text-white/90 leading-tight">{m.v}</div>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Scroll affordance — a mono whisper and a hairline the teal sweep runs
+         down, hinting at the pinned journey below the fold */}
+      <div
+        aria-hidden
+        className="hero-rise absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2.5"
+        style={{ animationDelay: "1.1s" }}
+      >
+        <span className="mono text-[9px] tracking-[0.32em] uppercase text-white/40">
+          {dict.hero.scrollHint}
+        </span>
+        <span className="scroll-cue" />
       </div>
     </section>
   );

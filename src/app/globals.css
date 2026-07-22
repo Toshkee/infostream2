@@ -294,6 +294,30 @@ h1, h2, h3,
 }
 .hero-rise { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* Hero scroll affordance — a static hairline with a teal segment that sweeps
+   down it. The line stays visible under reduced motion; only the sweep stops. */
+@keyframes scrollCueSweep {
+  0% { transform: translateY(-100%); }
+  65%, 100% { transform: translateY(100%); }
+}
+.scroll-cue {
+  position: relative;
+  width: 1px;
+  height: 44px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, var(--brand-teal-bright));
+  animation: scrollCueSweep 2.6s cubic-bezier(0.45, 0, 0.4, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue::after { animation: none; opacity: 0; }
+}
+
 /* Film grain — fixed full-viewport noise overlay. SVG turbulence baked into a data URL
    so it costs nothing at runtime and tiles seamlessly. The animation jitters the layer
    by 1px in each direction so the grain "lives" instead of looking like a static texture. */

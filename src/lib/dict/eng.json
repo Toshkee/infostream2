@@ -20,14 +20,16 @@
     "body": "We design, build, and implement software that organizations rely on every day. From enterprise information systems to cloud solutions, we deliver secure, scalable technology built to evolve and last.",
     "exitTag": "#FollowTheStream",
     "exitScrollHint": "scroll to see who's connected",
+    "cta": "Get in touch",
+    "scrollHint": "Scroll",
     "meta": [
       {
         "k": "Years of experience",
         "v": "20+"
       },
       {
-        "k": "Delivery",
-        "v": "Agile"
+        "k": "Security",
+        "v": "ISO 27001"
       },
       {
         "k": "Platforms",
@@ -36,10 +38,6 @@
       {
         "k": "Development",
         "v": "APEX • .NET"
-      },
-      {
-        "k": "Innovation",
-        "v": "AI"
       }
     ]
   },
