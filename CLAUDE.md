@@ -15,7 +15,7 @@ No test runner is configured.
 
 ## Stack
 
-Next.js 16 (App Router) + React 19 + TypeScript 5, Tailwind CSS v4 (via `@tailwindcss/postcss`, no `tailwind.config`), GSAP + `@gsap/react` for animation, Lenis for smooth scroll, `@react-three/fiber` + `@react-three/drei` + Three.js for the 3D hero layer (`src/components/three/`).
+Next.js 16 (App Router) + React 19 + TypeScript 5, Tailwind CSS v4 (via `@tailwindcss/postcss`, no `tailwind.config`), GSAP + `@gsap/react` for animation, Lenis for smooth scroll, `@react-three/fiber` + Three.js for the 3D hero layer (`src/components/three/`).
 
 ## Architecture
 

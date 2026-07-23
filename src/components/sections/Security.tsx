@@ -153,7 +153,7 @@ export default function Security({ dict }: { dict: Dict }) {
   );
 
   return (
-    <section id="security" ref={ref} className="relative py-28 lg:py-36 bg-[var(--bg-elev)] overflow-hidden">
+    <section id="security" ref={ref} className="relative py-28 lg:py-36 bg-[var(--bg-elev)] border-t hairline overflow-hidden">
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">

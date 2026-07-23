@@ -12,24 +12,21 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // ── Media wiring ─────────────────────────────────────────────────────
 // One entry per project (index-aligned with dict.projects.items). Drop real
-// assets into /public/projects/ and fill `image` or `video` (+ optional
-// `poster`). Until then each card shows a styled "visual pending" placeholder.
+// assets into /public/projects/ and fill `image`. Until then each card shows
+// a styled "visual pending" placeholder.
 //   image:  "/projects/settlement.webp"
-//   video:  "/projects/settlement.mp4"  (muted-loop, autoplays on the centred card)
 type ProjectMedia = {
   accent: string; // glow / tint for the placeholder + frame
   image?: string;
-  video?: string;
-  poster?: string;
   kind?: "image" | "video"; // hint for the placeholder badge before real media exists
 };
 
 const MEDIA: ProjectMedia[] = [
-  { accent: "var(--brand-teal-bright)", video: "/projects/main.mp4", poster: "/projects/main-poster.jpg" },
-  { accent: "var(--brand-red)", video: "/projects/dotbond.mp4", poster: "/projects/dotbond-poster.jpg" },
-  { accent: "var(--brand-teal-soft)", video: "/projects/perf.mp4", poster: "/projects/perf-poster.jpg" },
-  { accent: "var(--brand-red)", video: "/projects/zadaci.mp4", poster: "/projects/zadaci-poster.jpg" },
-  { accent: "var(--brand-teal-bright)", video: "/projects/NVO.mp4", poster: "/projects/NVO-poster.jpg" },
+  { accent: "var(--brand-teal-bright)", image: "/projects/main-poster.jpg" },
+  { accent: "var(--brand-red)", image: "/projects/dotbond-poster.jpg" },
+  { accent: "var(--brand-teal-soft)", image: "/projects/perf-poster.jpg" },
+  { accent: "var(--brand-red)", image: "/projects/zadaci-poster.jpg" },
+  { accent: "var(--brand-teal-bright)", image: "/projects/NVO-poster.jpg" },
 ];
 
 const FALLBACK: ProjectMedia = { accent: "var(--brand-teal-bright)", kind: "image" };
@@ -42,29 +39,6 @@ export default function Projects({ dict }: { dict: Dict }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
-
-  // Touch / non-pinned (<1024px): play the most-visible card's video and pause
-  // the rest. The desktop (≥1024px, motion-OK) pinned ScrollTrigger drives
-  // playback itself, so we bow out there; reduced-motion users stay on posters.
-  useEffect(() => {
-    if (reducedMotion) return;
-    const vp = viewportRef.current;
-    if (!vp || window.matchMedia("(min-width: 1024px)").matches) return;
-    const vids = Array.from(vp.querySelectorAll<HTMLVideoElement>("video[data-pj-video]"));
-    if (!vids.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          const v = e.target as HTMLVideoElement;
-          if (e.isIntersecting && e.intersectionRatio > 0.6) v.play().catch(() => {});
-          else v.pause();
-        });
-      },
-      { root: vp, threshold: [0, 0.6, 1] }
-    );
-    vids.forEach((v) => io.observe(v));
-    return () => io.disconnect();
-  }, [reducedMotion]);
 
   // Mobile / reduced-motion: progress bar tracks native horizontal scroll.
   useEffect(() => {
@@ -111,15 +85,6 @@ export default function Projects({ dict }: { dict: Dict }) {
           animation: drift,
           onUpdate: (self) => {
             if (bar) bar.style.transform = `scaleX(${self.progress})`;
-            // Autoplay only the card nearest centre; pause the rest.
-            const vids = track.querySelectorAll<HTMLVideoElement>("video[data-pj-video]");
-            if (vids.length) {
-              const active = Math.round(self.progress * (vids.length - 1));
-              vids.forEach((v, i) => {
-                if (i === active) v.play().catch(() => {});
-                else v.pause();
-              });
-            }
           },
         });
 
@@ -267,8 +232,8 @@ export default function Projects({ dict }: { dict: Dict }) {
 }
 
 // ── Per-card visual ──────────────────────────────────────────────────
-// Real video → autoplaying muted loop. Real image → cover img. Otherwise a
-// styled dashboard-wireframe placeholder so the layout reads intentionally.
+// Real image → cover img. Otherwise a styled dashboard-wireframe
+// placeholder so the layout reads intentionally.
 function ProjectVisual({
   media,
   name,
@@ -278,21 +243,6 @@ function ProjectVisual({
   name: string;
   reduced: boolean;
 }) {
-  if (media.video) {
-    return (
-      <video
-        data-pj-video
-        aria-label={name}
-        className="pj-media-inner absolute inset-[-7%] h-[114%] w-[114%] object-cover"
-        src={media.video}
-        poster={media.poster}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-      />
-    );
-  }
   if (media.image) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
