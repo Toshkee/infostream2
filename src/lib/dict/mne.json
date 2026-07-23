@@ -687,5 +687,10 @@
     "experience": "20+ godina · kritični državni sistemi",
     "status": "Svi sistemi · operativni",
     "ethos": "bezbjedno · odgovorno · na liniji"
+  },
+  "notFound": {
+    "title": "Stranica nije pronađena.",
+    "body": "Stranica koju tražite ne postoji ili je premještena.",
+    "cta": "Nazad na početnu"
   }
 }

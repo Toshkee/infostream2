@@ -12,10 +12,16 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (ROOT_ASSETS.has(pathname)) return;
 
-  const hasLocale = locales.some(
+  const locale = locales.find(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   );
-  if (hasLocale) return;
+  if (locale) {
+    // not-found.tsx renders without route params, so forward the matched
+    // locale as a request header for the 404 page to answer in-language.
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-locale', locale);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   const url = request.nextUrl.clone();
   url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`;

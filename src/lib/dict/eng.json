@@ -687,5 +687,10 @@
     "experience": "20+ years · critical state systems",
     "status": "All systems · operational",
     "ethos": "secure · accountable · on the line"
+  },
+  "notFound": {
+    "title": "Page not found.",
+    "body": "The page you're looking for doesn't exist or has moved.",
+    "cta": "Back to home"
   }
 }
