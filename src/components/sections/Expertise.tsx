@@ -272,7 +272,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                       aria-hidden={!isActive}
                       inert={!isActive}
                     >
-                      <div className="grid items-start gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] xl:items-center xl:gap-20">
+                      <div className="grid items-start gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(250px,330px)] xl:items-center xl:gap-14">
                       <div>
                       <div
                         className="mono text-[10px] tracking-[0.3em] uppercase text-white/45"
@@ -281,7 +281,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                         {it.name}
                       </div>
                       <h3
-                        className="font-display mt-3 max-w-xl text-[clamp(1.9rem,3.4vw,3rem)] leading-[1.06] tracking-[-0.022em] font-medium text-white"
+                        className="font-display mt-3 max-w-xl text-balance text-[clamp(1.8rem,3vw,2.6rem)] leading-[1.08] tracking-[-0.02em] font-medium text-white"
                         style={titleStyle}
                       >
                         {it.title}
@@ -417,7 +417,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
               <article key={it.slug} className="md:grid md:grid-cols-[minmax(0,1fr)_230px] md:items-center md:gap-14">
                 <div>
                   <div className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">{it.name}</div>
-                  <h3 className="font-display mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.02] tracking-[-0.025em] font-medium">
+                  <h3 className="font-display mt-3 max-w-2xl text-balance text-[clamp(1.7rem,3.2vw,2.4rem)] leading-[1.06] tracking-[-0.02em] font-medium">
                     {it.title}
                   </h3>
                   <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
