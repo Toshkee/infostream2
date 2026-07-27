@@ -24,8 +24,16 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
    domain subpage, so the current scene stays in the accessibility tree and
    only inactive scenes are inert. */
 
-// How many clients a domain scene lists before collapsing into a "+N" chip.
-const MAX_HOME_CLIENTS = 6;
+// Which engagements a domain scene highlights as "Solutions delivered" —
+// indices into it.clients. This is structure, not copy ("structure in code,
+// copy in dict", as elsewhere); the full per-domain lists live in the Clients
+// section and on the domain subpages.
+const FEATURED: Record<string, number[]> = {
+  finance: [0, 1, 3], // Tax Administration · Treasury · ERSTE Bank
+  hr: [0, 1, 2], // HR Management Authority · Pension Fund · Employment Agency
+  healthcare: [],
+  dms: [0, 2], // Ministry of Defense · Military Intelligence Department
+};
 
 // Sequential fade around `target`: fully visible within ±0.32, fully gone by
 // ±0.48 — the outgoing domain clears before the incoming one starts. Unlike
@@ -249,7 +257,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 </div>
                 {items.map((it, i) => {
                   const isActive = i === active;
-                  const shown = it.clients.slice(0, MAX_HOME_CLIENTS);
+                  const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
                   const extra = it.clients.length - shown.length;
                   return (
                     <div
@@ -266,36 +274,41 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                     >
                       <div className="grid items-start gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] xl:items-center xl:gap-20">
                       <div>
-                      <h3
-                        className="font-display text-[clamp(2.4rem,5vw,4.4rem)] leading-[1.0] tracking-[-0.028em] font-medium text-white"
-                        style={titleStyle}
+                      <div
+                        className="mono text-[10px] tracking-[0.3em] uppercase text-white/45"
+                        style={drev(-0.4, 0.14, 6)}
                       >
                         {it.name}
+                      </div>
+                      <h3
+                        className="font-display mt-3 max-w-xl text-[clamp(1.9rem,3.4vw,3rem)] leading-[1.06] tracking-[-0.022em] font-medium text-white"
+                        style={titleStyle}
+                      >
+                        {it.title}
                       </h3>
                       <p
-                        className="mt-5 max-w-2xl text-[15.5px] leading-relaxed text-white/65"
+                        className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/65"
                         style={drev(-0.3, 0.16, 8)}
                       >
                         {it.short}
                       </p>
 
-                      {it.clients.length > 0 ? (
-                        <div className="mt-10">
+                      {shown.length > 0 ? (
+                        <div className="mt-8">
                           <div
                             className="mono text-[10px] tracking-[0.3em] uppercase text-white/45"
                             style={drev(-0.22, 0.14, 6)}
                           >
-                            {x.clientsLabel}
+                            {x.solutionsLabel}
                           </div>
-                          <ul className="mt-4 grid max-w-2xl gap-x-10 sm:grid-cols-2">
+                          <ul className="mt-3 max-w-xl">
                             {shown.map((c, j) => (
                               <li
                                 key={j}
-                                className={`border-t border-white/10 py-3.5 ${j >= 4 ? "hidden sm:block" : ""}`}
-                                style={drev(-0.34 + j * 0.04, 0.12, 10)}
+                                className="border-t border-white/10 py-3 text-[14px] leading-snug text-white/85"
+                                style={drev(-0.3 + j * 0.05, 0.12, 10)}
                               >
-                                <div className="text-[14.5px] leading-snug text-white/85">{c.org}</div>
-                                <div className="mt-1 text-[12px] leading-snug text-white/45">{c.system}</div>
+                                {c.org} <span className="text-white/40">— {c.system}</span>
                               </li>
                             ))}
                           </ul>
@@ -310,7 +323,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                       )}
 
                       {/* Subpage link — diagonal arrow, matching the site's card affordance */}
-                      <div className="mt-9" style={drev(-0.16, 0.12, 8)}>
+                      <div className="mt-7" style={drev(-0.16, 0.12, 8)}>
                         <Link
                           href={`/${lang}/expertise/${it.slug}`}
                           className="group inline-flex items-center gap-3 text-[13px] tracking-[0.04em] text-[var(--brand-teal-bright)]"
@@ -398,16 +411,19 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
           <p className="mt-4 max-w-2xl text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
           <div className="mt-14 space-y-14">
-            {items.map((it) => (
+            {items.map((it) => {
+              const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
+              return (
               <article key={it.slug} className="md:grid md:grid-cols-[minmax(0,1fr)_230px] md:items-center md:gap-14">
                 <div>
-                  <h3 className="font-display text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.02] tracking-[-0.025em] font-medium">
-                    {it.name}
+                  <div className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">{it.name}</div>
+                  <h3 className="font-display mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] leading-[1.02] tracking-[-0.025em] font-medium">
+                    {it.title}
                   </h3>
                   <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
-                  {it.clients.length > 0 ? (
+                  {shown.length > 0 ? (
                     <ul className="mt-6 grid max-w-3xl gap-x-10 sm:grid-cols-2">
-                      {it.clients.map((c, j) => (
+                      {shown.map((c, j) => (
                         <li key={j} className="border-t border-white/10 py-3 text-[14.5px] leading-snug text-white/85">
                           {c.org}
                         </li>
@@ -431,7 +447,8 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                   <DomainArt slug={it.slug} />
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

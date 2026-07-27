@@ -7,7 +7,7 @@ import Expertise from "@/components/sections/Expertise";
 import PinnedProcess from "@/components/sections/PinnedProcess";
 import Technology from "@/components/sections/Technology";
 import Security from "@/components/sections/Security";
-import About from "@/components/sections/About";
+import Clients from "@/components/sections/Clients";
 import Contact from "@/components/sections/Contact";
 import EdgeBeam from "@/components/EdgeBeam";
 
@@ -23,8 +23,8 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
         <Hero dict={dict} />
         <Expertise dict={dict} lang={lang} />
         <PinnedProcess dict={dict} />
+        <EdgeBeam><Clients dict={dict} /></EdgeBeam>
         <EdgeBeam><Technology dict={dict} /></EdgeBeam>
-        <EdgeBeam><About dict={dict} /></EdgeBeam>
         <EdgeBeam><Security dict={dict} /></EdgeBeam>
         <EdgeBeam><Contact dict={dict} /></EdgeBeam>
       </main>

@@ -5,7 +5,7 @@
     "expertise": "Expertise",
     "technology": "Tech",
     "projects": "Work",
-    "about": "About",
+    "clients": "Clients",
     "security": "Standards",
     "contact": "Contact",
     "cta": "Talk to us"
@@ -359,10 +359,11 @@
   },
   "expertise": {
     "eyebrow": "Expertise",
-    "title": "Four domains, known from the inside.",
-    "body": "Two decades of building for institutions concentrates into four fields where we know the regulations, the data and the daily reality — not just the technology.",
+    "title": "Software built on domain expertise.",
+    "body": "Successful enterprise software requires more than technical knowledge — it demands deep industry insight. Our solutions reflect a clear understanding of the business processes, regulatory requirements and daily operations of the organisations we support. Over the years, Infostream has specialised its expertise across finance, human resources, healthcare and document management.",
     "status": "in production",
     "clientsLabel": "Selected clients",
+    "solutionsLabel": "Solutions delivered",
     "linkLabel": "All clients",
     "comingSoon": "Reference list available on request.",
     "backLabel": "Back to the homepage",
@@ -370,12 +371,17 @@
       {
         "slug": "finance",
         "name": "Finance",
-        "short": "Budget, revenue and registry systems for the state — and ERP platforms for banks. Software where every figure has to reconcile.",
+        "title": "Financial systems built on experience.",
+        "short": "Grounded in high precision and regulatory compliance, our software drives vital financial operations. By covering taxation, treasury, budgeting, business registries and reporting, we empower organisations to confidently manage their core financial data.",
         "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to banking, where ERPStream runs on Oracle at ERSTE Bank.",
         "clients": [
           {
             "org": "Tax Administration of Montenegro",
             "system": "Central Register of Business Entities"
+          },
+          {
+            "org": "Ministry of Finance",
+            "system": "Treasury information system"
           },
           {
             "org": "Ministry of Finance",
@@ -402,7 +408,8 @@
       {
         "slug": "hr",
         "name": "Human Resources",
-        "short": "HR and payroll platforms for the public sector — including the systems that manage the civil service and pay the country's pensions.",
+        "title": "Complete control over your HR ecosystem.",
+        "short": "At the heart of every organisation are its people. Our solutions simplify day-to-day HR operations — from recruitment and payroll to workforce management and administration — making your organisation more efficient and transparent.",
         "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund.",
         "clients": [
           {
@@ -412,20 +419,26 @@
           {
             "org": "Pension & Disability Insurance Fund",
             "system": "National information system"
+          },
+          {
+            "org": "Employment Agency of Montenegro",
+            "system": "HR management platform"
           }
         ]
       },
       {
         "slug": "healthcare",
         "name": "Healthcare",
-        "short": "Information systems for health and social insurance — records, entitlements and claims, treated with the discretion medical data demands.",
+        "title": "Digital solutions for healthcare systems.",
+        "short": "Dedicated software systems for healthcare environments. These solutions streamline administrative workflows, simplify patient data management and increase overall operational efficiency.",
         "body": "Health systems are where our domain disciplines meet: identity, entitlements, sensitive records and long institutional memory. We bring the same ISO-certified engineering and information-security practice that runs our public-sector platforms.",
         "clients": []
       },
       {
         "slug": "dms",
         "name": "DMS & Workflow",
-        "short": "Document management, registries and case workflows — InfoDMS and ERPStream carry the paper trail of ministries, parliament and the armed forces.",
+        "title": "Ditch the paper. Accelerate your business.",
+        "short": "Converting traditional paper operations into digital systems creates faster, more transparent business procedures. These solutions automate approvals, protect data integrity and streamline document organisation from creation to archiving.",
         "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defense — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
         "clients": [
           {
@@ -475,6 +488,12 @@
         ]
       }
     ]
+  },
+  "clients": {
+    "eyebrow": "Trusted by",
+    "title": "We do not have many clients. We have the right ones.",
+    "status": "in production",
+    "more": "more systems in production"
   },
   "projects": {
     "eyebrow": "Selected work",
