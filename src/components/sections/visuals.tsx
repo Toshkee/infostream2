@@ -258,7 +258,8 @@ export type IconName =
   | "gear"
   | "cubes"
   | "puzzle"
-  | "server";
+  | "server"
+  | "landmark";
 
 const ICONS: Record<IconName, ReactNode> = {
   target: (
@@ -305,6 +306,17 @@ const ICONS: Record<IconName, ReactNode> = {
     </>
   ),
   shield: <path d="M12 2 4 5v6c0 5 3.4 8.2 8 10 4.6-1.8 8-5 8-10V5z" />,
+  // Classical columned building — state institutions, banks, the Finance domain.
+  landmark: (
+    <>
+      <path d="M4 8.5 12 3l8 5.5z" />
+      <line x1="6" y1="12" x2="6" y2="17.5" />
+      <line x1="10" y1="12" x2="10" y2="17.5" />
+      <line x1="14" y1="12" x2="14" y2="17.5" />
+      <line x1="18" y1="12" x2="18" y2="17.5" />
+      <line x1="4" y1="20.5" x2="20" y2="20.5" />
+    </>
+  ),
   users: (
     <>
       <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20" />

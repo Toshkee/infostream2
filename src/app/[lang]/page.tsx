@@ -23,7 +23,7 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
         <Hero dict={dict} />
         <Expertise dict={dict} lang={lang} />
         <PinnedProcess dict={dict} />
-        <EdgeBeam><Clients dict={dict} /></EdgeBeam>
+        <EdgeBeam><Clients dict={dict} lang={lang} /></EdgeBeam>
         <EdgeBeam><Technology dict={dict} /></EdgeBeam>
         <EdgeBeam><Security dict={dict} /></EdgeBeam>
         <EdgeBeam><Contact dict={dict} /></EdgeBeam>

@@ -373,6 +373,7 @@
         "name": "Finance",
         "title": "Financial systems built on experience.",
         "short": "Grounded in high precision and regulatory compliance, our software drives vital financial operations. By covering taxation, treasury, budgeting, business registries and reporting, we empower organisations to confidently manage their core financial data.",
+        "blurb": "Financial management, taxation, budgeting, treasury and public finance systems.",
         "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to banking, where ERPStream runs on Oracle at ERSTE Bank.",
         "clients": [
           {
@@ -410,6 +411,7 @@
         "name": "Human Resources",
         "title": "Complete control over your HR ecosystem.",
         "short": "At the heart of every organisation are its people. Our solutions simplify day-to-day HR operations — from recruitment and payroll to workforce management and administration — making your organisation more efficient and transparent.",
+        "blurb": "HR management, payroll, employee administration and workforce solutions.",
         "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund.",
         "clients": [
           {
@@ -431,6 +433,7 @@
         "name": "Healthcare",
         "title": "Digital solutions for healthcare systems.",
         "short": "Dedicated software systems for healthcare environments. These solutions streamline administrative workflows, simplify patient data management and increase overall operational efficiency.",
+        "blurb": "Healthcare information systems, health insurance and medical data management.",
         "body": "Health systems are where our domain disciplines meet: identity, entitlements, sensitive records and long institutional memory. We bring the same ISO-certified engineering and information-security practice that runs our public-sector platforms.",
         "clients": []
       },
@@ -439,6 +442,7 @@
         "name": "DMS & Workflow",
         "title": "Ditch the paper. Accelerate your business.",
         "short": "Converting traditional paper operations into digital systems creates faster, more transparent business procedures. These solutions automate approvals, protect data integrity and streamline document organisation from creation to archiving.",
+        "blurb": "Document management, electronic registries and workflow automation solutions.",
         "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defense — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
         "clients": [
           {
@@ -492,7 +496,10 @@
   "clients": {
     "eyebrow": "Trusted by",
     "title": "We do not have many clients. We have the right ones.",
+    "body": "Solutions are built for institutions where reliability, security and continuity matter. Partnerships are based on trust and delivered through results.",
     "status": "in production",
+    "domainLink": "View clients in {domain}",
+    "banner": "Long-term partnerships built on trust, reliability and a shared commitment to results.",
     "more": "more systems in production"
   },
   "projects": {

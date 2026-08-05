@@ -373,6 +373,7 @@
         "name": "Finansije",
         "title": "Finansijski sistemi građeni na iskustvu.",
         "short": "Zasnovan na visokoj preciznosti i usklađenosti sa propisima, naš softver pokreće ključne finansijske operacije. Pokrivajući poreze, trezor, budžet, privredne registre i izvještavanje, omogućavamo organizacijama da sa sigurnošću upravljaju svojim osnovnim finansijskim podacima.",
+        "blurb": "Finansijsko upravljanje, porezi, budžet, trezor i sistemi javnih finansija.",
         "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u bankarstvo, gdje ERPStream radi na Oracle-u u ERSTE banci.",
         "clients": [
           {
@@ -410,6 +411,7 @@
         "name": "Ljudski resursi",
         "title": "Potpuna kontrola nad HR ekosistemom.",
         "short": "U srcu svake organizacije su njeni ljudi. Naša rješenja pojednostavljuju svakodnevne HR operacije — od zapošljavanja i obračuna zarada do upravljanja kadrovima i administracije — čineći organizaciju efikasnijom i transparentnijom.",
+        "blurb": "Upravljanje kadrovima, zarade, administracija zaposlenih i kadrovska rješenja.",
         "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO.",
         "clients": [
           {
@@ -431,6 +433,7 @@
         "name": "Zdravstvo",
         "title": "Digitalna rješenja za zdravstvene sisteme.",
         "short": "Namjenski softverski sistemi za zdravstveno okruženje. Ova rješenja ubrzavaju administrativne procese, pojednostavljuju upravljanje podacima o pacijentima i podižu ukupnu operativnu efikasnost.",
+        "blurb": "Zdravstveni informacioni sistemi, zdravstveno osiguranje i upravljanje medicinskim podacima.",
         "body": "Zdravstveni sistemi su tačka u kojoj se naše discipline susrijeću: identitet, prava, osjetljivi podaci i dugo institucionalno pamćenje. Donosimo istu ISO sertifikovanu inženjersku praksu i praksu bezbjednosti informacija koja pokreće naše platforme u javnom sektoru.",
         "clients": []
       },
@@ -439,6 +442,7 @@
         "name": "DMS i tokovi rada",
         "title": "Ostavite papir. Ubrzajte poslovanje.",
         "short": "Prevođenje tradicionalnog papirnog poslovanja u digitalne sisteme donosi brže i transparentnije procedure. Ova rješenja automatizuju odobrenja, štite integritet podataka i uređuju rad sa dokumentima od nastanka do arhiviranja.",
+        "blurb": "Upravljanje dokumentima, elektronski registri i automatizacija tokova rada.",
         "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS — uveden po NATO standardima dokumentacije u Ministarstvu odbrane — i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
         "clients": [
           {
@@ -492,7 +496,10 @@
   "clients": {
     "eyebrow": "Vjeruju nam",
     "title": "Nemamo mnogo klijenata. Imamo prave klijente.",
+    "body": "Rješenja gradimo za institucije u kojima su pouzdanost, bezbjednost i kontinuitet od ključne važnosti. Partnerstva počivaju na povjerenju i potvrđuju se rezultatima.",
     "status": "u produkciji",
+    "domainLink": "Svi klijenti — {domain}",
+    "banner": "Dugoročna partnerstva izgrađena na povjerenju, pouzdanosti i zajedničkoj posvećenosti rezultatima.",
     "more": "sistema u produkciji"
   },
   "projects": {
