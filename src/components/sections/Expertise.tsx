@@ -6,7 +6,20 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Dict, Locale } from "@/lib/dictionaries";
-import { EyebrowBars, MOTION_QUERY, Starfield, tealPeriod, type CSSVars } from "./visuals";
+import { attachStopSnap } from "@/lib/scrollSnap";
+import { smoothScrollTo } from "@/components/providers/SmoothScroll";
+import {
+  DomainArt,
+  EyebrowBars,
+  Icon,
+  Medallion,
+  MOTION_QUERY,
+  Starfield,
+  tealPeriod,
+  type CSSVars,
+} from "./visuals";
+import { ClientMark } from "./Clients";
+import { CAP_ICONS } from "./expertiseMeta";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -55,23 +68,6 @@ const drev = (start: number, len = 0.12, lift = 10): CSSVars => ({
   "--r": `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
   opacity: "var(--r)",
   transform: `translateY(calc((1 - var(--r)) * ${lift}px))`,
-});
-
-// Scroll-drawn stroke: dash the whole element (L generously overestimates its
-// length) and retract the offset as the scene-local --u passes `start`, so the
-// line traces itself in — and un-traces on reverse scroll. Same completion rule
-// as drev: start + len <= 0. In the static variant --u is never set, so the
-// invalid var() collapses stroke-dashoffset to its initial 0 = fully drawn.
-const draw = (L: number, start: number, len = 0.14): React.CSSProperties => ({
-  strokeDasharray: L,
-  strokeDashoffset: `calc((1 - clamp(0, calc((var(--u) - ${start}) / ${len}), 1)) * ${L}px)`,
-});
-
-// Fade-in for art parts that can't dash-draw (filled dots, the svcart-flow
-// traces whose dasharray belongs to their ambient animation) — put on a <g>
-// wrapper so it composes with svcart-blink's own opacity animation.
-const fadeIn = (start: number, len = 0.1): React.CSSProperties => ({
-  opacity: `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
 });
 
 // Domain title — clip-path wipe from the top, like the process descriptions.
@@ -124,7 +120,14 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
             setActive(Math.max(-1, Math.min(last, Math.round(p) - 1)));
           },
         });
+        // Settle an idle scroll onto a stop — stops sit at --xp 0..span, i.e.
+        // progress i/span.
+        const detachSnap = attachStopSnap(
+          () => st.current,
+          Array.from({ length: span + 1 }, (_, i) => i / span)
+        );
         return () => {
+          detachSnap();
           st.current = null;
         };
       });
@@ -133,14 +136,15 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
   );
 
   // Rail navigation — map a domain index onto the pin's scroll span (offset by
-  // the intro stop). Native smooth scrolling coexists with Lenis the same way
-  // the navbar's scroll-to-top does; ScrollTrigger's onUpdate keeps
-  // --xp/active in sync.
+  // the intro stop). Goes through smoothScrollTo, not window.scrollTo: while
+  // Lenis is the active scroller it rewrites scrollTop every frame, so a
+  // native scroll is reverted before it lands. ScrollTrigger's onUpdate keeps
+  // --xp/active in sync either way.
   const jumpTo = useCallback(
     (i: number) => {
       const t = st.current;
       if (!t) return;
-      window.scrollTo({ top: t.start + ((i + 1) / span) * (t.end - t.start), behavior: "smooth" });
+      smoothScrollTo(t.start + ((i + 1) / span) * (t.end - t.start));
     },
     [span]
   );
@@ -207,30 +211,37 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
             <div className="mt-10 grid flex-1 min-h-0 gap-10 lg:mt-16 lg:grid-cols-[minmax(230px,290px)_1fr] lg:gap-16">
               {/* Domain rail — compact stack with a scrub-driven fill; self-start
                  so the track hugs the list instead of stretching to the pin.
-                 Each name is a real button that scrolls the pin to its stop. */}
-              <div className="hidden self-start lg:flex gap-5">
-                <div aria-hidden className="relative w-px self-stretch bg-white/10">
-                  <div
-                    className="absolute left-0 top-0 w-px bg-[var(--brand-teal-bright)]"
-                    style={{ height: `calc(clamp(0, calc((var(--xp) - 1) / ${last}), 1) * 100%)` }}
-                  />
+                 Each name is a real button that scrolls the pin to its stop.
+                 Below it, the mock's quiet positioning card. */}
+              <div className="hidden self-start lg:flex lg:flex-col gap-12">
+                <div className="flex gap-5">
+                  <div aria-hidden className="relative w-px self-stretch bg-white/10">
+                    <div
+                      className="absolute left-0 top-0 w-px bg-[var(--brand-teal-bright)]"
+                      style={{ height: `calc(clamp(0, calc((var(--xp) - 1) / ${last}), 1) * 100%)` }}
+                    />
+                  </div>
+                  <ul className="flex flex-col gap-9 py-1.5">
+                    {items.map((it, i) => (
+                      <li key={it.slug}>
+                        <button
+                          type="button"
+                          onClick={() => jumpTo(i)}
+                          aria-current={i === active ? "true" : undefined}
+                          className={`cursor-pointer text-left text-[16px] leading-snug tracking-[0.01em] transition-colors duration-500 hover:text-white ${
+                            i === active ? "text-white" : i < active ? "text-white/45" : "text-white/30"
+                          }`}
+                        >
+                          {it.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="flex flex-col gap-9 py-1.5">
-                  {items.map((it, i) => (
-                    <li key={it.slug}>
-                      <button
-                        type="button"
-                        onClick={() => jumpTo(i)}
-                        aria-current={i === active ? "true" : undefined}
-                        className={`cursor-pointer text-left text-[16px] leading-snug tracking-[0.01em] transition-colors duration-500 hover:text-white ${
-                          i === active ? "text-white" : i < active ? "text-white/45" : "text-white/30"
-                        }`}
-                      >
-                        {it.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex max-w-[240px] flex-col gap-4 rounded-2xl border border-white/10 p-6">
+                  <Medallion name="shieldCheck" size="sm" />
+                  <p className="text-[12.5px] leading-relaxed text-white/55">{x.sideNote}</p>
+                </div>
               </div>
 
               {/* Domain scenes — stacked, crossfaded by --xp. Stop 0 is the
@@ -258,7 +269,6 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                 {items.map((it, i) => {
                   const isActive = i === active;
                   const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
-                  const extra = it.clients.length - shown.length;
                   return (
                     <div
                       key={it.slug}
@@ -293,58 +303,29 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                         {it.short}
                       </p>
 
-                      {shown.length > 0 ? (
-                        <div className="mt-8">
+                      {/* Capability row — hairline-divided icon + label pairs
+                         (per the mock). Equal grid columns instead of a wrap-
+                         prone flex row: five items never fit one flex line at
+                         in-between widths and the orphan carried a hanging
+                         hairline. Hidden on small screens: the paragraph above
+                         says the same in prose and the pin's height budget is
+                         tight there. */}
+                      <div className="mt-8 hidden max-w-xl grid-flow-col auto-cols-fr md:grid">
+                        {it.capabilities.map((label, k) => (
                           <div
-                            className="mono text-[10px] tracking-[0.3em] uppercase text-white/45"
-                            style={drev(-0.22, 0.14, 6)}
+                            key={k}
+                            className={`flex flex-col gap-2.5 pr-4 lg:pr-5 ${
+                              k > 0 ? "border-l border-white/10 pl-4 lg:pl-5" : ""
+                            }`}
+                            style={drev(-0.3 + k * 0.02, 0.1, 8)}
                           >
-                            {x.solutionsLabel}
+                            <Icon
+                              name={(CAP_ICONS[it.slug] ?? [])[k] ?? "layers"}
+                              className="h-5 w-5 text-[var(--brand-teal-bright)]"
+                            />
+                            <span className="text-[12.5px] leading-snug text-white/75">{label}</span>
                           </div>
-                          <ul className="mt-3 max-w-xl">
-                            {shown.map((c, j) => (
-                              <li
-                                key={j}
-                                className="border-t border-white/10 py-3 text-[14px] leading-snug text-white/85"
-                                style={drev(-0.3 + j * 0.05, 0.12, 10)}
-                              >
-                                {c.org} <span className="text-white/40">— {c.system}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : (
-                        <p
-                          className="mt-10 mono text-[11px] tracking-[0.22em] uppercase text-white/40"
-                          style={drev(-0.18, 0.14, 8)}
-                        >
-                          {x.comingSoon}
-                        </p>
-                      )}
-
-                      {/* Subpage link — diagonal arrow, matching the site's card affordance */}
-                      <div className="mt-7" style={drev(-0.16, 0.12, 8)}>
-                        <Link
-                          href={`/${lang}/expertise/${it.slug}`}
-                          className="group inline-flex items-center gap-3 text-[13px] tracking-[0.04em] text-[var(--brand-teal-bright)]"
-                        >
-                          <span className="border-b border-[var(--brand-teal-bright)]/30 pb-0.5 transition-colors duration-300 group-hover:border-[var(--brand-teal-bright)]">
-                            {x.linkLabel}
-                            {extra > 0 && <span className="text-white/45"> · +{extra}</span>}
-                          </span>
-                          <svg
-                            viewBox="0 0 24 24"
-                            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden
-                          >
-                            <path d="M7 17 17 7M9 7h8v8" />
-                          </svg>
-                        </Link>
+                        ))}
                       </div>
                       </div>
 
@@ -352,9 +333,82 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                          section's visual language, one composition per field.
                          The container only fades the dashed meridian in; the
                          strokes draw themselves via draw()/fadeIn() below. */}
-                      <div className="hidden xl:grid place-items-center" style={drev(-0.44, 0.1, 8)}>
+                      <div
+                        className="hidden xl:flex xl:flex-col xl:items-center xl:gap-5"
+                        style={drev(-0.44, 0.1, 8)}
+                      >
                         <DomainArt slug={it.slug} />
+                        {/* the domain tagline sits under the instrument, as in the mock */}
+                        <p className="max-w-[28ch] text-center text-[12.5px] leading-relaxed text-white/50">
+                          {it.tagline}
+                        </p>
                       </div>
+                      </div>
+
+                      {/* Projects — the domain's featured engagements as
+                         monogram cards spanning the full scene width (per the
+                         mock), headed by the label + subpage link. Below sm
+                         the cards compress to badge + org rows and drop the
+                         system line to fit the pin's height budget. */}
+                      <div className="mt-8 lg:mt-10">
+                        <div
+                          className="flex flex-wrap items-center gap-x-5 gap-y-3"
+                          style={drev(-0.26, 0.12, 8)}
+                        >
+                          <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">
+                            {x.projectsLabel}
+                          </span>
+                          <span aria-hidden className="hidden h-px flex-1 bg-white/10 sm:block" />
+                          <Link
+                            href={`/${lang}/expertise/${it.slug}`}
+                            className="group inline-flex items-center gap-2.5 text-[12.5px] tracking-[0.04em] text-[var(--brand-teal-bright)]"
+                          >
+                            <span className="border-b border-[var(--brand-teal-bright)]/30 pb-0.5 transition-colors duration-300 group-hover:border-[var(--brand-teal-bright)]">
+                              {x.allClientsIn.replace("{domain}", it.name)}
+                            </span>
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden
+                            >
+                              <path d="M5 12h14m-6-7 7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </div>
+
+                        {shown.length > 0 ? (
+                          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
+                            {shown.map((c, j) => (
+                              <li
+                                key={j}
+                                className="flex items-center gap-3.5 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 sm:flex-col sm:items-start sm:rounded-2xl sm:p-5"
+                                style={drev(-0.24 + j * 0.04, 0.1, 10)}
+                              >
+                                <ClientMark org={c.org} index={j} />
+                                <div>
+                                  <div className="text-[13.5px] font-medium leading-snug text-white/90">
+                                    {c.org}
+                                  </div>
+                                  <div className="mt-1 hidden text-[12.5px] leading-relaxed text-white/50 sm:block">
+                                    {c.system}
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p
+                            className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-white/40"
+                            style={drev(-0.22, 0.12, 8)}
+                          >
+                            {x.comingSoon}
+                          </p>
+                        )}
                       </div>
 
                       {/* Below xl the art column has no room — echo it as a
@@ -362,7 +416,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                          signature (draw-in still runs off the inherited --u) */}
                       <div
                         aria-hidden
-                        className="pointer-events-none absolute bottom-1 right-0 w-36 opacity-20 sm:w-44 md:w-56 md:opacity-30 xl:hidden"
+                        className="pointer-events-none absolute bottom-1 right-0 -z-10 w-36 opacity-20 sm:w-44 md:w-56 md:opacity-30 xl:hidden"
                       >
                         <DomainArt slug={it.slug} />
                       </div>
@@ -421,25 +475,54 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                     {it.title}
                   </h3>
                   <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
+                  {/* same single-row grid as the pinned variant (md+); plain
+                     wrap with gaps below that, where columns would crush */}
+                  <div className="mt-7 flex flex-wrap gap-6 md:grid md:max-w-xl md:grid-flow-col md:auto-cols-fr md:gap-0">
+                    {it.capabilities.map((label, k) => (
+                      <div
+                        key={k}
+                        className={`flex flex-col gap-2.5 md:pr-4 ${
+                          k > 0 ? "md:border-l md:border-white/10 md:pl-4" : ""
+                        }`}
+                      >
+                        <Icon
+                          name={(CAP_ICONS[it.slug] ?? [])[k] ?? "layers"}
+                          className="h-5 w-5 text-[var(--brand-teal-bright)]"
+                        />
+                        <span className="text-[12.5px] leading-snug text-white/75">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+                    <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">
+                      {x.projectsLabel}
+                    </span>
+                    <Link
+                      href={`/${lang}/expertise/${it.slug}`}
+                      className="text-[12.5px] text-[var(--brand-teal-bright)] border-b border-[var(--brand-teal-bright)]/30 pb-0.5"
+                    >
+                      {x.allClientsIn.replace("{domain}", it.name)}
+                    </Link>
+                  </div>
                   {shown.length > 0 ? (
-                    <ul className="mt-6 grid max-w-3xl gap-x-10 sm:grid-cols-2">
+                    <ul className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-2">
                       {shown.map((c, j) => (
-                        <li key={j} className="border-t border-white/10 py-3 text-[14.5px] leading-snug text-white/85">
-                          {c.org}
+                        <li
+                          key={j}
+                          className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                        >
+                          <div className="flex items-center gap-3.5">
+                            <ClientMark org={c.org} index={j} />
+                            <span className="text-[13.5px] font-medium leading-snug text-white/90">{c.org}</span>
+                          </div>
+                          <p className="text-[12.5px] leading-relaxed text-white/50">{c.system}</p>
                         </li>
                       ))}
                     </ul>
                   ) : (
                     <p className="mt-6 mono text-[11px] tracking-[0.22em] uppercase text-white/40">{x.comingSoon}</p>
                   )}
-                  <div className="mt-6">
-                    <Link
-                      href={`/${lang}/expertise/${it.slug}`}
-                      className="text-[13px] text-[var(--brand-teal-bright)] border-b border-[var(--brand-teal-bright)]/30 pb-0.5"
-                    >
-                      {x.linkLabel}
-                    </Link>
-                  </div>
                 </div>
                 {/* fully drawn here — --u is unset, so every draw()/fadeIn()
                    collapses to its resting state */}
@@ -456,143 +539,3 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
   );
 }
 
-/* ─── Domain artwork ───
-   One abstract line-art composition per field, in the same visual language as
-   the process feature card (single stroke weight, teal on dark, slow ambient
-   float via the svcart-* keyframes, one small brand-red accent each). Kept in
-   code, not the dictionary — pure presentation. */
-
-// SVG CSS transforms need an explicit view-box origin or they rotate/scale
-// around a broken default.
-const ART_CENTER = { transformBox: "view-box", transformOrigin: "110px 110px" } as const;
-
-function DomainArt({ slug }: { slug: string }) {
-  return (
-    <svg
-      viewBox="0 0 220 220"
-      className="h-auto w-full max-w-[360px] text-[var(--brand-teal-bright)] drop-shadow-[0_0_18px_rgba(72,184,177,0.12)]"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      {ART[slug] ?? null}
-    </svg>
-  );
-}
-
-/* Draw choreography: outer structure → inner geometry → accents, all inside
-   the scene's approach window (--u ≈ -0.44..0). L values overestimate each
-   element's true length — overshoot only skews timing, never the final
-   fully-drawn state.
-
-   Every composition is built ON the circle itself — concentric geometry with
-   a shared center at (110,110), nothing extending past the dashed ring — so
-   the four read as variations of one instrument, not four unrelated icons. */
-const ART: Record<string, React.ReactNode> = {
-  // Finance — a precision dial: tick ring, two concentric circles, a rising
-  // sweep arc and a needle pointing to the peak, marked in brand red.
-  finance: (
-    <>
-      <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
-      <g className="svcart-floaty" style={ART_CENTER}>
-        <g style={fadeIn(-0.44, 0.12)}>
-          {Array.from({ length: 36 }, (_, k) => {
-            const a = (k * 10 * Math.PI) / 180;
-            const s = Math.sin(a);
-            const c = Math.cos(a);
-            return (
-              <line
-                key={k}
-                x1={(110 + 78 * s).toFixed(1)}
-                y1={(110 - 78 * c).toFixed(1)}
-                x2={(110 + 84 * s).toFixed(1)}
-                y2={(110 - 84 * c).toFixed(1)}
-                opacity="0.3"
-              />
-            );
-          })}
-        </g>
-        <circle cx="110" cy="110" r="62" opacity="0.5" style={draw(390, -0.36, 0.16)} />
-        <circle cx="110" cy="110" r="30" opacity="0.3" style={draw(190, -0.3, 0.12)} />
-        <path d="M110 40A70 70 0 0 1 164 65" opacity="0.8" style={draw(65, -0.2, 0.12)} />
-        <path d="M110 110 157 70" style={draw(64, -0.14, 0.1)} />
-        <g style={fadeIn(-0.06, 0.05)}>
-          <circle cx="110" cy="110" r="2.4" fill="currentColor" stroke="none" />
-          <circle className="svcart-blink" cx="157" cy="70" r="3" fill="var(--brand-red)" stroke="none" />
-        </g>
-      </g>
-    </>
-  ),
-  // Human Resources — a constellation: an irregular ring of nodes linked
-  // around a hub, one node lit in brand red. Link endpoints are trimmed back
-  // from each node center so strokes never cross the node circles.
-  hr: (
-    <>
-      <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
-      <g className="svcart-floaty" style={ART_CENTER}>
-        <circle cx="110" cy="110" r="5.5" style={draw(36, -0.4, 0.1)} />
-        <path
-          d="M130 55 160 95M163 106 142 156M134 161 90 156M80 150 51 110M52 101 83 75M93 68 121 53"
-          opacity="0.45"
-          style={draw(360, -0.34, 0.18)}
-        />
-        <path d="M118 109 158 101M102 109 53 106" opacity="0.3" style={draw(100, -0.24, 0.12)} />
-        <circle cx="164" cy="100" r="4" style={draw(26, -0.3, 0.1)} />
-        <circle cx="140" cy="162" r="4" style={draw(26, -0.27, 0.1)} />
-        <circle cx="84" cy="155" r="4" style={draw(26, -0.24, 0.1)} />
-        <circle cx="47" cy="105" r="4" style={draw(26, -0.21, 0.1)} />
-        <circle cx="88" cy="71" r="4" style={draw(26, -0.18, 0.1)} />
-        <g style={fadeIn(-0.08, 0.06)}>
-          <circle cx="110" cy="110" r="1.8" fill="currentColor" stroke="none" />
-          <circle className="svcart-blink" cx="126" cy="50" r="3" fill="var(--brand-red)" stroke="none" />
-        </g>
-      </g>
-    </>
-  ),
-  // Healthcare — concentric pulse ripples with one ECG trace written through
-  // the shared center, terminating in brand red. The trace is a solid stroke
-  // drawn left-to-right — an svcart-flow dash would shred the pulse shape.
-  healthcare: (
-    <>
-      <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
-      <g className="svcart-floaty" style={ART_CENTER}>
-        <circle cx="110" cy="110" r="68" opacity="0.3" style={draw(430, -0.42, 0.16)} />
-        <circle cx="110" cy="110" r="48" opacity="0.5" style={draw(305, -0.36, 0.14)} />
-        <circle cx="110" cy="110" r="28" opacity="0.7" style={draw(180, -0.3, 0.12)} />
-        <path
-          d="M34 110h44l8-14 10 28 8-24 6 10h68"
-          opacity="0.85"
-          style={draw(250, -0.22, 0.18)}
-        />
-        <g style={fadeIn(-0.05, 0.04)}>
-          <circle className="svcart-blink" cx="184" cy="110" r="2.8" fill="var(--brand-red)" stroke="none" />
-        </g>
-      </g>
-    </>
-  ),
-  // DMS & Workflow — strata: the circle rendered purely as layered horizontal
-  // chords, like archive layers in section; the middle layer carries the red
-  // index mark. Chord widths are sqrt(72² − dy²) for the r=72 disc.
-  dms: (
-    <>
-      <circle cx="110" cy="110" r="92" strokeDasharray="2 10" opacity="0.35" />
-      <g className="svcart-floaty" style={ART_CENTER}>
-        <path d="M70 50h80" opacity="0.35" style={draw(90, -0.42, 0.1)} />
-        <path d="M54 65h112" opacity="0.45" style={draw(122, -0.385, 0.1)} />
-        <path d="M45 80h130" opacity="0.55" style={draw(140, -0.35, 0.1)} />
-        <path d="M40 95h140" opacity="0.7" style={draw(150, -0.315, 0.1)} />
-        <path d="M38 110h144" style={draw(154, -0.28, 0.1)} />
-        <path d="M40 125h140" opacity="0.7" style={draw(150, -0.245, 0.1)} />
-        <path d="M45 140h130" opacity="0.55" style={draw(140, -0.21, 0.1)} />
-        <path d="M54 155h112" opacity="0.45" style={draw(122, -0.175, 0.1)} />
-        <path d="M70 170h80" opacity="0.35" style={draw(90, -0.14, 0.1)} />
-        <g style={fadeIn(-0.06, 0.05)}>
-          <circle className="svcart-blink" cx="188" cy="110" r="2.6" fill="var(--brand-red)" stroke="none" />
-        </g>
-      </g>
-    </>
-  ),
-};

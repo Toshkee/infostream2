@@ -272,7 +272,7 @@ const MARK_TINTS: { bg: string; fg: string }[] = [
   { bg: "#e5f3f8", fg: "#177a99" }, // cyan
 ];
 
-function ClientMark({ org, index }: { org: string; index: number }) {
+export function ClientMark({ org, index }: { org: string; index: number }) {
   const logo = orgLogo(org);
   if (logo) {
     return (

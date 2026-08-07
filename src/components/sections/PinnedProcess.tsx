@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
 import type { Dict } from "@/lib/dictionaries";
+import { attachStopSnap } from "@/lib/scrollSnap";
 import {
   CARD_SHELL,
   CENTER,
@@ -137,7 +138,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
         if (!pin.current) return;
         const span = PH_END - PH_START; // four scenes + approach + exit pull-back
 
-        ScrollTrigger.create({
+        const st = ScrollTrigger.create({
           trigger: pin.current,
           start: "top top",
           // Phones get a shorter swipe per scene — a long thumb-scroll per
@@ -159,6 +160,16 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             setActiveScene(Math.max(1, Math.min(4, Math.round(p))));
           },
         });
+        // Settle an idle scroll onto a scene centre (--ph 1..4 mapped into
+        // progress space) so a released scroll never strands a scene
+        // half-revealed; 0 and 1 keep the approach and exit pull-back
+        // reachable at the pin edges.
+        const detachSnap = attachStopSnap(() => st, [
+          0,
+          ...[1, 2, 3, 4].map((n) => (n - PH_START) / span),
+          1,
+        ]);
+        return () => detachSnap();
       });
     },
     { scope: outer }

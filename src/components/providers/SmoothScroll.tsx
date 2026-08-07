@@ -8,6 +8,31 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* Lenis owns the scroll position while it runs: it writes scrollTop from its
+   own rAF loop, so a native `window.scrollTo` (smooth or not) gets reverted
+   within a frame. Anything that wants to move the page programmatically has
+   to go through Lenis — hence this module-level handle. Null on the routes
+   that opt out of Lenis (the expertise subpages) and under reduced motion,
+   where native scrolling is the real scroller. */
+let activeLenis: Lenis | null = null;
+
+/** Scroll the page to `y`, through Lenis when it is the active scroller. */
+export function smoothScrollTo(y: number, duration = 0.6) {
+  if (activeLenis) activeLenis.scrollTo(y, { duration });
+  else window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+/* True once Lenis has arrived at its target. Lenis emits no scroll events
+   while the main thread is stalled, so anything that waits for "scrolling
+   stopped" has to ask whether travel is actually finished — otherwise a
+   long flick interrupted by a stall (the cold-load three.js compile that
+   lagSmoothing below exists to absorb) looks like a settled scroll and gets
+   acted on from a stale position. */
+export function isScrollSettled() {
+  if (!activeLenis) return true;
+  return Math.abs(activeLenis.targetScroll - activeLenis.animatedScroll) < 1;
+}
+
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   // The expertise subpages are short static documents (often barely taller
@@ -26,6 +51,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       smoothWheel: true,
     });
 
+    activeLenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
 
     const raf = (time: number) => {
@@ -43,6 +69,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     return () => {
       gsap.ticker.remove(raf);
+      activeLenis = null;
       lenis.destroy();
     };
   }, [nativeScroll]);

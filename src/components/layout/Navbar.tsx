@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
+import { smoothScrollTo } from "@/components/providers/SmoothScroll";
 
 const SECTIONS = ["expertise", "platform", "clients", "technology", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
@@ -96,7 +97,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
           {/* Logo — click scrolls to top */}
           <Link
             href={`/${lang}`}
-            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            onClick={(e) => { e.preventDefault(); smoothScrollTo(0); }}
             className="flex items-center gap-2 group flex-none"
           >
             <Image
