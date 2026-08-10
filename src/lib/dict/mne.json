@@ -377,7 +377,13 @@
         "title": "Finansijski sistemi građeni na iskustvu.",
         "short": "Zasnovan na visokoj preciznosti i usklađenosti sa propisima, naš softver pokreće ključne finansijske operacije. Pokrivajući poreze, trezor, budžet, privredne registre i izvještavanje, omogućavamo organizacijama da sa sigurnošću upravljaju svojim osnovnim finansijskim podacima.",
         "tagline": "Pouzdani podaci. Snažne kontrole. Sistemi koji pokreću javne finansije.",
-        "capabilities": ["Porezi", "Trezor", "Budžet", "Privredni registri", "Izvještavanje"],
+        "capabilities": [
+          "Porezi",
+          "Trezor",
+          "Budžet",
+          "Privredni registri",
+          "Izvještavanje"
+        ],
         "blurb": "Finansijsko upravljanje, porezi, budžet, trezor i sistemi javnih finansija.",
         "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u bankarstvo, gdje ERPStream radi na Oracle-u u ERSTE banci.",
         "clients": [
@@ -409,6 +415,18 @@
             "org": "Vlada Crne Gore",
             "system": "Platforma za COVID-19 subvencije"
           }
+        ],
+        "projects": [
+          {
+            "name": "Platforma Fonda za inovacije",
+            "summary": "Informacioni sistem Fonda za inovacije Crne Gore: upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
+            "tags": [
+              "Oracle APEX",
+              "Oracle",
+              "JavaScript"
+            ],
+            "year": "2024"
+          }
         ]
       },
       {
@@ -417,7 +435,12 @@
         "title": "Potpuna kontrola nad HR ekosistemom.",
         "short": "U srcu svake organizacije su njeni ljudi. Naša rješenja pojednostavljuju svakodnevne HR operacije — od zapošljavanja i obračuna zarada do upravljanja kadrovima i administracije — čineći organizaciju efikasnijom i transparentnijom.",
         "tagline": "Efikasan i transparentan HR — od zapošljavanja do penzije.",
-        "capabilities": ["Zapošljavanje", "Zarade", "Administracija zaposlenih", "Upravljanje kadrovima"],
+        "capabilities": [
+          "Zapošljavanje",
+          "Zarade",
+          "Administracija zaposlenih",
+          "Upravljanje kadrovima"
+        ],
         "blurb": "Upravljanje kadrovima, zarade, administracija zaposlenih i kadrovska rješenja.",
         "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO.",
         "clients": [
@@ -433,18 +456,8 @@
             "org": "Zavod za zapošljavanje Crne Gore",
             "system": "Platforma za upravljanje ljudskim resursima"
           }
-        ]
-      },
-      {
-        "slug": "healthcare",
-        "name": "Zdravstvo",
-        "title": "Digitalna rješenja za zdravstvene sisteme.",
-        "short": "Namjenski softverski sistemi za zdravstveno okruženje. Ova rješenja ubrzavaju administrativne procese, pojednostavljuju upravljanje podacima o pacijentima i podižu ukupnu operativnu efikasnost.",
-        "tagline": "Osjetljivi podaci, vođeni disciplinovano i pažljivo.",
-        "capabilities": ["Zdravstveno osiguranje", "Podaci o pacijentima", "Klinički procesi", "Izvještavanje"],
-        "blurb": "Zdravstveni informacioni sistemi, zdravstveno osiguranje i upravljanje medicinskim podacima.",
-        "body": "Zdravstveni sistemi su tačka u kojoj se naše discipline susrijeću: identitet, prava, osjetljivi podaci i dugo institucionalno pamćenje. Donosimo istu ISO sertifikovanu inženjersku praksu i praksu bezbjednosti informacija koja pokreće naše platforme u javnom sektoru.",
-        "clients": []
+        ],
+        "projects": []
       },
       {
         "slug": "dms",
@@ -452,7 +465,12 @@
         "title": "Ostavite papir. Ubrzajte poslovanje.",
         "short": "Prevođenje tradicionalnog papirnog poslovanja u digitalne sisteme donosi brže i transparentnije procedure. Ova rješenja automatizuju odobrenja, štite integritet podataka i uređuju rad sa dokumentima od nastanka do arhiviranja.",
         "tagline": "Od nastanka do arhive — svaki dokument evidentiran.",
-        "capabilities": ["Upravljanje dokumentima", "Elektronski registri", "Automatizacija tokova rada", "Digitalna arhiva"],
+        "capabilities": [
+          "Upravljanje dokumentima",
+          "Elektronski registri",
+          "Automatizacija tokova rada",
+          "Digitalna arhiva"
+        ],
         "blurb": "Upravljanje dokumentima, elektronski registri i automatizacija tokova rada.",
         "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS — uveden po NATO standardima dokumentacije u Ministarstvu odbrane — i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
         "clients": [
@@ -500,7 +518,56 @@
             "org": "einovacije.gov.me",
             "system": "Nacionalni portal za inovacije"
           }
+        ],
+        "projects": [
+          {
+            "name": "Registar propisa Službenog lista",
+            "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list, sa pretragom punog teksta kroz sve objavljene akte.",
+            "tags": [
+              "Oracle",
+              ".NET",
+              "Elasticsearch"
+            ],
+            "year": "2023"
+          },
+          {
+            "name": "Registar propisa",
+            "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa: tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
+            "tags": [
+              "Oracle",
+              ".NET",
+              "Angular"
+            ],
+            "year": "2025"
+          },
+          {
+            "name": "Registar NVO i političkih partija",
+            "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me: vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
+            "tags": [
+              "Oracle",
+              "Angular",
+              "JavaScript"
+            ],
+            "year": "2024"
+          }
         ]
+      },
+      {
+        "slug": "healthcare",
+        "name": "Zdravstvo",
+        "title": "Digitalna rješenja za zdravstvene sisteme.",
+        "short": "Namjenski softverski sistemi za zdravstveno okruženje. Ova rješenja ubrzavaju administrativne procese, pojednostavljuju upravljanje podacima o pacijentima i podižu ukupnu operativnu efikasnost.",
+        "tagline": "Osjetljivi podaci, vođeni disciplinovano i pažljivo.",
+        "capabilities": [
+          "Zdravstveno osiguranje",
+          "Podaci o pacijentima",
+          "Klinički procesi",
+          "Izvještavanje"
+        ],
+        "blurb": "Zdravstveni informacioni sistemi, zdravstveno osiguranje i upravljanje medicinskim podacima.",
+        "body": "Zdravstveni sistemi su tačka u kojoj se naše discipline susrijeću: identitet, prava, osjetljivi podaci i dugo institucionalno pamćenje. Donosimo istu ISO sertifikovanu inženjersku praksu i praksu bezbjednosti informacija koja pokreće naše platforme u javnom sektoru.",
+        "clients": [],
+        "projects": []
       }
     ]
   },

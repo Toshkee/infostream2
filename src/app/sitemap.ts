@@ -3,7 +3,7 @@ import { locales } from "@/lib/dictionaries";
 
 const SITE = "https://infostream.co.me";
 
-const DOMAINS = ["finance", "hr", "healthcare", "dms"] as const;
+const DOMAINS = ["finance", "hr", "dms", "healthcare"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

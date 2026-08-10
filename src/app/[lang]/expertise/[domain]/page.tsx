@@ -14,7 +14,7 @@ import { ClientMark } from "@/components/sections/Clients";
 // contact band. Content lives in dict.expertise.items; adding a domain there
 // adds a page here.
 
-const DOMAINS = ["finance", "hr", "healthcare", "dms"] as const;
+const DOMAINS = ["finance", "hr", "dms", "healthcare"] as const;
 
 // Mirrors visuals.tealPeriod, which lives in a "use client" module and so
 // can't be called from this server component.
@@ -189,6 +189,47 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
               </p>
             )}
           </div>
+
+          {/* Projects — the shipped systems from dict.projects that belong to
+             this domain, duplicated into item.projects so each page stays a
+             pure function of its expertise item. */}
+          {item.projects.length > 0 && (
+            <div className="mt-16 lg:mt-20">
+              <div className="flex items-center gap-5">
+                <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/50">
+                  {x.projectsLabel}
+                </span>
+                <span aria-hidden className="h-px flex-1 bg-white/10" />
+              </div>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {item.projects.map((p) => (
+                  <article
+                    key={p.name}
+                    className="flex flex-col gap-4 rounded-2xl border border-white/10 p-6"
+                  >
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h2 className="text-[15.5px] font-medium leading-snug text-white/90">
+                        {p.name}
+                      </h2>
+                      <span className="mono text-[11px] text-white/40">{p.year}</span>
+                    </div>
+                    <p className="text-[13px] leading-relaxed text-white/55">{p.summary}</p>
+                    <ul className="mt-auto flex flex-wrap gap-2">
+                      {p.tags.map((t) => (
+                        <li
+                          key={t}
+                          className="mono rounded-full border border-white/10 px-3 py-1 text-[10px] tracking-[0.08em] text-white/50"
+                        >
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
 
         </section>
       </div>

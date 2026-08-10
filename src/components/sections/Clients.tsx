@@ -223,6 +223,15 @@ function splitOrg(org: string): [string, string | null] {
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/erste/, { src: "/clients/erste-s.png" }],
   [/cfcu|\beu\b/, { src: "/clients/eu.png", cover: true }],
+  // org-specific marks — must precede the generic coat-of-arms rule
+  [/tax administration|poreska uprava/, { src: "/clients/tax-administration.png" }],
+  [/ministry of finance|ministarstvo finansija/, { src: "/clients/ministry-finance.png", cover: true }],
+  [/innovation fund|fond za inovacije/, { src: "/clients/innovation-fund.png" }],
+  [/pension|fond pio/, { src: "/clients/pio.png", cover: true }],
+  [/employment|zapošljavanj/, { src: "/clients/employment-agency.png" }],
+  [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.png", cover: true }],
+  [/parliament|skupštin/, { src: "/clients/parliament.png", cover: true }],
+  [/gazette|službeni list/, { src: "/clients/official-gazette.png" }],
   [
     /ministry|ministarstvo|government|vlada|parliament|skupštin|administration|uprava|authority|tax|poresk|defen[cs]e|odbran|military|vojno|interior|unutrašnj|gazette|službeni|registr?ar|register/,
     { src: "/clients/montenegro-coa.png" },
