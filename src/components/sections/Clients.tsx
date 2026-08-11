@@ -131,7 +131,7 @@ export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
                     {shown.length > 0 ? (
                       <ul className="grid grid-cols-2 gap-x-3 gap-y-6">
                         {shown.map((org, i) => {
-                          const [primary, secondary] = splitOrg(org);
+                          const [primary, secondary] = splitOrg(cardLabel(org));
                           return (
                             <li key={i} className="flex items-start gap-2.5">
                               <ClientMark org={org} index={i} />
@@ -213,6 +213,19 @@ export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
    Adria") reads as a parse error rather than a qualifier. */
 const NO_SPLIT = /^port of adria$/i;
 
+/* A card column is ~15 characters wide, so a full legal name past ~45 chars
+   wraps to six lines and breaks the grid's rhythm. These orgs render under a
+   shortened label here only; the domain page's register still carries the
+   full name. */
+const CARD_LABEL: [RegExp, string][] = [
+  [/regionalno-investicionog/, "Ministarstvo regionalno-investicionog razvoja"],
+  [/regional & investment/i, "Ministry of Regional & Investment Development"],
+];
+
+function cardLabel(org: string): string {
+  return CARD_LABEL.find(([re]) => re.test(org))?.[1] ?? org;
+}
+
 function splitOrg(org: string): [string, string | null] {
   if (NO_SPLIT.test(org)) return [org, null];
   const i = org.indexOf(" of ");
@@ -240,13 +253,10 @@ const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.png", cover: true }],
   [/parliament|skupštin/, { src: "/clients/parliament.png", cover: true }],
   [/gazette|službeni list/, { src: "/clients/official-gazette.png" }],
-  // bodies whose own logo is the engraved (line-art) coat of arms rather than
-  // the solid state one — cropped out of the official name lockup
-  [/kulturnih dobara|cultural heritage/, { src: "/clients/cultural-heritage.png" }],
-  [
-    /regionalno-investicionog|regional & investment/,
-    { src: "/clients/ministry-regional-development.png" },
-  ],
+  // Uprava za zaštitu kulturnih dobara and the regional-development ministry
+  // do have their own lockups, but theirs are the engraved (line-art) coat of
+  // arms — at 24px it degrades into a grey smudge next to the solid gold ones,
+  // so both fall through to the state crest below.
   [
     /ministry|ministarstvo|government|vlada|parliament|skupštin|administration|uprava|authority|tax|poresk|defen[cs]e|odbran|military|vojno|interior|unutrašnj|gazette|službeni|registr?ar|register/,
     { src: "/clients/montenegro-coa.png" },
