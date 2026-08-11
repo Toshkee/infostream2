@@ -385,7 +385,7 @@
           "Reporting"
         ],
         "blurb": "Financial management, taxation, budgeting, treasury and public finance systems.",
-        "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to banking, where ERPStream runs on Oracle at ERSTE Bank.",
+        "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to the private sector, where ERPStream runs the books at Port of Adria.",
         "clients": [
           {
             "org": "Tax Administration of Montenegro",
@@ -400,10 +400,6 @@
             "system": "REES system upgrade"
           },
           {
-            "org": "ERSTE Bank",
-            "system": "ERPStream on Oracle 12c"
-          },
-          {
             "org": "EU Assistance Funds (CFCU)",
             "system": "eCES contract execution system"
           },
@@ -414,6 +410,10 @@
           {
             "org": "Government of Montenegro",
             "system": "COVID-19 state-aid platform"
+          },
+          {
+            "org": "Port of Adria",
+            "system": "ERPStream platform"
           }
         ],
         "projects": [
@@ -442,7 +442,7 @@
           "Workforce management"
         ],
         "blurb": "HR management, payroll, employee administration and workforce solutions.",
-        "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund.",
+        "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund, and the same platform keeps the records of employers outside the public sector — ERSTE Bank, Grawe and the national broadcaster.",
         "clients": [
           {
             "org": "Human Resources Management Authority",
@@ -455,6 +455,18 @@
           {
             "org": "Employment Agency of Montenegro",
             "system": "HR management platform"
+          },
+          {
+            "org": "ERSTE Bank",
+            "system": "ERPStream on Oracle 12c"
+          },
+          {
+            "org": "Grawe Insurance",
+            "system": "HR management platform"
+          },
+          {
+            "org": "Radio Television of Montenegro",
+            "system": "HR management information system"
           }
         ],
         "projects": []
@@ -479,27 +491,27 @@
             "system": "INFODMS document management"
           },
           {
-            "org": "Parliament of Montenegro",
-            "system": "ERPStream platform"
-          },
-          {
             "org": "Military Intelligence Department",
             "system": "Document management system"
-          },
-          {
-            "org": "Ministry of Interior",
-            "system": "Security & detective activity licensing"
           },
           {
             "org": "Official Gazette of Montenegro",
             "system": "Register of regulations & acts"
           },
           {
-            "org": "Address Register of Montenegro",
-            "system": "National address IT system"
+            "org": "Pension & Disability Insurance Fund",
+            "system": "INFODMS document management"
+          },
+          {
+            "org": "Cultural Heritage Protection Authority",
+            "system": "KUDIS heritage information system"
           },
           {
             "org": "Ministry of European Affairs",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Ministry of Regional & Investment Development and NGO Cooperation",
             "system": "ERPStream"
           },
           {

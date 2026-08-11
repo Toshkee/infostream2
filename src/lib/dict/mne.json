@@ -385,7 +385,7 @@
           "Izvještavanje"
         ],
         "blurb": "Finansijsko upravljanje, porezi, budžet, trezor i sistemi javnih finansija.",
-        "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u bankarstvo, gdje ERPStream radi na Oracle-u u ERSTE banci.",
+        "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u privredu, gdje ERPStream vodi poslovne knjige kompanije Port of Adria.",
         "clients": [
           {
             "org": "Poreska uprava Crne Gore",
@@ -400,10 +400,6 @@
             "system": "Unapređenje REES sistema"
           },
           {
-            "org": "Erste banka",
-            "system": "ERPStream na Oracle 12c platformi"
-          },
-          {
             "org": "Fondovi EU pomoći (CFCU)",
             "system": "eCES sistem za izvršenje ugovora"
           },
@@ -414,6 +410,10 @@
           {
             "org": "Vlada Crne Gore",
             "system": "Platforma za COVID-19 subvencije"
+          },
+          {
+            "org": "Port of Adria",
+            "system": "ERPStream platforma"
           }
         ],
         "projects": [
@@ -442,7 +442,7 @@
           "Upravljanje kadrovima"
         ],
         "blurb": "Upravljanje kadrovima, zarade, administracija zaposlenih i kadrovska rješenja.",
-        "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO.",
+        "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO, a ista platforma vodi evidencije i poslodavcima van javnog sektora — Erste banci, Grawe osiguranju i nacionalnom javnom servisu.",
         "clients": [
           {
             "org": "Uprava za kadrove",
@@ -455,6 +455,18 @@
           {
             "org": "Zavod za zapošljavanje Crne Gore",
             "system": "Platforma za upravljanje ljudskim resursima"
+          },
+          {
+            "org": "Erste banka",
+            "system": "ERPStream na Oracle 12c platformi"
+          },
+          {
+            "org": "Grawe osiguranje",
+            "system": "Platforma za upravljanje ljudskim resursima"
+          },
+          {
+            "org": "Radio Televizija Crne Gore",
+            "system": "Informacioni sistem za upravljanje kadrovima"
           }
         ],
         "projects": []
@@ -479,27 +491,27 @@
             "system": "INFODMS upravljanje dokumentima"
           },
           {
-            "org": "Skupština Crne Gore",
-            "system": "ERPStream platforma"
-          },
-          {
             "org": "Vojnoobavještajna služba",
             "system": "Sistem za upravljanje dokumentima"
-          },
-          {
-            "org": "Ministarstvo unutrašnjih poslova",
-            "system": "Licenciranje zaštitarske djelatnosti"
           },
           {
             "org": "Službeni list Crne Gore",
             "system": "Registar propisa i akata"
           },
           {
-            "org": "Adresni registar Crne Gore",
-            "system": "Nacionalni adresni IT sistem"
+            "org": "Fond PIO Crne Gore",
+            "system": "INFODMS upravljanje dokumentima"
+          },
+          {
+            "org": "Uprava za zaštitu kulturnih dobara",
+            "system": "KUDIS informacioni sistem kulturnih dobara"
           },
           {
             "org": "Ministarstvo evropskih poslova",
+            "system": "ERPStream"
+          },
+          {
+            "org": "Ministarstvo regionalno-investicionog razvoja i saradnje sa nevladinim organizacijama Crne Gore",
             "system": "ERPStream"
           },
           {

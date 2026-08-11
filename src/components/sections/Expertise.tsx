@@ -42,10 +42,10 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // copy in dict", as elsewhere); the full per-domain lists live in the Clients
 // section and on the domain subpages.
 const FEATURED: Record<string, number[]> = {
-  finance: [0, 1, 3], // Tax Administration · Treasury · ERSTE Bank
+  finance: [0, 1, 6], // Tax Administration · Treasury · Port of Adria
   hr: [0, 1, 2], // HR Management Authority · Pension Fund · Employment Agency
   healthcare: [],
-  dms: [0, 2], // Ministry of Defense · Military Intelligence Department
+  dms: [0, 1], // Ministry of Defense · Military Intelligence Department
 };
 
 // Sequential fade around `target`: fully visible within ±0.32, fully gone by

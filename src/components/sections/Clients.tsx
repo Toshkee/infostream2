@@ -209,7 +209,12 @@ export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
    of arbitrary wraps. Icons are stand-ins until real logos exist; swap
    ClientMark for an <Image> lookup when assets land. */
 
+/* Brand names that merely contain " of " — splitting them ("Port" / "of
+   Adria") reads as a parse error rather than a qualifier. */
+const NO_SPLIT = /^port of adria$/i;
+
 function splitOrg(org: string): [string, string | null] {
+  if (NO_SPLIT.test(org)) return [org, null];
   const i = org.indexOf(" of ");
   if (i > 0) return [org.slice(0, i), org.slice(i + 1)];
   if (org.endsWith(" Crne Gore")) return [org.slice(0, -" Crne Gore".length), "Crne Gore"];
@@ -222,6 +227,9 @@ function splitOrg(org: string): [string, string | null] {
    the circle (flags); default is contained on white. */
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/erste/, { src: "/clients/erste-s.png" }],
+  [/grawe/, { src: "/clients/grawe.png" }],
+  [/rtcg|radio tele/, { src: "/clients/rtcg.png" }],
+  [/port of adria/, { src: "/clients/port-of-adria.png" }],
   [/cfcu|\beu\b/, { src: "/clients/eu.png", cover: true }],
   // org-specific marks — must precede the generic coat-of-arms rule
   [/tax administration|poreska uprava/, { src: "/clients/tax-administration.png" }],
@@ -232,6 +240,13 @@ const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.png", cover: true }],
   [/parliament|skupštin/, { src: "/clients/parliament.png", cover: true }],
   [/gazette|službeni list/, { src: "/clients/official-gazette.png" }],
+  // bodies whose own logo is the engraved (line-art) coat of arms rather than
+  // the solid state one — cropped out of the official name lockup
+  [/kulturnih dobara|cultural heritage/, { src: "/clients/cultural-heritage.png" }],
+  [
+    /regionalno-investicionog|regional & investment/,
+    { src: "/clients/ministry-regional-development.png" },
+  ],
   [
     /ministry|ministarstvo|government|vlada|parliament|skupštin|administration|uprava|authority|tax|poresk|defen[cs]e|odbran|military|vojno|interior|unutrašnj|gazette|službeni|registr?ar|register/,
     { src: "/clients/montenegro-coa.png" },
