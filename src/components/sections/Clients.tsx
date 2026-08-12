@@ -36,8 +36,9 @@ export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
   const c = dict.clients;
   const x = dict.expertise;
 
-  // Second sentence of the positioning line in the accent tone.
-  const titleParts = c.title.split(/(?<=\.)\s+/);
+  // Everything after the "|" marker in the positioning line renders in the
+  // accent tone on its own line; the marker also sets the line break.
+  const titleParts = c.title.split("|").map((s) => s.trim());
 
   // Org names only on the homepage — systems live on the domain subpages and
   // the expertise slides. Dedupe per group (an institution can run several
