@@ -7,7 +7,7 @@
 const SIZE = 20;
 const ORACLE_RED = "#F80000";
 
-export function OracleDatabaseIcon() {
+function OracleDatabaseIcon() {
   return (
     <svg width={SIZE + 2} height={SIZE + 2} viewBox="0 0 64 64" fill="none" aria-hidden>
       <path
@@ -18,7 +18,7 @@ export function OracleDatabaseIcon() {
   );
 }
 
-export function OracleApexIcon() {
+function OracleApexIcon() {
   return (
     <span
       className="font-bold text-[8.5px] tracking-[0.04em] leading-none"
@@ -30,7 +30,7 @@ export function OracleApexIcon() {
   );
 }
 
-export function DotNetIcon() {
+function DotNetIcon() {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 456 456" fill="none" aria-hidden>
       <rect width="456" height="456" rx="72" fill="#512BD4" />
@@ -42,7 +42,7 @@ export function DotNetIcon() {
   );
 }
 
-export function JavaIcon() {
+function JavaIcon() {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 128 128" aria-hidden>
       <path
@@ -69,7 +69,7 @@ export function JavaIcon() {
   );
 }
 
-export function AngularIcon() {
+function AngularIcon() {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 242 256" fill="none" aria-hidden>
       <path
@@ -98,7 +98,7 @@ export function AngularIcon() {
   );
 }
 
-export function JavaScriptIcon() {
+function JavaScriptIcon() {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 1052 1052" aria-hidden>
       <rect width="1052" height="1052" rx="160" fill="#f0db4f" />
@@ -110,7 +110,7 @@ export function JavaScriptIcon() {
   );
 }
 
-export function AiIcon() {
+function AiIcon() {
   return (
     <svg width={SIZE} height={SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M12 18V5" />

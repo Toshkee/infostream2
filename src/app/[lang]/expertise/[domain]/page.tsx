@@ -190,9 +190,10 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
           </div>
 
           {/* No projects section here: the domain page exists to be the full
-             client register behind the homepage's "all clients" link, and the
-             homepage Expertise stop already carries the featured project
-             cards. item.projects stays in the dict, unrendered on this page. */}
+             client register behind the homepage's "all clients" link. Note the
+             homepage Expertise stop's "projects" cards are built from
+             item.clients, so item.projects currently renders NOWHERE — it
+             stays in the dict as parked content only. */}
         </section>
       </div>
     </main>

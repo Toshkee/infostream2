@@ -113,7 +113,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
           {/* Desktop nav */}
           <nav
             aria-label="Primary"
-            className="hidden md:flex items-center gap-7 text-[13.5px] font-medium"
+            className="hidden lg:flex items-center gap-7 text-[13.5px] font-medium"
           >
             {links.map(({ id, label }) => {
               const isActive = active === id;
@@ -155,7 +155,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             <button
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen((o) => !o)}
-              className="md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] rounded-lg hover:bg-white/[0.06] transition-colors ml-1"
+              className="lg:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] rounded-lg hover:bg-white/[0.06] transition-colors ml-1"
             >
               <span className={`block w-[18px] h-px bg-white/65 transition-all duration-300 origin-center ${mobileOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
               <span className={`block w-[18px] h-px bg-white/65 transition-all duration-150 ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
@@ -166,7 +166,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
 
         {/* ── Mobile dropdown ── */}
         <div
-          className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+          className={`lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
             mobileOpen ? "max-h-[30rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
           }`}
         >

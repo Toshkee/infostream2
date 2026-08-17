@@ -133,7 +133,10 @@ export default async function RootLayout({
         <div className="grain-overlay" aria-hidden />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{
+            // "<" escaped so no value can ever close the tag early
+            __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
+          }}
         />
       </body>
     </html>

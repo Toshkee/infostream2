@@ -11,10 +11,10 @@ import {
 //
 // proxy.ts excludes /api from locale redirects, so /api/chat is reachable as-is.
 
-const endpoint = (model: string, key: string) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
-    key
-  )}`;
+// The key travels in the x-goog-api-key header, never the URL — query strings
+// routinely end up in proxy/CDN/server logs.
+const endpoint = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 // ── Best-effort in-memory rate limit ────────────────────────────────────────
 // Per server instance (resets on cold start) — a soft guard against abuse of a
@@ -65,9 +65,9 @@ async function callGemini(payload: unknown, apiKey: string): Promise<GeminiCall>
     for (let attempt = 0; ; attempt++) {
       let res: Response;
       try {
-        res = await fetch(endpoint(model, apiKey), {
+        res = await fetch(endpoint(model), {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
           body: JSON.stringify(payload),
           signal: AbortSignal.timeout(20_000),
         });

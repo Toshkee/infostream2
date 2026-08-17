@@ -1,6 +1,43 @@
 import type { NextConfig } from "next";
 
+// Everything the site loads at runtime is same-origin: fonts are self-hosted
+// via next/font, images live in /public, and the only fetch is /api/chat.
+// 'unsafe-inline' is required for Next's bootstrap <script> tags and the
+// inline style attributes GSAP animates; 'unsafe-eval' is dev-only (HMR).
+const csp = [
+  "default-src 'self'",
+  process.env.NODE_ENV === "development"
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
+  },
+  // Two years; only meaningful once the site is served over HTTPS (it is).
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+];
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return [{ source: "/(.*)", headers: securityHeaders }];
+  },
+
   // Pin Turbopack's workspace root to THIS project directory. Without it, Next
   // walks up the filesystem looking for a lockfile and can latch onto the wrong
   // root when a stray package-lock.json exists in a parent folder — e.g. one

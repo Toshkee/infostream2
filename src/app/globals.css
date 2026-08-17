@@ -137,12 +137,6 @@ h1, h2, h3,
 }
 .footer-bar { animation: footerBar 2.2s ease-in-out infinite; transform-origin: bottom; }
 
-@keyframes logoHoldIn {
-  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
-  60% { opacity: 1; transform: scale(1.02) translateY(0); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
 /* Assistant typewriter caret — blinks only a trailing border so the typed
    text itself never flickers (unlike .viz-caret, which fades the element). */
 @keyframes caretBlink { 0%, 49% { border-color: var(--brand-teal-bright); } 50%, 100% { border-color: transparent; } }
@@ -155,7 +149,6 @@ h1, h2, h3,
   to   { clip-path: inset(0 0 0 0);    transform: translateY(0);      opacity: 1; }
 }
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.logo-hold { opacity: 0; animation: logoHoldIn 1.4s cubic-bezier(0.22,1,0.36,1) forwards; }
 
 /* Process section — every motion-OK visitor gets the pinned scroll-scrubbed
    experience, phones included; reduced-motion, very-short-viewport and no-JS
@@ -194,29 +187,16 @@ h1, h2, h3,
 }
 @media (prefers-reduced-motion: reduce) {
   .star-drift, .star-twinkle { animation: none; }
-  .svcart-blink, .svcart-flow, .svcart-spin, .svcart-spin-rev, .svcart-breathe,
-  .svcart-ring, .svcart-floaty, .svcart-sweep { animation: none; }
+  .svcart-blink, .svcart-flow, .svcart-spin, .svcart-spin-rev,
+  .svcart-floaty { animation: none; }
 }
 
 @keyframes svcartSpin { to { transform: rotate(360deg); } }
 .svcart-spin { animation: svcartSpin 30s linear infinite; }
 .svcart-spin-rev { animation: svcartSpin 22s linear infinite reverse; }
 
-@keyframes svcartBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-.svcart-breathe { animation: svcartBreathe 5s ease-in-out infinite; }
-
-@keyframes svcartRing { 0% { transform: scale(0.7); opacity: 0.6; } 80%, 100% { transform: scale(2.1); opacity: 0; } }
-.svcart-ring { animation: svcartRing 3.2s ease-out infinite; }
-
 @keyframes svcartFloatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .svcart-floaty { animation: svcartFloatY 4.2s ease-in-out infinite; }
-
-@keyframes svcartSweep { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(110px); } }
-.svcart-sweep { animation: svcartSweep 7s ease-in-out infinite; }
-.svcart-beam {
-  stroke: var(--brand-teal-soft);
-  filter: drop-shadow(0 0 5px var(--brand-teal-soft));
-}
 
 .process-pinned { display: none; }
 .expertise-pinned { display: none; }
@@ -237,51 +217,22 @@ h1, h2, h3,
    purpose — these must beat the Tailwind padding/max-width utilities. */
 @media (max-height: 899.98px) {
   .process-stepper { max-width: 520px; bottom: 1rem; }
-  .process-scene-top { padding-top: 4.75rem; padding-bottom: 6rem; }
-  .process-card { padding: 0.8rem 0.85rem 0.95rem; }
-  .process-listcard { padding: 0.9rem; }
-  .process-agile { padding: 1rem; }
 }
 
 /* Phone / small-tablet compaction for the pinned variant. Each stage scene
    must fit inside the 100svh pin — anything taller is clipped and unreachable
-   (the pin scroll-captures, there's no inner scrolling). So below 1024px the
-   secondary blocks (agile notes, support/benefit rows, Architecture's intro
-   rail) are hidden — the full copy stays available in the sr-only block and
-   isn't lost — long body text clamps to two lines, and grids/cards tighten.
-   Scoped to .process-pinned so the static variant (reduced-motion phones)
-   keeps rendering everything, uncut. Unlayered on purpose, same as above. */
+   (the pin scroll-captures, there's no inner scrolling). Below 1024px long
+   stage descriptions clamp to three lines. Scoped to .process-pinned so the
+   static variant (reduced-motion phones) renders everything, uncut.
+   Unlayered on purpose, same as above. */
 @media (max-width: 1023.98px) {
-  .process-pinned .process-aux { display: none; }
-  .process-pinned .process-scene-top { padding-top: 5.5rem; padding-bottom: 3rem; }
-  .process-pinned .process-stage-desc,
-  .process-pinned .process-body-clamp {
+  .process-pinned .process-stage-desc {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    -webkit-line-clamp: 3;
   }
-  .process-pinned .process-stage-desc { -webkit-line-clamp: 3; }
-  .process-pinned .process-body-clamp { -webkit-line-clamp: 2; }
-  .process-pinned .process-outcome-grid { row-gap: 1.5rem; column-gap: 1.25rem; }
-  .process-pinned .process-outcome { gap: 0.6rem; }
-  .process-pinned .process-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
-  .process-pinned .process-card { padding: 0.7rem 0.75rem 0.8rem; }
-  .process-pinned .process-card > div + div { margin-top: 0.6rem; }
-  .process-pinned .process-listcard { padding: 0.8rem; }
-  .process-pinned .process-oplist > * + * { margin-top: 0.75rem; }
 }
-/* The stream stepper is visible from 640px up — keep stage content clear of it. */
-@media (min-width: 640px) and (max-width: 1023.98px) {
-  .process-pinned .process-scene-top { padding-bottom: 6.5rem; }
-}
-
-/* Per-stage blocks (grids, cards, list rails, the "Agile in action" panel) are
-   inline-styled in PinnedProcess.tsx — each carries its own translucent fill,
-   hairline border and reveal, so no dedicated class is needed here. The one
-   exception is the Build "release approved" stamp, which needs a static tilt
-   the scroll-reveal inline style must not clobber (the reveal animates opacity
-   only, lift 0, leaving transform free for this rotation). */
-.release-stamp { transform: rotate(-6deg); transform-origin: center; }
 
 /* Hero intro — pure CSS so the opening text paints with the first styled
    frame, before the JS bundle hydrates (a GSAP timeline left slow devices
