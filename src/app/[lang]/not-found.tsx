@@ -1,17 +1,18 @@
-import Link from "next/link";
-import { headers } from "next/headers";
-import { defaultLocale, getDictionary, hasLocale } from "@/lib/dictionaries";
+import { defaultLocale, getDictionary, locales } from "@/lib/dictionaries";
 import { Starfield } from "@/components/sections/visuals";
+import NotFoundCopy from "@/components/NotFoundCopy";
 
-// Branded 404. Rendered inside the [lang] layout (globals + fonts loaded).
-// not-found gets no route params — the proxy forwards the matched locale as
-// x-locale; the eng fallback covers direct hits that bypass its matcher.
+// Branded 404, thrown here by notFound() in [lang]/[...rest] (which is what
+// gives the response a real 404 status — rendering this UI from a page would
+// return 200). not-found gets no route params, so the localised strings for
+// every locale are loaded at build time and NotFoundCopy picks one from the
+// URL on the client. Nothing here touches a request, so the [lang] segment
+// still prerenders.
 export default async function NotFound() {
-  const requestHeaders = await headers();
-  const fromProxy = requestHeaders.get("x-locale") ?? "";
-  const lang = hasLocale(fromProxy) ? fromProxy : defaultLocale;
-  const dict = await getDictionary(lang);
-  const nf = dict.notFound;
+  const dicts = await Promise.all(locales.map((l) => getDictionary(l)));
+  const copy = Object.fromEntries(
+    locales.map((l, i) => [l, dicts[i].notFound]),
+  );
 
   return (
     <div className="relative min-h-[100svh] overflow-hidden flex flex-col items-center justify-center bg-[var(--bg-inset)] text-white px-6 text-center">
@@ -28,16 +29,7 @@ export default async function NotFound() {
         <div className="mono text-[35px] tracking-[0.3em] uppercase text-[var(--brand-teal-bright)]">
           404
         </div>
-        <h1 className="font-display mt-5 text-[clamp(1.9rem,4.5vw,3.4rem)] leading-[1.05] tracking-[-0.02em] font-medium">
-          {nf.title}
-        </h1>
-        <p className="mt-5 max-w-md text-[15.5px] leading-relaxed text-white/60">{nf.body}</p>
-        <Link
-          href={`/${lang}`}
-          className="mt-9 inline-block rounded-xl bg-[var(--brand-red)] px-6 py-3 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[var(--brand-red-deep)]"
-        >
-          {nf.cta}
-        </Link>
+        <NotFoundCopy copy={copy} defaultLocale={defaultLocale} />
       </div>
     </div>
   );
