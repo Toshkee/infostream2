@@ -200,11 +200,12 @@ export default function Technology({ dict }: { dict: Dict }) {
           </p>
         </div>
 
-        {/* Scene + technology groups */}
-        <div className="mt-16 lg:mt-20 grid gap-12 lg:gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] items-center">
+        {/* Technology register — the concrete stack carries the section now;
+            the former animated network dashboard is intentionally omitted. */}
+        <div className="mt-16 lg:mt-20 grid gap-8 lg:gap-10 lg:grid-cols-1 lg:max-w-5xl">
           <svg
             viewBox="0 0 600 560"
-            className="tech-scene w-full h-auto max-w-[540px] mx-auto"
+            className="tech-scene hidden"
             role="img"
             aria-label={tech.title}
           >

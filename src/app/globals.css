@@ -314,40 +314,10 @@ h1, h2, h3,
 @keyframes svcartFloatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .svcart-floaty { animation: svcartFloatY 4.2s ease-in-out infinite; }
 
-.process-pinned { display: none; }
 .expertise-pinned { display: none; }
 @media (prefers-reduced-motion: no-preference) and (min-height: 500px) and (min-width: 1024px) {
-  .process-pinned { display: block; }
-  .process-static { display: none; }
   .expertise-pinned { display: block; }
   .expertise-static { display: none; }
-}
-
-/* On shorter laptops (1366×768 / 1280×800 / 1536×864) the pinned scene has
-   less vertical room, so two things compress so the dense stages clear the
-   stepper instead of clipping behind it: the stream stepper shrinks and hugs
-   the bottom edge, and the top-aligned stage scenes tighten their top/bottom
-   padding and card internals. Top padding stays ≥ the fixed navbar's ~66px
-   bottom edge; bottom padding stays above the (now smaller) stepper. Tall
-   desktops keep the roomier spacing that matches the mockups. Unlayered on
-   purpose — these must beat the Tailwind padding/max-width utilities. */
-@media (max-height: 899.98px) {
-  .process-stepper { max-width: 520px; bottom: 1rem; }
-}
-
-/* Phone / small-tablet compaction for the pinned variant. Each stage scene
-   must fit inside the 100svh pin — anything taller is clipped and unreachable
-   (the pin scroll-captures, there's no inner scrolling). Below 1024px long
-   stage descriptions clamp to three lines. Scoped to .process-pinned so the
-   static variant (reduced-motion phones) renders everything, uncut.
-   Unlayered on purpose, same as above. */
-@media (max-width: 1023.98px) {
-  .process-pinned .process-stage-desc {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    -webkit-line-clamp: 3;
-  }
 }
 
 /* Hero intro — pure CSS so the opening text paints with the first styled
