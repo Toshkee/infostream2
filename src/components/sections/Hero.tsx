@@ -26,7 +26,7 @@ export default function Hero({ dict }: { dict: Dict }) {
     <section className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white">
       {/* Quiet dark backdrop — deliberately free of the planets/orbits, which
          are the process section's visual identity further down the page. A
-         seeded starfield and two soft brand glows keep it from reading flat. */}
+         seeded starfield and one soft brand glow keep it from reading flat. */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div
           aria-hidden
@@ -36,60 +36,16 @@ export default function Hero({ dict }: { dict: Dict }) {
               "radial-gradient(ellipse 90% 70% at 50% 45%, #19223a 0%, #0d111c 70%, #07090f 100%)",
           }}
         />
-        {/* soft teal key glow (upper right) + faint red counter-glow (lower left) */}
+        {/* One restrained brand glow keeps depth without adding another accent. */}
         <div
           aria-hidden
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 45% 40% at 78% 22%, rgba(72,184,177,0.10) 0%, transparent 70%), radial-gradient(ellipse 40% 35% at 12% 88%, rgba(216,65,58,0.05) 0%, transparent 70%)",
+              "radial-gradient(ellipse 45% 40% at 78% 22%, rgba(72,184,177,0.07) 0%, transparent 70%)",
           }}
         />
         <Starfield />
-        {/* Signature instrument — one large dashed ring in the DomainArt
-           language (same 2/10 dash, hairline stroke, one red accent),
-           positioned right and cropped by the viewport edge. Foreshadows the
-           four domain instruments below without duplicating the 3D planets.
-           Authored at natural size (viewBox ≈ render size) so the dash pattern
-           lands at the same px scale as the expertise art. Rotation rides the
-           existing svcart-spin keyframes — reduced-motion already stops them. */}
-        <div
-          aria-hidden
-          className="absolute top-1/2 right-[-12%] hidden -translate-y-1/2 lg:block"
-          style={{ width: "min(82vh, 880px)", height: "min(82vh, 880px)" }}
-        >
-          <svg
-            viewBox="0 0 900 900"
-            className="h-full w-full text-[var(--brand-teal-bright)]"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          >
-            <g
-              className="svcart-spin"
-              style={{ transformBox: "view-box", transformOrigin: "450px 450px", animationDuration: "300s" }}
-            >
-              <circle cx="450" cy="450" r="430" strokeDasharray="2 10" opacity="0.3" />
-              <circle cx="450" cy="450" r="300" opacity="0.08" />
-              {/* four quiet nodes riding the outer ring — one per domain */}
-              <circle
-                cx="696.7"
-                cy="97.8"
-                r="3.5"
-                fill="currentColor"
-                stroke="none"
-                opacity="0.9"
-                style={{ filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" }}
-              />
-              <circle cx="726.5" cy="779.4" r="3" fill="currentColor" stroke="none" opacity="0.55" />
-              <circle cx="120.6" cy="726.5" r="3" fill="currentColor" stroke="none" opacity="0.55" />
-              <circle cx="173.5" cy="120.6" r="3" fill="currentColor" stroke="none" opacity="0.55" />
-              {/* the single brand-red accent, on the inner orbit */}
-              <circle cx="160.2" cy="527.7" r="2.6" fill="var(--brand-red)" stroke="none" opacity="0.8" />
-            </g>
-          </svg>
-        </div>
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
       </div>
 

@@ -126,6 +126,49 @@ h1, h2, h3,
   transition: transform 200ms ease;
 }
 .proof-strip-logo:hover img { transform: scale(1.04); }
+.proof-strip-nameplate {
+  display: flex;
+  max-width: 11rem;
+  min-height: 4.5rem;
+  align-items: center;
+  border-block: 1px solid rgba(41, 39, 39, 0.26);
+  color: #292727;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-align: center;
+}
+.proof-strip-official-lockup {
+  display: flex;
+  max-width: 12rem;
+  align-items: center;
+  gap: 0.55rem;
+  color: #292727;
+  text-align: left;
+}
+.proof-strip-official-lockup img {
+  width: 2.15rem;
+  height: auto;
+  flex: none;
+}
+.proof-strip-official-lockup span { display: grid; gap: 0.18rem; }
+.proof-strip-official-lockup small {
+  color: rgba(41, 39, 39, 0.62);
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.proof-strip-official-lockup strong {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
 .proof-strip-label {
   display: -webkit-box;
   width: 100%;
