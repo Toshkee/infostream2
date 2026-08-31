@@ -163,13 +163,13 @@ export default function Security({ dict }: { dict: Dict }) {
             <h2 className="sec-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
               {dict.security.title}
             </h2>
-            <p className="mt-6 text-[var(--fg-dim)] leading-relaxed max-w-md text-[15.5px]">
+            <p className="mt-6 max-sm:hidden text-[var(--fg-dim)] leading-relaxed max-w-md text-[15.5px]">
               {dict.security.body}
             </p>
           </div>
 
           {/* Orbital standards diagram — satellites circle the certified core. */}
-          <div className="sec-viz lg:col-span-7 relative">
+          <div className="sec-viz hidden lg:col-span-7 relative lg:block">
             <OrbitalDiagram />
           </div>
         </div>

@@ -13,7 +13,10 @@ export type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
 // Must be the exact string the CSS gates in globals.css use — the pinned
 // variants display iff this matches, so a pin always has its JS. The height
 // floor sends very short windows to the static variants.
-export const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px)";
+// Keep the scroll-scrubbed scenes desktop-only. Phones get the static,
+// naturally scrolling variants: they are clearer, more reliable, and avoid
+// paying for a WebGL scene on a small touch device.
+export const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px) and (min-width: 1024px)";
 
 // Maps a stage-local progress var --u onto a 0..1 reveal var --r starting at
 // `start` over `len`, applied as opacity + a small lift. lift=0 keeps the
@@ -101,11 +104,13 @@ export function Starfield({
   seed = 0x5747,
   strength = 1,
   bias = true,
+  className = "",
 }: {
   count?: number;
   seed?: number;
   strength?: number;
   bias?: boolean;
+  className?: string;
 }) {
   const rand = seededRng(seed);
   const stars = Array.from({ length: count }, () => {
@@ -133,7 +138,7 @@ export function Starfield({
     <svg
       viewBox="0 0 1600 900"
       preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 h-full w-full"
+      className={`absolute inset-0 h-full w-full ${className}`}
       aria-hidden
     >
       {stars.map((s, i) => (

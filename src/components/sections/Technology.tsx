@@ -194,7 +194,7 @@ export default function Technology({ dict }: { dict: Dict }) {
           </div>
           <p
             key={reducedMotion ? "static-desc" : `desc-${tick}`}
-            className={`mt-6 text-white/65 leading-relaxed max-w-md text-[15.5px] min-h-[3.25em] ${reducedMotion ? "" : "tech-word"}`}
+            className={`mt-6 max-sm:hidden text-white/65 leading-relaxed max-w-md text-[15.5px] min-h-[3.25em] ${reducedMotion ? "" : "tech-word"}`}
           >
             {active.desc}
           </p>

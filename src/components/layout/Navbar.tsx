@@ -81,14 +81,18 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
-        shown ? "translate-y-0 opacity-100" : "-translate-y-[120%] opacity-0 pointer-events-none"
+        // Keep the compact navigation available on phones from the first frame.
+        // Desktop still introduces it after the hero, leaving that opening view quiet.
+        shown
+          ? "translate-y-0 opacity-100"
+          : "translate-y-0 opacity-100 lg:-translate-y-[120%] lg:opacity-0 lg:pointer-events-none"
       }`}
     >
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10 pt-5">
+      <div className="mx-auto max-w-[1280px] px-4 max-sm:px-3 sm:px-6 lg:px-10 pt-5 max-sm:pt-3">
 
         {/* ── Pill ── */}
         <div
-          className={`relative flex items-center justify-between rounded-2xl border border-white/[0.08] bg-[rgba(10,14,22,0.82)] backdrop-blur-2xl px-4 sm:px-6 py-3 transition-all duration-500 ${
+          className={`relative flex items-center justify-between rounded-2xl border border-white/[0.08] bg-[rgba(10,14,22,0.82)] backdrop-blur-2xl px-4 max-sm:px-3 sm:px-6 py-3 max-sm:py-2.5 transition-all duration-500 ${
             scrolled
               ? "shadow-[0_20px_60px_-12px_rgba(0,0,0,0.75)]"
               : "shadow-[0_4px_20px_-8px_rgba(0,0,0,0.5)]"
@@ -106,7 +110,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
               width={140}
               height={26}
               priority
-              className="h-[22px] w-auto transition-opacity duration-200 group-hover:opacity-75"
+              className="h-[22px] max-sm:h-[19px] w-auto transition-opacity duration-200 group-hover:opacity-75"
             />
           </Link>
 
@@ -145,7 +149,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
 
             <a
               href="#contact"
-              className="text-[13px] font-medium px-4 py-2.5 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
+              className="text-[13px] max-sm:text-[12px] font-medium px-4 max-sm:px-3 py-2.5 max-sm:py-2 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
               style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
             >
               {dict.nav.cta}
@@ -155,7 +159,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             <button
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen((o) => !o)}
-              className="lg:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] rounded-lg hover:bg-white/[0.06] transition-colors ml-1"
+              className="lg:hidden flex flex-col justify-center items-center w-9 max-sm:w-8 h-9 max-sm:h-8 gap-[5px] rounded-lg hover:bg-white/[0.06] transition-colors ml-1"
             >
               <span className={`block w-[18px] h-px bg-white/65 transition-all duration-300 origin-center ${mobileOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
               <span className={`block w-[18px] h-px bg-white/65 transition-all duration-150 ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />

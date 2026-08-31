@@ -17,7 +17,10 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
+  // LAN development is served over plain HTTP. Upgrading requests here makes
+  // browsers request /_next CSS and JS over HTTPS, where next dev has no TLS
+  // listener, leaving the page as unstyled HTML. Production is HTTPS-only.
+  ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [
@@ -29,8 +32,10 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
-  // Two years; only meaningful once the site is served over HTTPS (it is).
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  // Two years; only meaningful once the site is served over HTTPS.
+  ...(process.env.NODE_ENV === "production"
+    ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]
+    : []),
 ];
 
 const nextConfig: NextConfig = {

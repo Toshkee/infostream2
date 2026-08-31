@@ -180,16 +180,16 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
                satellite dots slowly riding them (per the mockups). */}
             <div
               aria-hidden
-              className="absolute inset-0 pointer-events-none"
+              className="absolute inset-0 pointer-events-none hidden lg:block"
               style={{ opacity: "clamp(0, calc((var(--ph) - 0.82) / 0.18), 1)" }}
             >
               <OrbitArcs />
             </div>
-            {/* 3D process pipeline — mounted whenever the pinned variant is
-               live, phones included, at the same full treatment as desktop. */}
+            {/* 3D process pipeline — mounted only for the desktop pinned
+               variant; phones use the static, naturally scrolling version. */}
             {motionOk && (
               <div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none hidden lg:block"
                 style={{ opacity: "clamp(0, calc((var(--ph) - 0.82) / 0.18), 1)" }}
               >
                 <CanvasErrorBoundary>
@@ -213,7 +213,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             <span
               key={i}
               aria-hidden
-              className={`absolute ${c} h-3 w-3 z-10`}
+              className={`absolute ${c} hidden h-3 w-3 z-10 lg:block`}
               style={{
                 borderTopWidth: c.includes("top") ? 1 : 0,
                 borderBottomWidth: c.includes("bottom") ? 1 : 0,
@@ -225,7 +225,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
           ))}
 
           {/* Scene progress indicator — one dash per process scene */}
-          <div aria-hidden className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 flex flex-col gap-3">
+          <div aria-hidden className="absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-20 hidden flex-col gap-3 lg:flex">
             {[1, 2, 3, 4].map((i) => (
               <span
                 key={i}
@@ -318,20 +318,20 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
         />
 
         {/* Services, stacked. --u: 1 renders every block fully settled. */}
-        <div className="relative mx-auto max-w-[1280px] px-6 pt-24 pb-20">
+        <div className="relative mx-auto max-w-[1280px] px-6 pt-24 max-sm:pt-16 pb-20 max-sm:pb-14">
           <div className="text-[10px] font-medium tracking-[0.28em] uppercase text-white/55">{dict.services.eyebrow}</div>
           <h2 className="mt-3 text-[clamp(1.8rem,6vw,2.6rem)] leading-[1.05] tracking-[-0.02em] font-medium text-white">
             {dict.services.title}
           </h2>
-          <p className="mt-4 max-w-xl text-white/70 text-[15.5px] leading-relaxed">{dict.services.body}</p>
+          <p className="mt-4 max-w-xl max-sm:hidden text-white/70 text-[15.5px] leading-relaxed">{dict.services.body}</p>
 
-          <div className="mt-12 space-y-14">
+          <div className="mt-12 max-sm:mt-8 space-y-14 max-sm:space-y-10">
             {services.map((svc, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
                 <StageHeading name={svc.k} description={svc.v} heading />
-                <ol className="relative mt-7 border-l border-white/15 pl-7">
+                <ol className="relative mt-7 max-sm:mt-5 border-l border-white/15 pl-7">
                   {svc.cards.map((c, j) => (
-                    <li key={j} className="relative pb-5 last:pb-0">
+                    <li key={j} className="relative pb-5 max-sm:pb-4 last:pb-0">
                       <span aria-hidden className="absolute -left-[2.22rem] top-1.5 h-4 w-4 rounded-full border border-[var(--brand-teal-bright)]/55 bg-[var(--bg-inset)]" />
                       <div className="flex items-start gap-4">
                         <Medallion name={PROCESS_CARD_ICONS[i]?.[j] ?? "shapes"} size="sm" />
@@ -339,7 +339,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
                           <div>
                             <h4 className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</h4>
                           </div>
-                          <p className="mt-2 text-[13px] leading-relaxed text-white/60">{c.v}</p>
+                          <p className="mt-2 max-sm:hidden text-[13px] leading-relaxed text-white/60">{c.v}</p>
                         </div>
                       </div>
                     </li>
@@ -401,7 +401,7 @@ function StageHeading({
       <Title className="font-display text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white">
         {name}
       </Title>
-      <p className="process-stage-desc mt-3 max-w-xl text-white/65 text-[14.5px] leading-relaxed" style={descStyle}>
+      <p className="process-stage-desc mt-3 max-sm:mt-2 max-sm:line-clamp-2 max-w-xl text-white/65 text-[14.5px] max-sm:text-[13px] leading-relaxed" style={descStyle}>
         {description}
       </p>
     </div>

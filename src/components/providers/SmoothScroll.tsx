@@ -45,10 +45,15 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (nativeScroll) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const mobile = window.matchMedia("(max-width: 1023px)").matches;
 
     const lenis = new Lenis({
-      lerp: 0.1,
+      // Keep the familiar eased scroll on phones, but settle more gradually
+      // so a fast thumb swipe does not race through several sections.
+      lerp: mobile ? 0.065 : 0.1,
       smoothWheel: true,
+      syncTouch: mobile,
+      touchMultiplier: mobile ? 0.8 : 1,
     });
 
     activeLenis = lenis;

@@ -3,18 +3,6 @@
 import type { Dict } from "@/lib/dictionaries";
 import { EyebrowBars, Starfield, tealPeriod } from "./visuals";
 
-// Warm the heavy three.js chunk as early as the client bundle evaluates. The
-// hero itself no longer mounts a canvas (the planets belong to the process
-// section — duplicating them here made the two sections read as the same
-// scene), but the process pin further down the page does, and under `next dev`
-// that ~3 MB graph otherwise compiles on demand exactly when the user first
-// scrolls into it — the cold-start jank window. Same literal path as
-// PinnedProcess's dynamic() import so the bundler maps both to the one chunk;
-// fire-and-forget (a failure here is harmless — the real mount re-imports).
-if (typeof window !== "undefined") {
-  void import("@/components/three/HeroScene");
-}
-
 // The intro is pure CSS (`.hero-rise` in globals.css), not a GSAP timeline:
 // it starts with the first painted frame — before the JS bundle hydrates —
 // so slow devices never stare at an empty starfield, and a frozen/occluded
@@ -45,7 +33,9 @@ export default function Hero({ dict }: { dict: Dict }) {
               "radial-gradient(ellipse 45% 40% at 78% 22%, rgba(72,184,177,0.07) 0%, transparent 70%)",
           }}
         />
-        <Starfield />
+        {/* The mobile hero stays a plain gradient so the first paint is cheap;
+            desktop keeps the restrained dust field. */}
+        <Starfield className="hidden sm:block" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
       </div>
 
@@ -85,7 +75,7 @@ export default function Hero({ dict }: { dict: Dict }) {
 
         {/* Key facts — hairline key/value rows in the expertise client-list
            register, no boxes or icons */}
-        <div className="mt-14 grid max-w-3xl grid-cols-2 gap-x-10 gap-y-7 sm:grid-cols-4">
+        <div className="mt-14 max-sm:hidden grid max-w-3xl grid-cols-2 gap-x-10 gap-y-7 sm:grid-cols-4">
           {dict.hero.meta.map((m, i) => (
             <div
               key={i}

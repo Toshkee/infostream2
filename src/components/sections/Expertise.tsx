@@ -189,7 +189,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
             />
           ))}
           {/* sparser continuation of the hero's star dust */}
-          <Starfield count={85} seed={0x21c7} strength={0.6} bias={false} />
+          <Starfield count={85} seed={0x21c7} strength={0.6} bias={false} className="hidden sm:block" />
           {/* top + bottom dissolve into --bg-inset so no seam line shows
              against the hero above or the process pin below */}
           <div
@@ -414,9 +414,11 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                       {/* Below xl the art column has no room — echo it as a
                          quiet watermark so smaller screens keep the domain's
                          signature (draw-in still runs off the inherited --u) */}
+                      {/* The watermark artwork is useful on wide layouts, but
+                          becomes visual noise behind the mobile copy. */}
                       <div
                         aria-hidden
-                        className="pointer-events-none absolute bottom-1 right-0 -z-10 w-36 opacity-20 sm:w-44 md:w-56 md:opacity-30 xl:hidden"
+                        className="pointer-events-none absolute bottom-1 right-0 -z-10 hidden w-36 opacity-20 sm:w-44 md:w-56 md:opacity-30 xl:hidden"
                       >
                         <DomainArt slug={it.slug} />
                       </div>
@@ -430,7 +432,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                Each is a real button (the rail is hidden below lg, so this is
                the only way to skip between stops on touch); generous padding
                gives the hairline a usable hit target. */}
-            <div className="mt-3 flex lg:hidden">
+            <div className="mt-3 hidden lg:flex">
               {items.map((it, i) => (
                 <button
                   key={it.slug}
@@ -453,7 +455,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
       </div>
 
       {/* ════ Static stacked variant (reduced-motion + no-JS — gated in CSS) ════ */}
-      <section className="expertise-static relative overflow-hidden py-24 text-white">
+      <section className="expertise-static relative overflow-hidden py-24 max-sm:py-16 text-white">
         <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
           <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]">
             <EyebrowBars />
@@ -462,9 +464,9 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
           <h2 className="mt-5 max-w-3xl text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">
             {x.title}
           </h2>
-          <p className="mt-4 max-w-2xl text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
+          <p className="mt-4 max-w-2xl max-sm:hidden text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
-          <div className="mt-14 space-y-14">
+          <div className="mt-14 max-sm:mt-9 space-y-14 max-sm:space-y-10">
             {items.map((it) => {
               const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
               return (
@@ -474,10 +476,10 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                   <h3 className="font-display mt-3 max-w-2xl text-balance text-[clamp(1.7rem,3.2vw,2.4rem)] leading-[1.06] tracking-[-0.02em] font-medium">
                     {it.title}
                   </h3>
-                  <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-white/65">{it.short}</p>
+                  <p className="mt-3 max-w-2xl max-sm:line-clamp-2 text-[15px] leading-relaxed text-white/65">{it.short}</p>
                   {/* same single-row grid as the pinned variant (md+); plain
                      wrap with gaps below that, where columns would crush */}
-                  <div className="mt-7 flex flex-wrap gap-6 md:grid md:max-w-xl md:grid-flow-col md:auto-cols-fr md:gap-0">
+                  <div className="mt-7 max-sm:mt-5 flex flex-wrap gap-6 max-sm:gap-4 md:grid md:max-w-xl md:grid-flow-col md:auto-cols-fr md:gap-0">
                     {it.capabilities.map((label, k) => (
                       <div
                         key={k}
@@ -494,7 +496,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                     ))}
                   </div>
 
-                  <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+                  <div className="mt-8 max-sm:mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
                     <span className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">
                       {x.projectsLabel}
                     </span>
@@ -506,7 +508,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                     </Link>
                   </div>
                   {shown.length > 0 ? (
-                    <ul className="mt-4 grid max-w-3xl gap-3 sm:grid-cols-2">
+                    <ul className="mt-4 max-sm:hidden grid max-w-3xl gap-3 sm:grid-cols-2">
                       {shown.map((c, j) => (
                         <li
                           key={j}
@@ -538,4 +540,3 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
     </div>
   );
 }
-

@@ -46,7 +46,7 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
     if (el) el.scrollTop = el.scrollHeight;
   }, []);
 
-  // ── Launcher entrance + idle pulse ring (once, on mount) ──────────────────
+  // ── Quiet launcher entrance (once, on mount) ──────────────────────────────
   useGSAP(
     () => {
       const btn = launcherRef.current;
@@ -57,8 +57,8 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
       }
       gsap.fromTo(
         btn,
-        { opacity: 0, scale: 0.4, y: 24 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "back.out(1.7)", delay: 0.7 }
+        { opacity: 0, scale: 0.92, y: 10 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: "power2.out", delay: 0.45 }
       );
     },
     { scope: rootRef }
@@ -221,14 +221,14 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
   const announce = latest && latest.role === "assistant" ? latest.content : "";
 
   return (
-    <div ref={rootRef} className="fixed bottom-5 right-5 z-[60] print:hidden">
+    <div ref={rootRef} className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-[60] print:hidden">
       {/* ── Panel ── */}
       <div
         ref={panelRef}
         role="dialog"
         aria-label={t.title}
         style={{ opacity: 0, visibility: "hidden" }}
-        className="absolute bottom-[72px] right-0 flex flex-col overflow-hidden
+        className="absolute bottom-16 right-0 flex flex-col overflow-hidden
                    w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-9rem))]
                    rounded-[20px] border border-white/[0.09]
                    bg-[rgba(10,14,22,0.94)] backdrop-blur-2xl
@@ -406,7 +406,7 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
         aria-label={open ? t.close : t.launch}
         aria-expanded={open}
         style={{ opacity: 0 }}
-        className="relative grid place-items-center h-14 w-14 rounded-full
+        className="relative grid place-items-center h-12 w-12 rounded-full
                    bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)]
                    transition-colors"
       >
@@ -418,8 +418,8 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
         {/* chat glyph */}
         <svg
           ref={iconChatRef}
-          width="22"
-          height="22"
+          width="19"
+          height="19"
           viewBox="0 0 24 24"
           fill="none"
           aria-hidden
@@ -436,8 +436,8 @@ export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) 
         {/* chevron-down glyph (shown when open) */}
         <svg
           ref={iconCloseRef}
-          width="22"
-          height="22"
+          width="19"
+          height="19"
           viewBox="0 0 24 24"
           fill="none"
           aria-hidden
