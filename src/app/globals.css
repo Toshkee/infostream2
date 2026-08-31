@@ -94,6 +94,54 @@ h1, h2, h3,
 }
 .bar-pulse { animation: barPulse 1.4s ease-in-out infinite; transform-origin: bottom; }
 
+/* Client proof strips — each track contains two identical groups, so moving
+   exactly half its width makes the loop imperceptible. The opposite direction
+   on the second row gives the reference wall a calm, living cadence. */
+@keyframes proofStripLeft { to { transform: translateX(-50%); } }
+@keyframes proofStripRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.proof-strip {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 7%, black 93%, transparent);
+}
+.proof-strip-track {
+  display: flex;
+  width: max-content;
+  animation: proofStripLeft 42s linear infinite;
+}
+.proof-strip-track-reverse { animation-name: proofStripRight; animation-duration: 46s; }
+.proof-strip-group { display: flex; }
+.proof-strip-logo {
+  display: flex;
+  width: clamp(15rem, 17vw, 18rem);
+  min-height: 8.5rem;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.75rem 1.25rem;
+}
+.proof-strip-logo img {
+  mix-blend-mode: multiply;
+  transition: transform 200ms ease;
+}
+.proof-strip-logo:hover img { transform: scale(1.04); }
+.proof-strip-label {
+  display: -webkit-box;
+  width: 100%;
+  min-height: 2.4em;
+  overflow: hidden;
+  color: rgba(41, 39, 39, 0.66);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 /* Hide scrollbar on swipe tracks (Projects horizontal gallery on touch) */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -308,4 +356,7 @@ h1, h2, h3,
     scroll-behavior: auto !important;
   }
   .grain-overlay { display: none; }
+  .proof-strip { overflow-x: auto; mask-image: none; }
+  .proof-strip-track { animation: none; }
+  .proof-strip-group[aria-hidden="true"] { display: none; }
 }
