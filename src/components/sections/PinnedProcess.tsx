@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,10 +9,7 @@ import CanvasErrorBoundary from "@/components/three/CanvasErrorBoundary";
 import type { Dict } from "@/lib/dictionaries";
 import { attachStopSnap } from "@/lib/scrollSnap";
 import {
-  CARD_SHELL,
-  CENTER,
   FollowTheStream,
-  Icon,
   Medallion,
   MOTION_QUERY,
   OrbitArcs,
@@ -53,29 +50,6 @@ const PROCESS_CARD_ICONS: IconName[][] = [
   // System integration — apps · APIs · data sync · legacy
   ["puzzle", "code", "database", "server"],
 ];
-
-// Abstract line-art composition inside the Software Development feature card —
-// a floating app panel feeding a lattice of build blocks, with the same slow
-// ambient motion (svcart-* keyframes in globals.css) the old panels used.
-const FEATURE_ART: ReactNode = (
-  <>
-    <g className="svcart-floaty" style={CENTER}>
-      <rect x="44" y="20" width="72" height="52" rx="6" opacity="0.8" />
-      <path d="M53 34h26M53 44h38M53 54h32" opacity="0.45" />
-      <circle className="svcart-blink" cx="107" cy="32" r="2.5" fill="currentColor" stroke="none" />
-    </g>
-    <path className="svcart-flow" d="M80 76v22M58 92l-18 20M102 92l18 20" opacity="0.5" />
-    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "0.6s" }}>
-      <path d="M80 102l13 7.5v15L80 132l-13-7.5v-15z" />
-    </g>
-    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.1s" }}>
-      <path d="M36 116l10 6v12l-10 6-10-6v-12z" opacity="0.55" />
-    </g>
-    <g className="svcart-floaty" style={{ ...CENTER, animationDelay: "1.6s" }}>
-      <path d="M124 116l10 6v12l-10 6-10-6v-12z" opacity="0.55" />
-    </g>
-  </>
-);
 
 /* ── Scroll-driven reveal helpers ──
    The pinned container carries a --ph CSS variable (PH_START..5) written once
@@ -204,11 +178,20 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             />
             {/* Giant planetary orbit arcs sweeping in from the corners, with
                satellite dots slowly riding them (per the mockups). */}
-            <OrbitArcs />
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{ opacity: "clamp(0, calc((var(--ph) - 0.82) / 0.18), 1)" }}
+            >
+              <OrbitArcs />
+            </div>
             {/* 3D process pipeline — mounted whenever the pinned variant is
                live, phones included, at the same full treatment as desktop. */}
             {motionOk && (
-              <div className="absolute inset-0 pointer-events-none">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ opacity: "clamp(0, calc((var(--ph) - 0.82) / 0.18), 1)" }}
+              >
                 <CanvasErrorBoundary>
                   <HeroScene phaseRef={phaseRef} />
                 </CanvasErrorBoundary>
@@ -346,17 +329,22 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             {services.map((svc, i) => (
               <article key={i} style={{ "--u": 1 } as CSSVars}>
                 <StageHeading name={svc.k} description={svc.v} heading />
-                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                <ol className="relative mt-7 border-l border-white/15 pl-7">
                   {svc.cards.map((c, j) => (
-                    <div key={j} className={`${CARD_SHELL} p-5`}>
-                      <div className="flex items-center gap-4">
+                    <li key={j} className="relative pb-5 last:pb-0">
+                      <span aria-hidden className="absolute -left-[2.22rem] top-1.5 h-4 w-4 rounded-full border border-[var(--brand-teal-bright)]/55 bg-[var(--bg-inset)]" />
+                      <div className="flex items-start gap-4">
                         <Medallion name={PROCESS_CARD_ICONS[i]?.[j] ?? "shapes"} size="sm" />
-                        <h4 className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</h4>
+                        <div>
+                          <div>
+                            <h4 className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</h4>
+                          </div>
+                          <p className="mt-2 text-[13px] leading-relaxed text-white/60">{c.v}</p>
+                        </div>
                       </div>
-                      <p className="mt-3 text-[13.5px] leading-relaxed text-white/60">{c.v}</p>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ol>
               </article>
             ))}
           </div>
@@ -369,7 +357,6 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
     </div>
   );
 }
-
 function Scene({ target, children }: { target: number; children: React.ReactNode }) {
   // Opacity/lift are CSS functions of --ph. The scenes are decoration (the
   // canonical copy lives in the sr-only block), so every layer stays inert —
@@ -422,32 +409,10 @@ function StageHeading({
 }
 
 /* ─── Per-process scene bodies ───
-   Four distinct card layouts, one per process, matching the mockups:
-   0 — feature card + column of three mini cards
-   1 — four numbered step cards in a row, chevrons between
-   2 — four wide icon rows
-   3 — 2×2 grid with ghost numbers
-   Card blocks are hidden below md (the pin can't scroll internally, so phones
-   show heading + description only — full copy stays in the sr-only block and
-   the static variant). Each card is a rev() of the scene's --u, so the stagger
-   replays in reverse when scrolling back. */
+   The existing pinned, cinematic sequence stays intact. Only the content
+   register changes: a single connected rail replaces the card grids. */
 
 type ProcessItem = Dict["services"]["items"][number];
-type ProcessCard = ProcessItem["cards"][number];
-
-// Teal accent dash under card titles — every mock card carries one.
-function TitleDash() {
-  return <span aria-hidden className="mt-2 block h-[2px] w-7 rounded-full bg-[var(--brand-teal-bright)]" />;
-}
-
-// Rounded-square icon tile (the feature/mini cards' icon treatment).
-function IconTile({ name }: { name: IconName }) {
-  return (
-    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[var(--brand-teal-bright)]/40 text-[var(--brand-teal-bright)]">
-      <Icon name={name} className="h-5 w-5" />
-    </span>
-  );
-}
 
 function ProcessSceneBody({
   index,
@@ -459,122 +424,48 @@ function ProcessSceneBody({
   svc: ProcessItem;
 }) {
   const icons = PROCESS_CARD_ICONS[index] ?? [];
-  const left = (
-    <div>
-      <div
-        className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
-        style={rev(-0.42, 0.12, 6)}
-      >
-        {eyebrow}
-      </div>
-      <div className="mt-5">
-        <StageHeading name={svc.k} description={svc.v} />
-      </div>
-    </div>
-  );
-
-  if (index === 0) {
-    const [feature, ...side] = svc.cards;
-    return (
-      <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.9fr_1.05fr]">
-        {left}
-        <div className={`hidden lg:block ${CARD_SHELL} p-7`} style={rev(-0.32, 0.16, 14)}>
-          <IconTile name={icons[0]} />
-          <div className="mt-5 text-[16px] font-medium uppercase tracking-[0.08em] text-white">{feature.k}</div>
-          <TitleDash />
-          <p className="mt-4 text-[13px] leading-relaxed text-white/60">{feature.v}</p>
-          <div className="mt-4 grid place-items-center text-[var(--brand-teal-bright)]" style={rev(-0.12, 0.16, 10)}>
-            <svg
-              viewBox="0 0 160 160"
-              className="h-36 w-36 xl:h-44 xl:w-44 drop-shadow-[0_0_18px_rgba(72,184,177,0.14)]"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              {FEATURE_ART}
-            </svg>
-          </div>
-        </div>
-        <div className="hidden md:flex flex-col gap-4">
-          {side.map((c, j) => (
-            <div key={j} className={`${CARD_SHELL} p-5`} style={rev(-0.26 + j * 0.09, 0.14, 12)}>
-              <div className="flex items-center gap-4">
-                <IconTile name={icons[j + 1]} />
-                <div className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
-              </div>
-              <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (index === 1) {
-    return (
-      <div className="grid items-center gap-8 lg:gap-10 lg:grid-cols-[minmax(260px,350px)_1fr]">
-        {left}
-        <div className="hidden md:grid grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5">
-          {svc.cards.map((c, j) => (
-            <div key={j} className={`relative ${CARD_SHELL} p-5`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
-              <Medallion name={icons[j]} />
-              <div className="mt-4 text-[13.5px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
-              <TitleDash />
-              <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
-              {j < svc.cards.length - 1 && (
-                <span
-                  aria-hidden
-                  className="absolute top-1/2 -right-[22px] hidden xl:block -translate-y-1/2 text-[var(--brand-teal-bright)]/70"
-                >
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 5 16 12 9 19" />
-                  </svg>
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (index === 2) {
-    return (
-      <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[minmax(260px,350px)_1fr]">
-        {left}
-        <div className="hidden md:flex flex-col gap-4">
-          {svc.cards.map((c, j) => (
-            <div key={j} className={`${CARD_SHELL} flex items-center gap-6 px-6 py-4`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
-              <Medallion name={icons[j]} size="lg" />
-              <span aria-hidden className="hidden lg:block h-12 w-px shrink-0 bg-white/10" />
-              <div className="min-w-0">
-                <div className="text-[14.5px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
-                <TitleDash />
-                <p className="mt-2.5 max-w-xl text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[minmax(260px,350px)_1fr]">
-      {left}
-      <div className="hidden md:grid grid-cols-2 gap-4 lg:gap-5">
-        {svc.cards.map((c: ProcessCard, j: number) => (
-          <div key={j} className={`relative overflow-hidden ${CARD_SHELL} p-6`} style={rev(-0.28 + j * 0.08, 0.14, 12)}>
-            <Medallion name={icons[j]} />
-            <div className="mt-4 text-[14px] font-medium uppercase tracking-[0.08em] text-white">{c.k}</div>
-            <TitleDash />
-            <p className="mt-3 text-[12.5px] leading-relaxed text-white/60">{c.v}</p>
-          </div>
-        ))}
+    <div className="relative isolate grid items-center gap-10 lg:grid-cols-[minmax(260px,0.8fr)_minmax(420px,1.2fr)] lg:gap-16 before:absolute before:-inset-x-10 before:-inset-y-10 before:-z-10 before:bg-[linear-gradient(90deg,rgba(7,11,20,0.72)_0%,rgba(7,11,20,0.56)_64%,rgba(7,11,20,0)_100%)] before:backdrop-blur-[2px] before:[mask-image:radial-gradient(ellipse_at_42%_50%,black_32%,transparent_76%)] before:[-webkit-mask-image:radial-gradient(ellipse_at_42%_50%,black_32%,transparent_76%)]">
+      <div className="max-w-md">
+        <div
+          className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)]"
+          style={rev(-0.42, 0.12, 6)}
+        >
+          {eyebrow}
+        </div>
+        <div className="mt-5">
+          <StageHeading name={svc.k} description={svc.v} />
+        </div>
       </div>
+
+      <ol className="relative hidden border-l border-white/15 pl-7 md:block lg:pl-9">
+        {svc.cards.map((card, cardIndex) => (
+          <li
+            key={card.k}
+            className="relative pb-5 last:pb-0"
+            style={rev(-0.28 + cardIndex * 0.09, 0.14, 12)}
+          >
+            <span
+              aria-hidden
+              className="absolute -left-[2.22rem] top-1.5 grid h-4 w-4 place-items-center rounded-full border border-[var(--brand-teal-bright)]/55 bg-[var(--bg-inset)] lg:-left-[2.72rem]"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)]" />
+            </span>
+            <div className="flex items-start gap-4">
+              <Medallion name={icons[cardIndex] ?? "shapes"} size="sm" />
+              <div className="min-w-0">
+                <div>
+                  <h4 className="text-[14px] font-medium uppercase tracking-[0.08em] text-white">
+                    {card.k}
+                  </h4>
+                </div>
+                <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-white/60">{card.v}</p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
