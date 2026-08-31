@@ -93,9 +93,11 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
   const st = useRef<ScrollTrigger | null>(null);
   // Active domain index; -1 = the intro beat.
   const [active, setActive] = useState(-1);
+  const [mobileActive, setMobileActive] = useState(0);
 
   const x = dict.expertise;
   const items = x.items;
+  const mobileItem = items[mobileActive] ?? items[0];
   const last = items.length - 1;
   // Scroll units in the pin: intro → first domain is one unit, then one per
   // remaining domain. --xp runs [0, span]; domain i sits at stop i + 1.
@@ -466,7 +468,55 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
           </h2>
           <p className="mt-4 max-w-2xl max-sm:hidden text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
-          <div className="mt-14 max-sm:mt-9 space-y-14 max-sm:space-y-10">
+          {/* Phones show one domain at a time. The narrow selector keeps all
+              four choices visible without turning the page into a long stack. */}
+          <div className="mt-9 grid grid-cols-[6.5rem_minmax(0,1fr)] gap-5 sm:hidden">
+            <nav aria-label={x.eyebrow} className="border-r border-white/12 pr-3">
+              {items.map((it, i) => {
+                const selected = mobileActive === i;
+                return (
+                  <button
+                    key={it.slug}
+                    type="button"
+                    onClick={() => setMobileActive(i)}
+                    aria-pressed={selected}
+                    className={`block w-full border-b border-white/[0.08] py-3 text-left text-[10px] font-medium leading-snug tracking-[0.08em] uppercase transition-colors ${
+                      selected ? "text-[var(--brand-teal-bright)]" : "text-white/45"
+                    }`}
+                  >
+                    {it.name}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {mobileItem && (
+              <article key={mobileItem.slug}>
+                <h3 className="font-display text-balance text-[1.55rem] font-medium leading-[1.06] tracking-[-0.02em]">
+                  {mobileItem.title}
+                </h3>
+                <p className="mt-3 line-clamp-3 text-[13.5px] leading-relaxed text-white/62">
+                  {mobileItem.short}
+                </p>
+                <ul className="mt-5 space-y-2.5">
+                  {mobileItem.capabilities.map((label) => (
+                    <li key={label} className="flex items-start gap-2 text-[12px] leading-snug text-white/72">
+                      <span aria-hidden className="mt-[0.42rem] h-1 w-1 shrink-0 rounded-full bg-[var(--brand-teal-bright)]" />
+                      {label}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/${lang}/expertise/${mobileItem.slug}`}
+                  className="mt-6 inline-block border-b border-[var(--brand-teal-bright)]/30 pb-0.5 text-[12px] text-[var(--brand-teal-bright)]"
+                >
+                  {x.allClientsIn.replace("{domain}", mobileItem.name)}
+                </Link>
+              </article>
+            )}
+          </div>
+
+          <div className="mt-14 hidden space-y-14 sm:block">
             {items.map((it) => {
               const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
               return (
