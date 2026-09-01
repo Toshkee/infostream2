@@ -112,9 +112,9 @@ h1, h2, h3,
 .proof-strip-track {
   display: flex;
   width: max-content;
-  animation: proofStripLeft 42s linear infinite;
+  animation: proofStripLeft 64s linear infinite;
 }
-.proof-strip-track-reverse { animation-name: proofStripRight; animation-duration: 46s; }
+.proof-strip-track-reverse { animation-name: proofStripRight; animation-duration: 70s; }
 .proof-strip-group { display: flex; }
 .proof-strip-logo {
   display: flex;
@@ -128,17 +128,17 @@ h1, h2, h3,
   padding: 0.75rem 1.25rem;
 }
 .proof-strip-logo img {
-  mix-blend-mode: multiply;
-  transition: transform 200ms ease;
+  opacity: 0.85;
+  transition: opacity 200ms ease;
 }
-.proof-strip-logo:hover img { transform: scale(1.04); }
+.proof-strip-logo:hover img { opacity: 1; }
 .proof-strip-nameplate {
   display: flex;
   max-width: 11rem;
   min-height: 4.5rem;
   align-items: center;
-  border-block: 1px solid rgba(41, 39, 39, 0.26);
-  color: #292727;
+  border-block: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
   font-family: var(--font-display), Georgia, serif;
   font-size: 1rem;
   font-weight: 500;
@@ -151,17 +151,18 @@ h1, h2, h3,
   max-width: 12rem;
   align-items: center;
   gap: 0.55rem;
-  color: #292727;
+  color: rgba(255, 255, 255, 0.9);
   text-align: left;
 }
 .proof-strip-official-lockup img {
   width: 2.15rem;
   height: auto;
   flex: none;
+  opacity: 0.85;
 }
 .proof-strip-official-lockup span { display: grid; gap: 0.18rem; }
 .proof-strip-official-lockup small {
-  color: rgba(41, 39, 39, 0.62);
+  color: rgba(255, 255, 255, 0.52);
   font-size: 0.5rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -180,7 +181,7 @@ h1, h2, h3,
   width: 100%;
   min-height: 2.4em;
   overflow: hidden;
-  color: rgba(41, 39, 39, 0.66);
+  color: rgba(255, 255, 255, 0.52);
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -247,22 +248,12 @@ h1, h2, h3,
 }
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Process section — desktop motion-OK visitors get the pinned scroll-scrubbed
-   experience; phones, reduced-motion, very-short-viewport and no-JS visitors
-   get the static stacked variant, which is fully scrollable and needs no JS.
-   Gated purely in
-   CSS so the correct layout paints first, with no JS race and no
-   hydration/layout shift. The media query is the exact string MOTION_QUERY in
-   sections/visuals.tsx that PinnedProcess/Expertise use to start
-   ScrollTrigger. One gap: this CSS gate can't detect scripting being disabled
-   — <noscript> overrides in those components force the static variants. */
-/* ─── Animated service-scene art (FEATURE_ART in PinnedProcess, DomainArt in
-   Expertise) ───
-   Slow, ambient motion for the abstract geometric compositions. The Expertise
-   static variant renders DomainArt for reduced-motion users too, so these are
-   stilled under prefers-reduced-motion below (svcart-flow keeps its dasharray
-   — it doubles as the line's texture). Rotating/scaling parts need inline
-   transform-box: view-box + an explicit px transform-origin on the element. */
+/* Expertise uses a desktop-only scroll-scrubbed variant. Phones,
+   reduced-motion users, short viewports and no-JS visitors receive its static,
+   fully scrollable variant. The media query is the exact MOTION_QUERY string
+   in sections/visuals.tsx; <noscript> forces the static variant. */
+/* ─── Animated domain art (DomainArt on expertise detail pages) ───
+   Reduced-motion users receive the complete static artwork instead. */
 @keyframes svcartBlink { 0%, 100% { opacity: 0.25; } 45% { opacity: 1; } }
 .svcart-blink { animation: svcartBlink 2.6s ease-in-out infinite; }
 
@@ -293,7 +284,7 @@ h1, h2, h3,
     touch-action: pan-y;
   }
   .proof-strip-track {
-    animation-duration: 58s;
+    animation-duration: 74s;
   }
   .proof-strip-logo {
     width: 8.5rem;

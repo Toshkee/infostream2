@@ -413,9 +413,6 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                         )}
                       </div>
 
-                      {/* Below xl the art column has no room — echo it as a
-                         quiet watermark so smaller screens keep the domain's
-                         signature (draw-in still runs off the inherited --u) */}
                       {/* The watermark artwork is useful on wide layouts, but
                           becomes visual noise behind the mobile copy. */}
                       <div

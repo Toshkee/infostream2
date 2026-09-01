@@ -80,13 +80,13 @@ export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
   const logos = featuredLogos(lang);
 
   return (
-    <section id="clients" className="overflow-hidden bg-[#f7f4f2] text-[#292727]">
-      <div className="border-b border-black/15 px-6 py-7 sm:px-10 sm:py-9 lg:px-12 lg:py-11">
+    <section id="clients" className="overflow-hidden bg-[#151b24] text-white">
+      <div className="border-y border-white/10 px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
         <h2 className="font-display text-[clamp(2.5rem,4.25vw,4.5rem)] leading-none tracking-[-0.04em] font-medium">
           {c.stripTitle}
         </h2>
       </div>
-      <div className="py-14 sm:py-20 lg:py-24">
+      <div className="py-16 sm:py-20 lg:py-24">
         <LogoStrip logos={logos.slice(0, 8)} />
         <div className="mt-10 sm:mt-14"><LogoStrip logos={logos.slice(8)} reverse /></div>
       </div>
