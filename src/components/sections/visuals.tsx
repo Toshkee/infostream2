@@ -27,13 +27,6 @@ export const rev = (start: number, len = 0.1, lift = 6): CSSVars => ({
   transform: lift ? `translateY(calc((1 - var(--r)) * ${lift}px))` : undefined,
 });
 
-// Rotating/floating SVG parts carry inline transform-box: view-box + a px
-// origin (SVG CSS transforms default to a broken origin otherwise).
-export const CENTER = { transformBox: "view-box", transformOrigin: "80px 80px" } as const;
-
-export const CARD_SHELL =
-  "rounded-2xl border border-white/10 bg-[#0d1728] shadow-[0_14px_40px_rgba(0,0,0,0.4)]";
-
 // Colours a title's trailing full stop teal — the one accent glyph in the
 // headline treatments. Returns the text untouched if it has no closing
 // punctuation.
@@ -45,41 +38,6 @@ export function tealPeriod(text: string): ReactNode {
       {m[1]}
       <span className="text-[var(--brand-teal-bright)]">{m[2]}</span>
     </>
-  );
-}
-
-// #FollowTheStream brand lockup — the logo's equalizer-bar mark scaled up to
-// headline size, with a two-tone wordmark treatment (teal hash, white body,
-// brand-red "Stream") so the exit tag reads as company branding, not copy.
-export function FollowTheStream({ tag }: { tag: string }) {
-  const hash = tag.startsWith("#") ? "#" : "";
-  const rest = hash ? tag.slice(1) : tag;
-  const idx = rest.lastIndexOf("Stream");
-  const head = idx === -1 ? rest : rest.slice(0, idx);
-  const tail = idx === -1 ? "" : rest.slice(idx);
-  const bars = [
-    { h: "56%", d: "0s", c: "var(--brand-red)" },
-    { h: "100%", d: "0.15s", c: "var(--brand-red)" },
-    { h: "40%", d: "0.3s", c: "var(--brand-teal-bright)" },
-    { h: "76%", d: "0.45s", c: "var(--brand-red)" },
-  ];
-  return (
-    <div className="inline-flex items-center justify-center gap-[0.32em] text-[clamp(2.4rem,6vw,4.6rem)] leading-none tracking-[-0.03em] font-semibold">
-      <span aria-hidden className="flex items-end gap-[0.085em] h-[0.74em]">
-        {bars.map((b, i) => (
-          <span
-            key={i}
-            className="bar-pulse inline-block w-[0.095em] rounded-[1px]"
-            style={{ height: b.h, background: b.c, animationDelay: b.d }}
-          />
-        ))}
-      </span>
-      <span>
-        <span className="text-[var(--brand-teal-bright)]">{hash}</span>
-        <span className="text-white">{head}</span>
-        <span className="text-[var(--brand-red)]">{tail}</span>
-      </span>
-    </div>
   );
 }
 
@@ -161,42 +119,6 @@ export function Starfield({
           }
         />
       ))}
-    </svg>
-  );
-}
-
-/* ─────────── Orbit arcs backdrop ───────────
-   Two enormous orbit circles centred far off-canvas (top-right and
-   bottom-left) so only their arcs sweep across the frame, each carrying a few
-   glowing satellite dots. The whole ring rotates very slowly (svcart-spin with
-   a multi-minute duration), so the dots creep along their orbits like planets.
-   Pure static SVG — rendered once, animated entirely in CSS. */
-export function OrbitArcs() {
-  const glow = { filter: "drop-shadow(0 0 6px var(--brand-teal-bright))" };
-  return (
-    <svg
-      viewBox="0 0 1600 900"
-      preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 h-full w-full"
-      aria-hidden
-    >
-      {/* top-right system — dots at r840: 180°→(940,120), 150°→(1053,540); r620: 190°→(1169,12) */}
-      <g className="svcart-spin" style={{ ...CENTER, transformOrigin: "1780px 120px", animationDuration: "260s" }}>
-        {/* The r840 solid circle that used to sit here swept a lone hairline
-           across the whole dark midsection — removed on request; its
-           satellite dots stay, riding the now-invisible orbit. */}
-        <circle cx="1780" cy="120" r="620" fill="none" stroke="rgba(72,184,177,0.18)" strokeWidth="1" strokeDasharray="2 10" />
-        <circle cx="940" cy="120" r="4.5" fill="var(--brand-teal-bright)" style={glow} />
-        <circle cx="1053" cy="540" r="3" fill="var(--brand-red)" opacity="0.9" />
-        <circle cx="1169" cy="12" r="3.5" fill="var(--brand-teal-bright)" opacity="0.85" style={glow} />
-      </g>
-      {/* bottom-left system — dots at r720: 0°→(540,760), -45°→(329,251) */}
-      <g className="svcart-spin-rev" style={{ ...CENTER, transformOrigin: "-180px 760px", animationDuration: "320s" }}>
-        {/* solid r720 orbit circle removed on request (same as the top-right
-           r840) — the satellite dots keep riding the invisible path */}
-        <circle cx="540" cy="760" r="4" fill="var(--brand-teal-bright)" style={glow} />
-        <circle cx="329" cy="251" r="3" fill="var(--brand-teal-bright)" opacity="0.8" style={glow} />
-      </g>
     </svg>
   );
 }

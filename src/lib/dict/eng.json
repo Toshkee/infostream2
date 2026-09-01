@@ -16,8 +16,6 @@
     "eyebrow": "Infostream / Software Built To Last",
     "title": "Where complex processes become simple software",
     "body": "We design, build, and implement software that organizations rely on every day. From enterprise information systems to cloud solutions, we deliver secure, scalable technology built to evolve and last.",
-    "exitTag": "#FollowTheStream",
-    "exitScrollHint": "scroll to see who's connected",
     "cta": "Get in touch",
     "scrollHint": "Scroll",
     "meta": [
@@ -410,45 +408,6 @@
         ],
         "year": "2024"
       }
-    ]
-  },
-  "about": {
-    "eyebrow": "Company",
-    "title": "Built in Podgorica since 2004.",
-    "body1": "Infostream is a privately held software company from Podgorica, Montenegro. For over two decades we have designed, built and operated enterprise systems for the institutions that run the country — tax, budget, pensions, defence — and for the banks that answer to them.",
-    "body2": "Some sixty delivered projects across government and banking — built, run and answered for by the same team, year after year.",
-    "factsLabel": "At a glance",
-    "facts": [
-      {
-        "k": "Founded",
-        "v": "2004 · Podgorica, Montenegro"
-      },
-      {
-        "k": "Ownership",
-        "v": "100% private"
-      },
-      {
-        "k": "Projects delivered",
-        "v": "60+"
-      },
-      {
-        "k": "Certified",
-        "v": "ISO 27001 · ISO 9001"
-      },
-      {
-        "k": "Partnerships",
-        "v": "Oracle Partner · Microsoft Partner"
-      }
-    ],
-    "productsLabel": "Our products",
-    "products": [
-      "ERPStream",
-      "FINStream",
-      "KLEFIS",
-      "InfoDMS",
-      "eFirma",
-      "REES",
-      "eCES"
     ]
   },
   "security": {

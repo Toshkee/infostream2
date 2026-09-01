@@ -25,8 +25,7 @@ export function smoothScrollTo(y: number, duration = 0.6) {
 /* True once Lenis has arrived at its target. Lenis emits no scroll events
    while the main thread is stalled, so anything that waits for "scrolling
    stopped" has to ask whether travel is actually finished — otherwise a
-   long flick interrupted by a stall (the cold-load three.js compile that
-   lagSmoothing below exists to absorb) looks like a settled scroll and gets
+   long flick interrupted by a stall looks like a settled scroll and gets
    acted on from a stale position. */
 export function isScrollSettled() {
   if (!activeLenis) return true;
@@ -35,25 +34,20 @@ export function isScrollSettled() {
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // The expertise subpages are short static documents (often barely taller
-  // than the viewport) with no scroll-scrubbed animation. Lenis easing there
-  // reads as broken — a wheel flick glides for ~a second and dead-stops at
-  // the bottom — so those routes get native scroll; the homepage keeps Lenis
-  // for the pinned ScrollTrigger scrub feel.
+  // Expertise subpages are short static documents, while the homepage's
+  // scroll-scrubbed interaction is desktop-only. Both are more reliable with
+  // native touch scrolling, so Lenis is reserved for desktop homepages.
   const nativeScroll = pathname.includes("/expertise/");
 
   useEffect(() => {
     if (nativeScroll) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const mobile = window.matchMedia("(max-width: 1023px)").matches;
+    if (mobile) return;
 
     const lenis = new Lenis({
-      // Keep the familiar eased scroll on phones, but settle more gradually
-      // so a fast thumb swipe does not race through several sections.
-      lerp: mobile ? 0.065 : 0.1,
+      lerp: 0.1,
       smoothWheel: true,
-      syncTouch: mobile,
-      touchMultiplier: mobile ? 0.8 : 1,
     });
 
     activeLenis = lenis;
@@ -64,12 +58,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     };
     gsap.ticker.add(raf);
     // Keep GSAP's default lag smoothing on, rather than the usual Lenis recipe's
-    // lagSmoothing(0). A one-off main-thread stall on cold load — the lazy three.js
-    // chunk compiling/parsing + the first WebGL frame warming up — otherwise dumps
-    // its whole accumulated delta into the next scrubbed frame, which reads as the
-    // scroll lurching past the pinned process section instead of scrubbing it. The
-    // 500ms threshold only ever fires on exactly such a catastrophic stall; normal
-    // 16–33ms frames never trip it, so Lenis stays perfectly synced in regular use.
+    // lagSmoothing(0). It prevents a long main-thread stall from dumping its whole
+    // accumulated delta into the next scrubbed frame. The 500ms threshold never
+    // trips during normal 16–33ms frames, so Lenis stays in sync in regular use.
     gsap.ticker.lagSmoothing(500, 33);
 
     return () => {

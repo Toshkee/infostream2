@@ -80,6 +80,12 @@ h1, h2, h3,
 }
 .skip-link:focus-visible { transform: translateY(0); outline: none; }
 
+/* Touch devices do not need the keyboard-only skip control. Some mobile
+   browsers focus the first link after restoring a page, exposing it on load. */
+@media (max-width: 1023px) {
+  .skip-link { display: none; }
+}
+
 /* Focus rings — keyboard only, brand-teal */
 :focus-visible {
   outline: 2px solid var(--brand-teal-bright);
@@ -276,8 +282,7 @@ h1, h2, h3,
 }
 @media (prefers-reduced-motion: reduce) {
   .star-drift, .star-twinkle { animation: none; }
-  .svcart-blink, .svcart-flow, .svcart-spin, .svcart-spin-rev,
-  .svcart-floaty { animation: none; }
+  .svcart-blink, .svcart-flow, .svcart-floaty { animation: none; }
 }
 
 /* On small screens, proof strips stay compact but keep a slow, readable loop. */
@@ -306,10 +311,6 @@ h1, h2, h3,
   .proof-strip-official-lockup img { width: 1.6rem; }
   .proof-strip-official-lockup strong { font-size: 0.7rem; }
 }
-
-@keyframes svcartSpin { to { transform: rotate(360deg); } }
-.svcart-spin { animation: svcartSpin 30s linear infinite; }
-.svcart-spin-rev { animation: svcartSpin 22s linear infinite reverse; }
 
 @keyframes svcartFloatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .svcart-floaty { animation: svcartFloatY 4.2s ease-in-out infinite; }
