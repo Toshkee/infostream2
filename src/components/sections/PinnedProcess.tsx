@@ -1,56 +1,48 @@
 import type { Dict } from "@/lib/dictionaries";
 
 /*
- * A deliberately editorial process section. A single introduction leads into
- * full-width service rows, keeping the methodology easy to scan without
- * shipping animation or WebGL code for content that does not need interaction.
+ * The process is a delivery ledger, not another services list. Each stage is
+ * given enough space to read as an accountable decision point, while the
+ * staggered cut corners turn the four panels into one authored composition.
  */
 export default function PinnedProcess({ dict }: { dict: Dict }) {
-  const services = dict.services.items;
+  const { platform } = dict;
 
   return (
-    <section
-      id="platform"
-      className="relative overflow-hidden border-t border-white/10 bg-[var(--bg-inset)] text-white"
-    >
-      <div className="mx-auto max-w-[1280px] px-6 py-16 sm:py-20 lg:px-10 lg:py-28">
-        <header className="max-w-3xl">
-          <p className="text-[10px] font-medium tracking-[0.28em] uppercase text-[var(--brand-teal-bright)]">
-            {dict.services.eyebrow}
-          </p>
-          <h2 className="font-display mt-4 text-[clamp(2rem,4vw,3.6rem)] font-medium leading-[1.02] tracking-[-0.03em]">
-            {dict.services.title}
-          </h2>
-          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-white/62 max-sm:hidden">
-            {dict.services.body}
-          </p>
-        </header>
+    <section id="platform" className="relative overflow-hidden bg-[var(--bg-inset)] py-20 text-white sm:py-28 lg:py-36">
+      <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:gap-20">
+          <header className="lg:sticky lg:top-28 lg:self-start">
+            <h2 className="font-display max-w-lg text-[clamp(2.5rem,4.5vw,4.6rem)] font-medium leading-[0.98] tracking-[-0.04em]">
+              {platform.title}
+            </h2>
+            <p className="mt-7 max-w-md text-[16px] leading-relaxed text-white/68">{platform.body}</p>
+          </header>
 
-        <div className="mt-10 border-t border-white/15 sm:mt-12 lg:mt-14">
-          {services.map((service) => (
-            <article
-              key={service.k}
-              className="grid gap-5 border-b border-white/15 py-7 sm:py-8 lg:grid-cols-[minmax(220px,0.72fr)_minmax(0,1.28fr)] lg:items-center lg:gap-16"
-            >
-              <div>
-                <h3 className="font-display text-[clamp(1.45rem,2.2vw,2rem)] font-medium leading-[1.05] tracking-[-0.025em]">
-                  {service.k}
-                </h3>
-                <p className="mt-2 max-w-md text-[13.5px] leading-relaxed text-white/55 max-sm:line-clamp-2">
-                  {service.v}
-                </p>
-              </div>
-
-              <ul className="flex flex-wrap gap-x-5 gap-y-2.5">
-                {service.cards.map((card) => (
-                  <li key={card.k} className="flex items-center gap-2 text-[11px] font-medium tracking-[0.1em] uppercase text-white/68">
-                    <span aria-hidden className="h-1 w-1 rounded-full bg-[var(--brand-teal-bright)]" />
-                    {card.k}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
+          <ol className="grid gap-4 sm:gap-5" aria-label={platform.title}>
+            {platform.stages.map((stage, index) => (
+              <li key={stage.name}>
+                <article
+                  className={`relative overflow-hidden bg-[var(--bg-inset-elev)] px-6 py-6 sm:px-8 sm:py-8 lg:px-9 lg:py-9 ${
+                    index % 2 ? "lg:ml-10" : "lg:mr-10"
+                  }`}
+                >
+                  <div
+                    aria-hidden
+                    className="absolute right-0 top-0 h-12 w-12 bg-[var(--bg-inset)] [clip-path:polygon(100%_0,100%_100%,0_0)]"
+                  />
+                  <div className="max-w-xl">
+                    <h3 className="font-display text-[clamp(1.65rem,2.5vw,2.35rem)] font-medium leading-[1] tracking-[-0.035em] text-white">
+                      {stage.name}
+                    </h3>
+                    <p className="mt-3 max-w-2xl text-[14.5px] leading-relaxed text-white/67 sm:text-[15px]">
+                      {stage.description}
+                    </p>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>

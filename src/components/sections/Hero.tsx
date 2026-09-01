@@ -88,19 +88,6 @@ export default function Hero({ dict }: { dict: Dict }) {
           ))}
         </div>
       </div>
-
-      {/* Scroll affordance — a mono whisper and a hairline the teal sweep runs
-         down, hinting at the pinned journey below the fold */}
-      <div
-        aria-hidden
-        className="hero-rise absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2.5"
-        style={{ animationDelay: "1.1s" }}
-      >
-        <span className="mono text-[9px] tracking-[0.32em] uppercase text-white/40">
-          {dict.hero.scrollHint}
-        </span>
-        <span className="scroll-cue" />
-      </div>
     </section>
   );
 }
