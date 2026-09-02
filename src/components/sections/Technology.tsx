@@ -322,9 +322,11 @@ export default function Technology({ technology }: { technology: Dict["technolog
                           {item.name}
                         </span>
                       </div>
-                      <p className="mt-2.5 text-white/50 text-[13px] leading-relaxed">
-                        {item.desc}
-                      </p>
+                      {item.desc && (
+                        <p className="mt-2.5 text-white/50 text-[13px] leading-relaxed">
+                          {item.desc}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>

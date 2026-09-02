@@ -56,7 +56,7 @@
     "stages": [
       {
         "name": "Discovery",
-        "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one.",
+        "description": "Workshops with your team align business objectives, technical requirements and delivery expectations before anything is built.",
         "outcomes": [
           "Scope and priorities",
           "Requirements baseline",
@@ -65,7 +65,7 @@
       },
       {
         "name": "Architecture",
-        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off up front, not invented mid-build.",
+        "description": "Data models, integrations, security boundaries and failure modes are signed off up front, not invented mid-build.",
         "outcomes": [
           "Data model",
           "Integration map",
@@ -74,7 +74,7 @@
       },
       {
         "name": "Build",
-        "description": "Working software is delivered in increments, allowing feedback, adaptation and measurable progress throughout the project.",
+        "description": "Working software ships in increments, so you see progress and can steer it.",
         "outcomes": [
           "Working increments",
           "Sprint reviews",
@@ -83,7 +83,7 @@
       },
       {
         "name": "Operate",
-        "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value.",
+        "description": "After go-live we monitor, support and keep improving the system.",
         "outcomes": [
           "Monitoring",
           "User support",
@@ -95,21 +95,19 @@
   "expertise": {
     "eyebrow": "Expertise",
     "title": "Software built on domain expertise.",
-    "body": "Successful enterprise software requires more than technical knowledge — it demands deep industry insight. Our solutions reflect a clear understanding of the business processes, regulatory requirements and daily operations of the organisations we support. Over the years, Infostream has specialised its expertise across finance, human resources, healthcare and document management.",
+    "body": "Enterprise software has to fit the institution that runs it: its processes, its regulations, its daily routine. We have spent twenty years learning four domains from the inside.",
     "status": "in production",
     "clientsLabel": "Selected clients",
     "comingSoon": "Reference list available on request.",
     "projectsLabel": "Projects in this expertise",
     "allClientsIn": "View all clients in {domain}",
-    "sideNote": "Solutions built on domain expertise and a deep understanding of how institutions operate.",
     "ctaTitle": "Running something like this? Let’s talk.",
     "items": [
       {
         "slug": "finance",
         "name": "Finance",
         "title": "Financial systems built on experience.",
-        "short": "Grounded in high precision and regulatory compliance, our software drives vital financial operations. By covering taxation, treasury, budgeting, business registries and reporting, we empower organisations to confidently manage their core financial data.",
-        "tagline": "Reliable data. Strong controls. Systems that keep public finance moving.",
+        "short": "Taxation, treasury, budgeting, business registries and reporting: the systems that move public money, built for precision and regulatory compliance.",
         "capabilities": [
           "Taxation",
           "Treasury",
@@ -117,7 +115,6 @@
           "Business registries",
           "Reporting"
         ],
-        "blurb": "Financial management, taxation, budgeting, treasury and public finance systems.",
         "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to the private sector, where ERPStream runs the books at Port of Adria.",
         "clients": [
           {
@@ -154,15 +151,13 @@
         "slug": "hr",
         "name": "Human Resources",
         "title": "Complete control over your HR ecosystem.",
-        "short": "At the heart of every organisation are its people. Our solutions simplify day-to-day HR operations — from recruitment and payroll to workforce management and administration — making your organisation more efficient and transparent.",
-        "tagline": "Efficient, transparent HR — from recruitment to retirement.",
+        "short": "Recruitment, payroll, employee administration and workforce management in one system, so HR records stay accurate for decades.",
         "capabilities": [
           "Recruitment",
           "Payroll",
           "Employee administration",
           "Workforce management"
         ],
-        "blurb": "HR management, payroll, employee administration and workforce solutions.",
         "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund, and the same platform keeps the records of employers outside the public sector — ERSTE Bank, Grawe and the national broadcaster.",
         "clients": [
           {
@@ -195,15 +190,13 @@
         "slug": "dms",
         "name": "DMS & Workflow",
         "title": "Ditch the paper. Accelerate your business.",
-        "short": "Converting traditional paper operations into digital systems creates faster, more transparent business procedures. These solutions automate approvals, protect data integrity and streamline document organisation from creation to archiving.",
-        "tagline": "From creation to archive — every document accounted for.",
+        "short": "Paper procedures turned into digital ones: automated approvals, protected data integrity and every document traceable from creation to archive.",
         "capabilities": [
           "Document management",
           "Electronic registries",
           "Workflow automation",
           "Digital archive"
         ],
-        "blurb": "Document management, electronic registries and workflow automation solutions.",
         "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defense — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
         "clients": [
           {
@@ -256,15 +249,13 @@
         "slug": "healthcare",
         "name": "Healthcare",
         "title": "Digital solutions for healthcare systems.",
-        "short": "Dedicated software systems for healthcare environments. These solutions streamline administrative workflows, simplify patient data management and increase overall operational efficiency.",
-        "tagline": "Sensitive data, handled with discipline and care.",
+        "short": "Systems for healthcare environments that streamline administration, simplify patient data management and keep sensitive records under control.",
         "capabilities": [
           "Health insurance",
           "Patient records",
           "Clinical workflows",
           "Reporting"
         ],
-        "blurb": "Healthcare information systems, health insurance and medical data management.",
         "body": "Health systems are where our domain disciplines meet: identity, entitlements, sensitive records and long institutional memory. We bring the same ISO-certified engineering and information-security practice that runs our public-sector platforms.",
         "clients": []
       }
@@ -412,63 +403,63 @@
     "rotate": [
       {
         "word": "Oracle Database",
-        "desc": "The trusted foundation for secure, scalable and reliable software solutions."
+        "desc": "Where our registers and ledgers live, in production for twenty years."
       },
       {
         "word": "Oracle APEX",
-        "desc": "Rapid application development that delivers secure business solutions with speed and flexibility."
+        "desc": "Our platform for internal and citizen-facing applications, delivered fast on top of the database."
       },
       {
         "word": ".NET",
-        "desc": "A modern development framework for scalable, maintainable and enterprise-ready applications."
+        "desc": "Services and integrations that connect institutions to each other."
       }
     ],
     "perimeterLabel": "SECURE PERIMETER",
     "groups": [
       {
         "label": "Core Technologies",
-        "intro": "The core platforms we rely on to deliver secure, scalable and enterprise-grade solutions.",
+        "intro": "The platforms every system starts on.",
         "items": [
           {
             "name": "Oracle Database",
             "icon": "db",
-            "desc": "Enterprise-grade database platform built for reliability, security and scale."
+            "desc": "Registers, ledgers and audit trails."
           },
           {
             "name": "Oracle APEX",
             "icon": "apex",
-            "desc": "Low-code development platform for building powerful enterprise applications faster."
+            "desc": "Internal and citizen-facing applications."
           },
           {
             "name": "Microsoft .NET",
             "icon": "net",
-            "desc": "Robust framework for building scalable, maintainable and high-performance applications."
+            "desc": "Services, integrations and reporting."
           }
         ]
       },
       {
         "label": "Supporting Technologies",
-        "intro": "Technologies we use to complement and extend solutions based on project requirements.",
+        "intro": "Used where a project calls for them.",
         "items": [
           {
             "name": "Java",
             "icon": "java",
-            "desc": "Strong, reliable platform for enterprise-grade applications."
+            "desc": "Backend services"
           },
           {
             "name": "Angular",
             "icon": "angular",
-            "desc": "Modern frontend framework for building fast and dynamic interfaces."
+            "desc": "Web front-ends"
           },
           {
             "name": "JavaScript",
             "icon": "js",
-            "desc": "Essential for interactive web experiences and integration layers."
+            "desc": "Integration layers"
           },
           {
-            "name": "AI",
+            "name": "AI & OCR",
             "icon": "ai",
-            "desc": "Intelligent solutions that automate processes and unlock business insights."
+            "desc": "Document recognition and search"
           }
         ]
       }

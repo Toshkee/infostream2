@@ -56,7 +56,7 @@
     "stages": [
       {
         "name": "Otkrivanje",
-        "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
+        "description": "Radionice sa vašim timom usklađuju poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke prije nego što se bilo šta izgradi.",
         "outcomes": [
           "Obim i prioriteti",
           "Osnova zahtjeva",
@@ -65,7 +65,7 @@
       },
       {
         "name": "Arhitektura",
-        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju unaprijed, ne izmišljaju se usput.",
+        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza potvrđuju se unaprijed, ne izmišljaju usput.",
         "outcomes": [
           "Model podataka",
           "Mapa integracija",
@@ -74,7 +74,7 @@
       },
       {
         "name": "Izrada",
-        "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta.",
+        "description": "Funkcionalni softver stiže u inkrementima, pa napredak vidite i možete ga usmjeravati.",
         "outcomes": [
           "Funkcionalni inkrementi",
           "Sprint pregledi",
@@ -83,7 +83,7 @@
       },
       {
         "name": "Eksploatacija",
-        "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
+        "description": "Nakon puštanja u rad sistem nadziremo, podržavamo i dalje unapređujemo.",
         "outcomes": [
           "Nadzor",
           "Korisnička podrška",
@@ -95,21 +95,19 @@
   "expertise": {
     "eyebrow": "Ekspertiza",
     "title": "Softver građen na poznavanju struke.",
-    "body": "Uspješan poslovni softver zahtijeva više od tehničkog znanja — zahtijeva duboko poznavanje struke. Naša rješenja odražavaju jasno razumijevanje poslovnih procesa, regulatornih zahtjeva i svakodnevnog rada organizacija koje podržavamo. Kroz godine, Infostream je svoju ekspertizu izgradio u finansijama, ljudskim resursima, zdravstvu i upravljanju dokumentima.",
+    "body": "Poslovni softver mora da odgovara instituciji koja ga koristi: njenim procesima, propisima i svakodnevnoj rutini. Dvadeset godina učimo četiri oblasti iznutra.",
     "status": "u produkciji",
     "clientsLabel": "Odabrani klijenti",
     "comingSoon": "Referentna lista dostupna na upit.",
     "projectsLabel": "Projekti u ovoj oblasti",
     "allClientsIn": "Svi klijenti u oblasti: {domain}",
-    "sideNote": "Rješenja građena na domenskoj ekspertizi i dubokom razumijevanju načina na koji institucije rade.",
     "ctaTitle": "Vodite sličan sistem? Razgovarajmo.",
     "items": [
       {
         "slug": "finance",
         "name": "Finansije",
         "title": "Finansijski sistemi građeni na iskustvu.",
-        "short": "Zasnovan na visokoj preciznosti i usklađenosti sa propisima, naš softver pokreće ključne finansijske operacije. Pokrivajući poreze, trezor, budžet, privredne registre i izvještavanje, omogućavamo organizacijama da sa sigurnošću upravljaju svojim osnovnim finansijskim podacima.",
-        "tagline": "Pouzdani podaci. Snažne kontrole. Sistemi koji pokreću javne finansije.",
+        "short": "Porezi, trezor, budžet, privredni registri i izvještavanje: sistemi koji pokreću javni novac, građeni za preciznost i usklađenost sa propisima.",
         "capabilities": [
           "Porezi",
           "Trezor",
@@ -117,7 +115,6 @@
           "Privredni registri",
           "Izvještavanje"
         ],
-        "blurb": "Finansijsko upravljanje, porezi, budžet, trezor i sistemi javnih finansija.",
         "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u privredu, gdje ERPStream vodi poslovne knjige kompanije Port of Adria.",
         "clients": [
           {
@@ -154,15 +151,13 @@
         "slug": "hr",
         "name": "Ljudski resursi",
         "title": "Potpuna kontrola nad HR ekosistemom.",
-        "short": "U srcu svake organizacije su njeni ljudi. Naša rješenja pojednostavljuju svakodnevne HR operacije — od zapošljavanja i obračuna zarada do upravljanja kadrovima i administracije — čineći organizaciju efikasnijom i transparentnijom.",
-        "tagline": "Efikasan i transparentan HR — od zapošljavanja do penzije.",
+        "short": "Zapošljavanje, zarade, administracija zaposlenih i upravljanje kadrovima u jednom sistemu, da kadrovske evidencije ostanu tačne decenijama.",
         "capabilities": [
           "Zapošljavanje",
           "Zarade",
           "Administracija zaposlenih",
           "Upravljanje kadrovima"
         ],
-        "blurb": "Upravljanje kadrovima, zarade, administracija zaposlenih i kadrovska rješenja.",
         "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO, a ista platforma vodi evidencije i poslodavcima van javnog sektora — Erste banci, Grawe osiguranju i nacionalnom javnom servisu.",
         "clients": [
           {
@@ -195,15 +190,13 @@
         "slug": "dms",
         "name": "DMS i tokovi rada",
         "title": "Ostavite papir. Ubrzajte poslovanje.",
-        "short": "Prevođenje tradicionalnog papirnog poslovanja u digitalne sisteme donosi brže i transparentnije procedure. Ova rješenja automatizuju odobrenja, štite integritet podataka i uređuju rad sa dokumentima od nastanka do arhiviranja.",
-        "tagline": "Od nastanka do arhive — svaki dokument evidentiran.",
+        "short": "Papirne procedure pretvorene u digitalne: automatizovana odobrenja, zaštićen integritet podataka i svaki dokument sljediv od nastanka do arhive.",
         "capabilities": [
           "Upravljanje dokumentima",
           "Elektronski registri",
           "Automatizacija tokova rada",
           "Digitalna arhiva"
         ],
-        "blurb": "Upravljanje dokumentima, elektronski registri i automatizacija tokova rada.",
         "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS — uveden po NATO standardima dokumentacije u Ministarstvu odbrane — i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
         "clients": [
           {
@@ -256,15 +249,13 @@
         "slug": "healthcare",
         "name": "Zdravstvo",
         "title": "Digitalna rješenja za zdravstvene sisteme.",
-        "short": "Namjenski softverski sistemi za zdravstveno okruženje. Ova rješenja ubrzavaju administrativne procese, pojednostavljuju upravljanje podacima o pacijentima i podižu ukupnu operativnu efikasnost.",
-        "tagline": "Osjetljivi podaci, vođeni disciplinovano i pažljivo.",
+        "short": "Sistemi za zdravstveno okruženje koji ubrzavaju administraciju, pojednostavljuju upravljanje podacima o pacijentima i drže osjetljive evidencije pod kontrolom.",
         "capabilities": [
           "Zdravstveno osiguranje",
           "Podaci o pacijentima",
           "Klinički procesi",
           "Izvještavanje"
         ],
-        "blurb": "Zdravstveni informacioni sistemi, zdravstveno osiguranje i upravljanje medicinskim podacima.",
         "body": "Zdravstveni sistemi su tačka u kojoj se naše discipline susrijeću: identitet, prava, osjetljivi podaci i dugo institucionalno pamćenje. Donosimo istu ISO sertifikovanu inženjersku praksu i praksu bezbjednosti informacija koja pokreće naše platforme u javnom sektoru.",
         "clients": []
       }
@@ -412,63 +403,63 @@
     "rotate": [
       {
         "word": "Oracle Database",
-        "desc": "Provjeren temelj za bezbjedna, skalabilna i pouzdana softverska rješenja."
+        "desc": "Tu žive naši registri i knjige, u produkciji već dvadeset godina."
       },
       {
         "word": "Oracle APEX",
-        "desc": "Brz razvoj aplikacija koji isporučuje bezbjedna poslovna rješenja uz brzinu i fleksibilnost."
+        "desc": "Naša platforma za interne i javne aplikacije, brzo isporučene nad bazom."
       },
       {
         "word": ".NET",
-        "desc": "Moderan razvojni okvir za skalabilne i održive aplikacije spremne za poslovnu upotrebu."
+        "desc": "Servisi i integracije koji povezuju institucije međusobno."
       }
     ],
     "perimeterLabel": "BEZBJEDNI PERIMETAR",
     "groups": [
       {
         "label": "Osnovne tehnologije",
-        "intro": "Osnovne platforme na koje se oslanjamo za isporuku bezbjednih, skalabilnih rješenja poslovne klase.",
+        "intro": "Platforme na kojima počinje svaki sistem.",
         "items": [
           {
             "name": "Oracle Database",
             "icon": "db",
-            "desc": "Baza podataka poslovne klase, građena za pouzdanost, bezbjednost i skalabilnost."
+            "desc": "Registri, knjige i revizorski tragovi."
           },
           {
             "name": "Oracle APEX",
             "icon": "apex",
-            "desc": "Low-code platforma za brži razvoj moćnih poslovnih aplikacija."
+            "desc": "Interne i javne aplikacije."
           },
           {
             "name": "Microsoft .NET",
             "icon": "net",
-            "desc": "Robustan okvir za izgradnju skalabilnih i održivih aplikacija visokih performansi."
+            "desc": "Servisi, integracije i izvještavanje."
           }
         ]
       },
       {
         "label": "Prateće tehnologije",
-        "intro": "Tehnologije kojima dopunjujemo i proširujemo rješenja u zavisnosti od zahtjeva projekta.",
+        "intro": "Koristimo ih kada projekat to traži.",
         "items": [
           {
             "name": "Java",
             "icon": "java",
-            "desc": "Snažna, pouzdana platforma za aplikacije poslovne klase."
+            "desc": "Backend servisi"
           },
           {
             "name": "Angular",
             "icon": "angular",
-            "desc": "Moderan frontend okvir za izgradnju brzih i dinamičnih interfejsa."
+            "desc": "Web interfejsi"
           },
           {
             "name": "JavaScript",
             "icon": "js",
-            "desc": "Neizostavan za interaktivna web iskustva i integracione slojeve."
+            "desc": "Integracioni slojevi"
           },
           {
-            "name": "AI",
+            "name": "AI i OCR",
             "icon": "ai",
-            "desc": "Inteligentna rješenja koja automatizuju procese i otkrivaju poslovne uvide."
+            "desc": "Prepoznavanje i pretraga dokumenata"
           }
         ]
       }

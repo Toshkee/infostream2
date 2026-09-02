@@ -12,7 +12,6 @@ import {
   DomainArt,
   EyebrowBars,
   Icon,
-  Medallion,
   MOTION_QUERY,
   Starfield,
   tealPeriod,
@@ -240,10 +239,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                     ))}
                   </ul>
                 </div>
-                <div className="flex max-w-[240px] flex-col gap-4 rounded-2xl border border-white/10 p-6">
-                  <Medallion name="shieldCheck" size="sm" />
-                  <p className="text-[12.5px] leading-relaxed text-white/55">{x.sideNote}</p>
-                </div>
               </div>
 
               {/* Domain scenes — stacked, crossfaded by --xp. Stop 0 is the
@@ -283,7 +278,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                         <span className="block text-[13.5px] leading-snug text-white/85 transition-colors duration-300 group-hover:text-white">
                           {it.name}
                         </span>
-                        <span className="mt-1.5 block text-[12px] leading-relaxed text-white/45">{it.blurb}</span>
                       </button>
                     ))}
                   </div>
@@ -360,10 +354,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                         style={drev(-0.44, 0.1, 8)}
                       >
                         <DomainArt slug={it.slug} />
-                        {/* the domain tagline sits under the instrument, as in the mock */}
-                        <p className="max-w-[28ch] text-center text-[12.5px] leading-relaxed text-white/50">
-                          {it.tagline}
-                        </p>
                       </div>
                       </div>
 

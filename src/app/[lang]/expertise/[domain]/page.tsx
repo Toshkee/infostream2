@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { defaultLocale, getDictionary, hasLocale, locales } from "@/lib/dictionaries";
-import { DomainArt, Icon, Medallion, Starfield } from "@/components/sections/visuals";
+import { DomainArt, Icon, Starfield } from "@/components/sections/visuals";
 import { ClientMark } from "@/components/sections/Clients";
 import { CAP_ICONS } from "@/components/sections/expertiseMeta";
 import Navbar from "@/components/layout/Navbar";
@@ -51,7 +51,7 @@ export async function generateMetadata(
   const resolved = await resolveDomain(props.params);
   if (!resolved) return {};
   return {
-    title: `${resolved.item.name} — Infostream`,
+    title: `${resolved.item.name} · Infostream`,
     description: resolved.item.short,
   };
 }
@@ -123,11 +123,6 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
               })}
             </ul>
           </nav>
-
-          <div className="mt-16 hidden max-w-[230px] flex-col gap-5 rounded-2xl border border-white/10 p-6 lg:flex">
-            <Medallion name="shieldCheck" size="sm" />
-            <p className="text-[13px] leading-relaxed text-white/55">{x.sideNote}</p>
-          </div>
         </aside>
 
         {/* ── Domain content ── */}
@@ -165,12 +160,8 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
                 ))}
               </div>
             </div>
-            {/* the tagline sits under the instrument, as in the mock */}
-            <div className="hidden xl:flex xl:flex-col xl:items-center xl:gap-6">
+            <div className="hidden xl:flex xl:justify-center">
               <DomainArt slug={item.slug} />
-              <p className="max-w-[30ch] text-center text-[13px] leading-relaxed text-white/50">
-                {item.tagline}
-              </p>
             </div>
           </div>
 
