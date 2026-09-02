@@ -39,11 +39,19 @@ GitHub Actions runs `verify` on every push and pull request
 | Locales, `<html lang>`, hreflang codes       | `src/lib/locales.ts`                                    |
 | Client logos                                 | `public/clients/` plus `FEATURED_ASSETS` in `Clients.tsx` |
 | Design tokens, fonts, keyframes              | `src/app/globals.css`                                   |
-| The assistant's behaviour and fact brief     | `src/lib/assistant.ts`                                  |
+| What the assistant knows (fact brief)        | `src/lib/facts/eng.json` and `src/lib/facts/mne.json`   |
+| The assistant's rules and prompt             | `src/lib/assistant.ts`                                  |
 | Security headers / CSP                       | `next.config.ts`                                        |
 
-The two dictionaries must have identical key trees. `npm run check` enforces
-this. Edit them with a UTF-8-aware editor; never run `sed`/`perl -pi` over
+The assistant answers from two sources: the page copy in the dictionaries and
+the fact brief in `src/lib/facts/`, which holds verified company facts that
+are not shown on any page (services, key figures, delivered projects). Only
+put verifiable facts there; never financials or staff names. The route logs
+one line per request (locale, turn count, sizes, latency) and no message
+content.
+
+The two dictionaries, and the two fact files, must have identical key trees.
+`npm run check` enforces this. Edit them with a UTF-8-aware editor; never run `sed`/`perl -pi` over
 them (that has corrupted the Montenegrin file before).
 
 Routes: `/eng` and `/mne` (homepage), `/eng/expertise/{finance,hr,dms,healthcare}`
@@ -58,6 +66,7 @@ Read `docs/animation.md` before touching anything that scrolls or animates.
 | ---------------- | -------- | ----------------------------------------------------------- |
 | `GEMINI_API_KEY` | yes      | Google AI Studio key for the assistant. Server-only.        |
 | `GEMINI_MODEL`   | no       | Override the primary model (default `gemini-2.5-flash`).    |
+| `ASSISTANT_ENABLED` | no    | `0` removes the chat widget and refuses `/api/chat`. Rebuild after changing it. |
 | `CHAT_DEBUG`     | no       | `1` returns upstream error detail to the browser. Dev only. |
 
 Without `GEMINI_API_KEY` the site builds and runs; only the assistant replies

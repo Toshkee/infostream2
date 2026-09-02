@@ -37,7 +37,10 @@ Dictionaries live in `src/lib/dict/*.json` and are dynamically imported. Pages f
 
 No visitor-facing copy in code: every `lang === "mne" ? … : …` is a smell. Locale-independent company facts (site URL, address, founding year, social links, "60+" figure) live in `src/lib/company.ts` and feed the JSON-LD, sitemap/robots and the assistant prompt.
 
-`npm run check` (`scripts/check-invariants.mjs`, also run in CI) fails if the two dictionaries' key trees differ, if a locale has no dictionary file, or if `MOTION_QUERY` drifts from the CSS gate.
+### Assistant
+`/api/chat` (`src/app/api/chat/route.ts`) proxies to Gemini. The system prompt (`src/lib/assistant.ts`) is built from the dictionary **plus** `src/lib/facts/{eng,mne}.json` (loaded by `src/lib/facts.ts`), the FACT BRIEF: verified company facts not rendered on any page (stats, services, delivered projects). Never add unverified products there (DotBond was removed for that reason); never financials or staff names. `ASSISTANT_ENABLED=0` (`src/lib/assistantFlag.ts`) hides the widget and refuses the route. The route logs one content-free audit line per request.
+
+`npm run check` (`scripts/check-invariants.mjs`, also run in CI) fails if the two dictionaries' (or fact files') key trees differ, if a locale has no dictionary file, or if `MOTION_QUERY` drifts from the CSS gate.
 
 ### Page composition
 `src/app/[lang]/page.tsx` is the homepage; `src/app/[lang]/expertise/[domain]/page.tsx` serves the four expertise-domain client pages (slugs come from `dict.expertise.items[].slug`; `sitemap.ts` and `generateStaticParams` both derive from it). `[lang]/layout.tsx` generates per-locale `Metadata` (title/OG/Twitter/JSON-LD `Organization` schema) and renders `SmoothScroll`, the `AssistantLoader` (lazy, idle-mounted `Assistant` chat widget), and the `grain-overlay` div as layout-level chrome. The homepage renders `Navbar`, then `Hero`, `Expertise`, `PinnedProcess`, then `Clients` (the full reference register grouped by the four expertise domains, reading `dict.expertise.items[].clients`) / `Technology` / `Security` / `Contact` each wrapped in `EdgeBeam` (an animated teal-hairline frame), then `Footer`. Shared presentation helpers (icon set, `Medallion`, `rev()`, `MOTION_QUERY`) live in `src/components/sections/visuals.tsx`.

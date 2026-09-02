@@ -395,6 +395,9 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
           <p className="mt-2 px-1 mono text-[9.5px] tracking-[0.14em] uppercase text-white/55">
             {t.tag}
           </p>
+          <p className="mt-1.5 px-1 text-[11px] leading-snug text-white/45">
+            {t.disclaimer}
+          </p>
         </form>
       </div>
 

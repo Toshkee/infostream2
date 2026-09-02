@@ -1,4 +1,6 @@
 import { getDictionary, hasLocale, defaultLocale, type Locale } from "@/lib/dictionaries";
+import { getAssistantFacts } from "@/lib/facts";
+import { assistantEnabled } from "@/lib/assistantFlag";
 import {
   buildSystemPrompt,
   GEMINI_MODELS,
@@ -101,6 +103,11 @@ function isChatMessage(m: unknown): m is ChatMessage {
 const LEAK_MARKERS = ["YOUR ONE JOB", "HARD RULES", "FACT BRIEF"];
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+  // Kill switch: ASSISTANT_ENABLED=0 hides the widget (layout) and refuses
+  // the endpoint, so a misbehaving bot can be turned off without a code change.
+  if (!assistantEnabled()) return Response.json({ error: "The assistant is disabled." }, { status: 503 });
+
   // Verbose upstream error detail is opt-in (CHAT_DEBUG=1) — never tied to
   // NODE_ENV, so a misconfigured deploy can't leak provider detail to clients.
   const debug = process.env.CHAT_DEBUG === "1";
@@ -159,9 +166,9 @@ export async function POST(request: Request) {
   if (!apiKey)
     return fail(500, "The assistant isn't configured yet.", "GEMINI_API_KEY is not set");
 
-  const dict = await getDictionary(lang);
+  const [dict, facts] = await Promise.all([getDictionary(lang), getAssistantFacts(lang)]);
   const payload = {
-    systemInstruction: { parts: [{ text: buildSystemPrompt(dict, lang) }] },
+    systemInstruction: { parts: [{ text: buildSystemPrompt(dict, facts, lang) }] },
     contents: messages.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
@@ -197,15 +204,26 @@ export async function POST(request: Request) {
     ? parts.map((p) => (typeof p?.text === "string" ? p.text : "")).join("").trim()
     : "";
 
+  // One line per answered request, without message content: enough to see
+  // volume, latency and how often the fallback fires, nothing to leak.
+  const audit = (outcome: "ok" | "empty" | "leak") =>
+    console.info(
+      `[/api/chat] ${outcome} lang=${lang} turns=${messages.length} in=${total} out=${reply.length} ms=${Date.now() - startedAt}`
+    );
+
   // Empty/blocked completions fall back to a safe, on-brand message.
-  if (!reply) return Response.json({ reply: dict.assistant.fallback });
+  if (!reply) {
+    audit("empty");
+    return Response.json({ reply: dict.assistant.fallback });
+  }
 
   // Output-side guard: if the model ever echoes its own instructions, don't
   // hand that to the user — return the safe fallback instead.
   if (LEAK_MARKERS.some((m) => reply.includes(m))) {
-    console.error("[/api/chat] suppressed a reply that echoed system-prompt markers");
+    audit("leak");
     return Response.json({ reply: dict.assistant.fallback });
   }
 
+  audit("ok");
   return Response.json({ reply });
 }

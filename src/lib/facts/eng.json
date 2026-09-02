@@ -1,0 +1,152 @@
+{
+  "stats": {
+    "iso": {
+      "value": "ISO 27001",
+      "label": "Information security, externally audited"
+    },
+    "apex": {
+      "value": "Oracle APEX",
+      "label": "The platform we build on"
+    },
+    "years": {
+      "value": "20+",
+      "label": "Years operating critical state systems"
+    }
+  },
+  "services": {
+    "items": [
+      {
+        "k": "Software Development",
+        "v": "We develop enterprise software that simplifies operations, automates business processes and enables organizations to deliver secure, efficient and scalable digital services.",
+        "cards": [
+          {
+            "k": "Custom Development",
+            "v": "From concept to production, every solution is designed around your unique business processes and objectives."
+          },
+          {
+            "k": "Agile Delivery",
+            "v": "Incremental development with continuous collaboration, transparent communication and frequent releases."
+          },
+          {
+            "k": "Scalable Architecture",
+            "v": "Solutions built for performance, reliability and future growth without compromising maintainability."
+          },
+          {
+            "k": "Long-term Partnership",
+            "v": "Beyond delivery, we provide maintenance, upgrades and continuous support throughout the software lifecycle."
+          }
+        ]
+      },
+      {
+        "k": "Digital Transformation",
+        "v": "Helping organizations modernize operations, eliminate manual processes and embrace digital ways of working.",
+        "cards": [
+          {
+            "k": "Assess",
+            "v": "Understanding existing systems, identifying bottlenecks and defining a clear roadmap for digital transformation."
+          },
+          {
+            "k": "Digitize",
+            "v": "Replacing paper-based and fragmented processes with connected digital workflows."
+          },
+          {
+            "k": "Automate",
+            "v": "Reducing manual work through intelligent automation and streamlined business processes."
+          },
+          {
+            "k": "Optimize",
+            "v": "Continuously improving systems based on user feedback, business growth and evolving requirements."
+          }
+        ]
+      },
+      {
+        "k": "Technology Consulting",
+        "v": "Helping organizations choose the right technologies, define scalable architectures and make confident digital decisions.",
+        "cards": [
+          {
+            "k": "Technology Assessment",
+            "v": "Evaluating existing systems and identifying the technologies best suited to your business goals."
+          },
+          {
+            "k": "Strategic Planning",
+            "v": "Creating technology roadmaps that align digital initiatives with long-term business objectives."
+          },
+          {
+            "k": "Solution Architecture",
+            "v": "Designing secure, scalable and future-ready solution architectures."
+          },
+          {
+            "k": "Agile Consulting",
+            "v": "Applying Agile principles to ensure continuous collaboration, transparent communication and informed decision-making throughout every engagement."
+          }
+        ]
+      },
+      {
+        "k": "System Integration",
+        "v": "Connecting applications, databases and enterprise systems into one reliable digital ecosystem.",
+        "cards": [
+          {
+            "k": "Application Integration",
+            "v": "Integrating business applications to ensure seamless communication and efficient data exchange."
+          },
+          {
+            "k": "API Connectivity",
+            "v": "Designing and implementing secure APIs for reliable communication between internal and external systems."
+          },
+          {
+            "k": "Data Synchronization",
+            "v": "Synchronizing information across multiple platforms to maintain consistency and accuracy."
+          },
+          {
+            "k": "Legacy Modernization",
+            "v": "Connecting legacy systems with modern technologies without disrupting existing business operations."
+          }
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "items": [
+      {
+        "name": "Official Gazette Legal Register",
+        "summary": "Register of the refined, consolidated texts of Montenegro's laws and regulations for the Official Gazette, with full-text search across every published act.",
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Elasticsearch"
+        ],
+        "year": "2023"
+      },
+      {
+        "name": "Regulations Register",
+        "summary": "Back-office register for classifying and publishing national regulations: issuer workflows, regulation metadata and EU-harmonisation chapter tracking.",
+        "tags": [
+          "Oracle",
+          ".NET",
+          "Angular"
+        ],
+        "year": "2025"
+      },
+      {
+        "name": "Innovation Fund Platform",
+        "summary": "The information system behind the Innovation Fund of Montenegro, managing funding programmes and applications, searchable by programme and year.",
+        "tags": [
+          "Oracle APEX",
+          "Oracle",
+          "JavaScript"
+        ],
+        "year": "2024"
+      },
+      {
+        "name": "Register of NGOs & Political Parties",
+        "summary": "Online registration and records for Montenegro's NGOs and political parties at ngo.gov.me: guided submission, seat and membership data, document issuance.",
+        "tags": [
+          "Oracle",
+          "Angular",
+          "JavaScript"
+        ],
+        "year": "2024"
+      }
+    ]
+  }
+}

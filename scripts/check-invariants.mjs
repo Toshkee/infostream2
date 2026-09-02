@@ -1,8 +1,10 @@
 // Cheap, dependency-free guards for the things that have silently broken
 // before. Run with `npm run check`; CI runs it on every push.
 //
-//  1. Every locale in src/lib/locales.ts has a dictionary file, and every
-//     dictionary has an identical key tree (same keys, same array lengths).
+//  1. Every locale in src/lib/locales.ts has a dictionary file (src/lib/dict)
+//     and an assistant fact-brief file (src/lib/facts), and within each
+//     folder every locale's file has an identical key tree (same keys, same
+//     array lengths).
 //  2. MOTION_QUERY in visuals.tsx is byte-identical to the @media query that
 //     gates .expertise-pinned in globals.css — the pinned scenes are built
 //     against one and shown/hidden by the other.
@@ -20,14 +22,7 @@ const localesMatch = localesSrc.match(/export const locales = \[([^\]]+)\] as co
 if (!localesMatch) failures.push("locales.ts: could not find `export const locales = [...] as const`");
 const locales = localesMatch ? [...localesMatch[1].matchAll(/"([a-z]+)"/g)].map((m) => m[1]) : [];
 
-const dictFiles = readdirSync(resolve(root, "src/lib/dict")).filter((f) => f.endsWith(".json"));
-for (const l of locales) {
-  if (!dictFiles.includes(`${l}.json`)) failures.push(`locale "${l}" has no src/lib/dict/${l}.json`);
-}
-for (const f of dictFiles) {
-  const code = f.replace(/\.json$/, "");
-  if (!locales.includes(code)) failures.push(`src/lib/dict/${f} is not listed in locales.ts`);
-}
+const LOCALE_DIRS = ["src/lib/dict", "src/lib/facts"];
 
 function shape(value, path = "") {
   const out = new Set();
@@ -44,14 +39,24 @@ function shape(value, path = "") {
   return out;
 }
 
-const dicts = Object.fromEntries(dictFiles.map((f) => [f, JSON.parse(read(`src/lib/dict/${f}`))]));
-const [baseName, ...others] = dictFiles;
-if (baseName) {
-  const base = shape(dicts[baseName]);
+let fileCount = 0;
+for (const dir of LOCALE_DIRS) {
+  const files = readdirSync(resolve(root, dir)).filter((f) => f.endsWith(".json"));
+  fileCount += files.length;
+  for (const l of locales) {
+    if (!files.includes(`${l}.json`)) failures.push(`locale "${l}" has no ${dir}/${l}.json`);
+  }
+  for (const f of files) {
+    const code = f.replace(/\.json$/, "");
+    if (!locales.includes(code)) failures.push(`${dir}/${f} is not listed in locales.ts`);
+  }
+  const [baseName, ...others] = files;
+  if (!baseName) continue;
+  const base = shape(JSON.parse(read(`${dir}/${baseName}`)));
   for (const name of others) {
-    const other = shape(dicts[name]);
-    for (const k of base) if (!other.has(k)) failures.push(`${name} is missing ${k} (present in ${baseName})`);
-    for (const k of other) if (!base.has(k)) failures.push(`${baseName} is missing ${k} (present in ${name})`);
+    const other = shape(JSON.parse(read(`${dir}/${name}`)));
+    for (const k of base) if (!other.has(k)) failures.push(`${dir}/${name} is missing ${k} (present in ${baseName})`);
+    for (const k of other) if (!base.has(k)) failures.push(`${dir}/${baseName} is missing ${k} (present in ${name})`);
   }
 }
 
@@ -76,5 +81,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `Invariants OK: ${locales.length} locales, ${dictFiles.length} dictionaries with matching key trees, motion query in sync.`
+  `Invariants OK: ${locales.length} locales, ${fileCount} locale files with matching key trees, motion query in sync.`
 );

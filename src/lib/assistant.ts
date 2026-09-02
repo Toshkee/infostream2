@@ -1,4 +1,5 @@
 import type { Dict, Locale } from "@/lib/dictionaries";
+import type { AssistantFacts } from "@/lib/facts";
 import { company } from "@/lib/company";
 
 // Shared types + grounding logic for the Infostream website assistant.
@@ -31,19 +32,20 @@ export const LIMITS = {
 
 /**
  * Build the system instruction that constrains the model to Infostream-only
- * answers. The fact brief is assembled from the site's own dictionary so the
- * assistant stays accurate and in sync with the page content, in both locales.
+ * answers. The brief is assembled from two sources, in both locales: the
+ * site's own dictionary (so the bot matches what the page says) and
+ * src/lib/facts/*.json (knowledge that is not rendered anywhere on the site).
  */
-export function buildSystemPrompt(dict: Dict, lang: Locale): string {
+export function buildSystemPrompt(dict: Dict, facts: AssistantFacts, lang: Locale): string {
   const langName = lang === "mne" ? "Montenegrin (crnogorski)" : "English";
 
   const stats = [
-    `Certification: ${dict.stats.iso.value} — ${dict.stats.iso.label}`,
-    `Platform: ${dict.stats.apex.value} — ${dict.stats.apex.label}`,
-    `Years operating critical state systems: ${dict.stats.years.value} — ${dict.stats.years.label}`,
+    `Certification: ${facts.stats.iso.value} — ${facts.stats.iso.label}`,
+    `Platform: ${facts.stats.apex.value} — ${facts.stats.apex.label}`,
+    `Years operating critical state systems: ${facts.stats.years.value} — ${facts.stats.years.label}`,
   ].join("\n");
 
-  const services = dict.services.items.map((s) => `- ${s.k}: ${s.v}`).join("\n");
+  const services = facts.services.items.map((s) => `- ${s.k}: ${s.v}`).join("\n");
 
   const process = dict.platform.stages
     .map((s, i) => `${i + 1}. ${s.name} — ${s.description}`)
@@ -69,7 +71,7 @@ export function buildSystemPrompt(dict: Dict, lang: Locale): string {
     )
     .join("\n");
 
-  const projects = dict.projects.items
+  const projects = facts.projects.items
     .map((p) => `- ${p.name} (${p.year}): ${p.summary} [${p.tags.join(", ")}]`)
     .join("\n");
 

@@ -47,115 +47,6 @@
       }
     ]
   },
-  "stats": {
-    "iso": {
-      "value": "ISO 27001",
-      "label": "Informaciona bezbjednost, eksterno revidirana"
-    },
-    "apex": {
-      "value": "Oracle APEX",
-      "label": "Platforma na kojoj gradimo"
-    },
-    "years": {
-      "value": "20+",
-      "label": "Godina rada na kritičnim državnim sistemima"
-    }
-  },
-  "services": {
-    "eyebrow": "Čime se bavimo",
-    "title": "Gradimo softver na koji se biznis oslanja.",
-    "body": "Praktična rješenja. Savremena tehnologija. Stvarni učinak.",
-    "items": [
-      {
-        "k": "Razvoj softvera",
-        "v": "Razvijamo poslovni softver koji pojednostavljuje operacije, automatizuje poslovne procese i omogućava organizacijama da pružaju bezbjedne, efikasne i skalabilne digitalne servise.",
-        "cards": [
-          {
-            "k": "Razvoj po mjeri",
-            "v": "Od koncepta do produkcije, svako rješenje je dizajnirano oko vaših jedinstvenih poslovnih procesa i ciljeva."
-          },
-          {
-            "k": "Agilna isporuka",
-            "v": "Inkrementalni razvoj uz kontinuiranu saradnju, transparentnu komunikaciju i česta izdanja."
-          },
-          {
-            "k": "Skalabilna arhitektura",
-            "v": "Rješenja građena za performanse, pouzdanost i budući rast, bez kompromisa u pogledu održivosti."
-          },
-          {
-            "k": "Dugoročno partnerstvo",
-            "v": "I nakon isporuke pružamo održavanje, unapređenja i kontinuiranu podršku tokom cijelog životnog ciklusa softvera."
-          }
-        ]
-      },
-      {
-        "k": "Digitalna transformacija",
-        "v": "Pomažemo organizacijama da modernizuju poslovanje, eliminišu manuelne procese i prihvate digitalne načine rada.",
-        "cards": [
-          {
-            "k": "Procjena",
-            "v": "Razumijevanje postojećih sistema, prepoznavanje uskih grla i definisanje jasnog plana digitalne transformacije."
-          },
-          {
-            "k": "Digitalizacija",
-            "v": "Zamjena papirnih i fragmentisanih procesa povezanim digitalnim tokovima rada."
-          },
-          {
-            "k": "Automatizacija",
-            "v": "Smanjenje manuelnog rada kroz inteligentnu automatizaciju i optimizovane poslovne procese."
-          },
-          {
-            "k": "Optimizacija",
-            "v": "Kontinuirano unapređivanje sistema na osnovu povratnih informacija korisnika, rasta biznisa i novih zahtjeva."
-          }
-        ]
-      },
-      {
-        "k": "Tehnološki konsalting",
-        "v": "Pomažemo organizacijama da izaberu prave tehnologije, definišu skalabilne arhitekture i donose sigurne digitalne odluke.",
-        "cards": [
-          {
-            "k": "Procjena tehnologija",
-            "v": "Evaluacija postojećih sistema i prepoznavanje tehnologija koje najbolje odgovaraju vašim poslovnim ciljevima."
-          },
-          {
-            "k": "Strateško planiranje",
-            "v": "Kreiranje tehnoloških mapa puta koje usklađuju digitalne inicijative sa dugoročnim poslovnim ciljevima."
-          },
-          {
-            "k": "Arhitektura rješenja",
-            "v": "Projektovanje bezbjednih, skalabilnih arhitektura rješenja spremnih za budućnost."
-          },
-          {
-            "k": "Agilni konsalting",
-            "v": "Primjena agilnih principa za kontinuiranu saradnju, transparentnu komunikaciju i informisano odlučivanje tokom čitavog angažmana."
-          }
-        ]
-      },
-      {
-        "k": "Sistemska integracija",
-        "v": "Povezujemo aplikacije, baze podataka i poslovne sisteme u jedan pouzdan digitalni ekosistem.",
-        "cards": [
-          {
-            "k": "Integracija aplikacija",
-            "v": "Integracija poslovnih aplikacija koja obezbjeđuje neometanu komunikaciju i efikasnu razmjenu podataka."
-          },
-          {
-            "k": "API povezivanje",
-            "v": "Dizajn i implementacija bezbjednih API-ja za pouzdanu komunikaciju između internih i eksternih sistema."
-          },
-          {
-            "k": "Sinhronizacija podataka",
-            "v": "Sinhronizacija informacija na više platformi radi očuvanja konzistentnosti i tačnosti."
-          },
-          {
-            "k": "Modernizacija legacy sistema",
-            "v": "Povezivanje naslijeđenih sistema sa savremenim tehnologijama bez ometanja postojećeg poslovanja."
-          }
-        ]
-      }
-    ]
-  },
   "platform": {
     "eyebrow": "Kako isporučujemo",
     "title": "Četiri faze. Jedan odgovoran tim.",
@@ -472,60 +363,6 @@
       }
     ]
   },
-  "projects": {
-    "items": [
-      {
-        "name": "Registar propisa Službenog lista",
-        "summary": "Registar prečišćenih tekstova zakona i propisa Crne Gore za Službeni list, sa pretragom punog teksta kroz sve objavljene akte.",
-        "tags": [
-          "Oracle",
-          ".NET",
-          "Elasticsearch"
-        ],
-        "year": "2023"
-      },
-      {
-        "name": "DotBond",
-        "summary": "Open-source alat koji su izradili naši inženjeri za generisanje potpuno tipiziranih TypeScript klijenata iz C#/.NET pozadine, tako da front-end i API ugovori ostaju usklađeni.",
-        "tags": [
-          "C#",
-          ".NET",
-          "TypeScript"
-        ],
-        "year": "2024"
-      },
-      {
-        "name": "Registar propisa",
-        "summary": "Back-office registar za klasifikaciju i objavljivanje nacionalnih propisa: tokovi izdavača, metapodaci propisa i praćenje poglavlja EU usklađivanja.",
-        "tags": [
-          "Oracle",
-          ".NET",
-          "Angular"
-        ],
-        "year": "2025"
-      },
-      {
-        "name": "Platforma Fonda za inovacije",
-        "summary": "Informacioni sistem Fonda za inovacije Crne Gore: upravljanje programima finansiranja i prijavama, sa pretragom po programu i godini.",
-        "tags": [
-          "Oracle APEX",
-          "Oracle",
-          "JavaScript"
-        ],
-        "year": "2024"
-      },
-      {
-        "name": "Registar NVO i političkih partija",
-        "summary": "Onlajn registracija i evidencija nevladinih organizacija i političkih partija Crne Gore na ngo.gov.me: vođeno podnošenje, podaci o sjedištu i članstvu, izdavanje dokumenata.",
-        "tags": [
-          "Oracle",
-          "Angular",
-          "JavaScript"
-        ],
-        "year": "2024"
-      }
-    ]
-  },
   "security": {
     "eyebrow": "Standardi",
     "title": "Posvećeni kvalitetu. Sertifikovani po standardima.",
@@ -654,7 +491,8 @@
       "Koje tehnologije koristite?",
       "Kako da vas kontaktiram?"
     ],
-    "fallback": "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me."
+    "fallback": "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me.",
+    "disclaimer": "Automatizovani asistent. Odgovori mogu biti netačni ili nepotpuni; za sve obavezujuće obratite se timu direktno."
   },
   "footer": {
     "tagline": "Softver koji traje, građen u Podgorici.",

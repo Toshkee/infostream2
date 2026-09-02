@@ -14,6 +14,7 @@ import {
 import { SITE_URL, absoluteUrl, company } from "@/lib/company";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import AssistantLoader from "@/components/AssistantLoader";
+import { assistantEnabled } from "@/lib/assistantFlag";
 
 const sans = Inter({
   variable: "--font-sans-stack",
@@ -126,7 +127,7 @@ export default async function RootLayout({
         <SmoothScroll>
           {children}
         </SmoothScroll>
-        <AssistantLoader copy={dict.assistant} lang={lang} />
+        {assistantEnabled() && <AssistantLoader copy={dict.assistant} lang={lang} />}
         <div className="grain-overlay" aria-hidden />
         {/* Copy for the [lang] error boundary. error.tsx is a client component
             that receives no route params and cannot load the dictionary, so
