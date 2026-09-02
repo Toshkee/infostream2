@@ -312,6 +312,36 @@ h1, h2, h3,
   .expertise-static { display: none; }
 }
 
+/* Process ledger — rows light up as the scroll rail reaches them. --pa is
+   the row's attention (0 ahead, 0.7 passed, 1 active) and only departs from
+   1 once JS adds .proc-live, so no-JS and reduced-motion visitors read every
+   row fully lit. The changes are CSS transitions, not GSAP tweens (see the
+   reveal-animations note above). */
+.proc-live .proc-row { --pa: 0; }
+.proc-live .proc-row.is-past { --pa: 0.7; }
+.proc-live .proc-row.is-active { --pa: 1; }
+.proc-title {
+  color: rgba(255, 255, 255, calc(0.38 + 0.62 * var(--pa, 1)));
+  transition: color 0.6s ease;
+}
+.proc-body {
+  color: rgba(255, 255, 255, calc(0.34 + 0.32 * var(--pa, 1)));
+  transition: color 0.6s ease;
+}
+.proc-chip {
+  color: rgba(255, 255, 255, calc(0.36 + 0.4 * var(--pa, 1)));
+  transition: color 0.6s ease;
+}
+/* The node is centred by a plain `left` offset; growth uses `scale` only, so
+   it grows in place and never skids along the rail. */
+.proc-node { transition: background-color 0.4s ease, border-color 0.4s ease, scale 0.4s ease; }
+.proc-row.is-active .proc-node,
+.proc-row.is-past .proc-node {
+  background: var(--brand-teal-bright);
+  border-color: var(--brand-teal-bright);
+}
+.proc-row.is-active .proc-node { scale: 1.5; }
+
 /* Hero intro — pure CSS so the opening text paints with the first styled
    frame, before the JS bundle hydrates (a GSAP timeline left slow devices
    staring at an empty starfield, and a frozen/occluded tab stranded it

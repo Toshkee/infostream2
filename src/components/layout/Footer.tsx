@@ -32,12 +32,6 @@ export default function Footer({ dict }: { dict: Dict }) {
               </span>
             </div>
             <p className="mt-5 text-sm text-white/55 max-w-xs leading-relaxed">{dict.footer.tagline}</p>
-
-            {/* Live status pill */}
-            <div className="mt-6 inline-flex items-center gap-2 text-[10px] font-medium tracking-[0.22em] uppercase text-white/60 border border-white/15 rounded-full px-3 py-1.5">
-              <span className="inline-flex rounded-full h-1.5 w-1.5 bg-[var(--brand-teal-bright)]" />
-              {dict.footer.status}
-            </div>
           </div>
 
           {/* Credentials column */}

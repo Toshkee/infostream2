@@ -23,8 +23,8 @@
         "v": "20+"
       },
       {
-        "k": "Security",
-        "v": "ISO 27001"
+        "k": "Delivery",
+        "v": "Agile"
       },
       {
         "k": "Platforms",
@@ -146,25 +146,47 @@
     ]
   },
   "platform": {
+    "eyebrow": "How we deliver",
     "title": "Four stages. One accountable team.",
     "body": "Every engagement runs through the same four stages: no handoffs to subcontractors, no surprises after sign-off.",
     "framework": "Agile delivery framework",
+    "outcomesLabel": "What you get",
     "stages": [
       {
         "name": "Discovery",
-        "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one."
+        "description": "Every successful project starts with a shared understanding. Through Agile workshops and continuous collaboration, we align business objectives, technical requirements and delivery expectations from day one.",
+        "outcomes": [
+          "Scope and priorities",
+          "Requirements baseline",
+          "Delivery plan"
+        ]
       },
       {
         "name": "Architecture",
-        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off up front, not invented mid-build."
+        "description": "Data models, integrations, security boundaries and failure modes are drawn out and signed off up front, not invented mid-build.",
+        "outcomes": [
+          "Data model",
+          "Integration map",
+          "Security boundaries"
+        ]
       },
       {
         "name": "Build",
-        "description": "Working software is delivered in increments, allowing feedback, adaptation and measurable progress throughout the project."
+        "description": "Working software is delivered in increments, allowing feedback, adaptation and measurable progress throughout the project.",
+        "outcomes": [
+          "Working increments",
+          "Sprint reviews",
+          "Acceptance testing"
+        ]
       },
       {
         "name": "Operate",
-        "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value."
+        "description": "Go-live is not the finish line. We monitor, support and continuously improve solutions to ensure long-term business value.",
+        "outcomes": [
+          "Monitoring",
+          "User support",
+          "Continuous improvement"
+        ]
       }
     ]
   },
@@ -178,6 +200,7 @@
     "projectsLabel": "Projects in this expertise",
     "allClientsIn": "View all clients in {domain}",
     "sideNote": "Solutions built on domain expertise and a deep understanding of how institutions operate.",
+    "ctaTitle": "Running something like this? Let’s talk.",
     "items": [
       {
         "slug": "finance",

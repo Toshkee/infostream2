@@ -33,14 +33,16 @@ export default function Hero({ dict }: { dict: Dict }) {
               "radial-gradient(ellipse 45% 40% at 78% 22%, rgba(72,184,177,0.07) 0%, transparent 70%)",
           }}
         />
-        {/* The mobile hero stays a plain gradient so the first paint is cheap;
-            desktop keeps the restrained dust field. */}
+        {/* Desktop keeps the full dust field; phones get a lighter one (a few
+            dozen dots, still SVG, cheap to paint) so the opening screen isn't
+            a flat gradient. */}
         <Starfield className="hidden sm:block" />
+        <Starfield count={55} seed={0x5747} strength={0.85} bias={false} className="sm:hidden" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1280px] flex-col justify-center px-6 pt-20 pb-8 md:pt-24 md:pb-12 lg:px-10">
-        <div className="hero-rise text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3">
+        <div className="hero-rise text-[10px] font-medium tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3 sm:text-[11px] sm:tracking-[0.25em]">
           <EyebrowBars />
           {dict.hero.eyebrow}
         </div>
@@ -74,8 +76,9 @@ export default function Hero({ dict }: { dict: Dict }) {
         </div>
 
         {/* Key facts — hairline key/value rows in the expertise client-list
-           register, no boxes or icons */}
-        <div className="mt-14 max-sm:hidden grid max-w-3xl grid-cols-2 gap-x-10 gap-y-7 sm:grid-cols-4">
+           register, no boxes or icons. A 2×2 grid on phones, where they also
+           fill what was an empty lower half of the opening screen. */}
+        <div className="mt-12 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 sm:mt-14 sm:grid-cols-4 sm:gap-x-10 sm:gap-y-7">
           {dict.hero.meta.map((m, i) => (
             <div
               key={i}

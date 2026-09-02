@@ -9,12 +9,16 @@ import { smoothScrollTo } from "@/components/providers/SmoothScroll";
 const SECTIONS = ["expertise", "platform", "clients", "technology", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
-export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
+// `home` is the homepage: section links are in-page anchors and the pill
+// stays hidden over the hero. Elsewhere (the expertise subpages) the links
+// point back to the homepage sections and the pill is present from the start.
+export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: Locale; home?: boolean }) {
   const other: Locale = lang === "eng" ? "mne" : "eng";
+  const target = (id: string) => (home ? `#${id}` : `/${lang}#${id}`);
   const [scrolled, setScrolled] = useState(false);
   // The pill stays hidden over the hero and slides in as the visitor scrolls
   // toward the expertise section (~60% of the first viewport).
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(!home);
   const [active, setActive] = useState<Section | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const intersecting = useRef(new Set<Section>());
@@ -24,7 +28,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 24);
-      setShown(y > window.innerHeight * 0.6);
+      setShown(!home || y > window.innerHeight * 0.6);
       const nearTop = y < 80;
       if (nearTop) {
         setActive(null);
@@ -38,7 +42,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [home]);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -101,7 +105,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
           {/* Logo — click scrolls to top */}
           <Link
             href={`/${lang}`}
-            onClick={(e) => { e.preventDefault(); smoothScrollTo(0); }}
+            onClick={(e) => { if (!home) return; e.preventDefault(); smoothScrollTo(0); }}
             className="flex items-center gap-2 group flex-none"
           >
             <Image
@@ -124,7 +128,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
               return (
                 <a
                   key={id}
-                  href={`#${id}`}
+                  href={target(id)}
                   aria-current={isActive ? "true" : undefined}
                   className={`transition-colors duration-200 ${
                     isActive ? "text-[var(--brand-teal-bright)]" : "text-white/60 hover:text-white"
@@ -148,7 +152,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
             </Link>
 
             <a
-              href="#contact"
+              href={target("contact")}
               className="text-[13px] max-sm:text-[12px] font-medium px-4 max-sm:px-3 py-2.5 max-sm:py-2 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
               style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
             >
@@ -185,7 +189,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                 return (
                   <a
                     key={id}
-                    href={`#${id}`}
+                    href={target(id)}
                     onClick={() => setMobileOpen(false)}
                     aria-current={isActive ? "true" : undefined}
                     className={`flex items-center gap-3 px-3 py-3.5 rounded-xl text-[14px] font-medium transition-colors duration-150 ${
@@ -217,7 +221,7 @@ export default function Navbar({ dict, lang }: { dict: Dict; lang: Locale }) {
                 {other === "mne" ? "Crnogorski" : "English"}
               </Link>
               <a
-                href="#contact"
+                href={target("contact")}
                 onClick={() => setMobileOpen(false)}
                 className="text-[13px] font-medium px-5 py-2 rounded-xl bg-[var(--brand-red)] text-white"
               >

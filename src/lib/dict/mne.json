@@ -23,8 +23,8 @@
         "v": "20+"
       },
       {
-        "k": "Bezbjednost",
-        "v": "ISO 27001"
+        "k": "Isporuka",
+        "v": "Agile"
       },
       {
         "k": "Platforme",
@@ -146,25 +146,47 @@
     ]
   },
   "platform": {
+    "eyebrow": "Kako isporučujemo",
     "title": "Četiri faze. Jedan odgovoran tim.",
     "body": "Svaki angažman prolazi kroz iste četiri faze: bez prebacivanja na podizvođače, bez iznenađenja nakon potpisivanja.",
     "framework": "Agile okvir isporuke",
+    "outcomesLabel": "Šta dobijate",
     "stages": [
       {
         "name": "Otkrivanje",
-        "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke."
+        "description": "Svaki uspješan projekat počinje zajedničkim razumijevanjem. Kroz Agile radionice i stalnu saradnju, od prvog dana usklađujemo poslovne ciljeve, tehničke zahtjeve i očekivanja od isporuke.",
+        "outcomes": [
+          "Obim i prioriteti",
+          "Osnova zahtjeva",
+          "Plan isporuke"
+        ]
       },
       {
         "name": "Arhitektura",
-        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju unaprijed, ne izmišljaju se usput."
+        "description": "Modeli podataka, integracije, bezbjednosne granice i scenariji otkaza se iscrtavaju i potvrđuju unaprijed, ne izmišljaju se usput.",
+        "outcomes": [
+          "Model podataka",
+          "Mapa integracija",
+          "Bezbjednosne granice"
+        ]
       },
       {
         "name": "Izrada",
-        "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta."
+        "description": "Funkcionalni softver se isporučuje u inkrementima, omogućavajući povratne informacije, prilagođavanje i mjerljiv napredak tokom cijelog projekta.",
+        "outcomes": [
+          "Funkcionalni inkrementi",
+          "Sprint pregledi",
+          "Prijemno testiranje"
+        ]
       },
       {
         "name": "Eksploatacija",
-        "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost."
+        "description": "Puštanje u rad nije kraj puta. Pratimo, podržavamo i kontinuirano unapređujemo rješenja kako bismo obezbijedili dugoročnu poslovnu vrijednost.",
+        "outcomes": [
+          "Nadzor",
+          "Korisnička podrška",
+          "Kontinuirano unapređenje"
+        ]
       }
     ]
   },
@@ -178,6 +200,7 @@
     "projectsLabel": "Projekti u ovoj oblasti",
     "allClientsIn": "Svi klijenti u oblasti: {domain}",
     "sideNote": "Rješenja građena na domenskoj ekspertizi i dubokom razumijevanju načina na koji institucije rade.",
+    "ctaTitle": "Vodite sličan sistem? Razgovarajmo.",
     "items": [
       {
         "slug": "finance",

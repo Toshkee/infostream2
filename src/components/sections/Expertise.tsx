@@ -93,11 +93,9 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
   const st = useRef<ScrollTrigger | null>(null);
   // Active domain index; -1 = the intro beat.
   const [active, setActive] = useState(-1);
-  const [mobileActive, setMobileActive] = useState(0);
 
   const x = dict.expertise;
   const items = x.items;
-  const mobileItem = items[mobileActive] ?? items[0];
   const last = items.length - 1;
   // Scroll units in the pin: intro → first domain is one unit, then one per
   // remaining domain. --xp runs [0, span]; domain i sits at stop i + 1.
@@ -112,7 +110,9 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
         st.current = ScrollTrigger.create({
           trigger: pin.current,
           start: "top top",
-          end: () => `+=${span * window.innerHeight * (window.innerWidth < 900 ? 0.9 : 1.2)}`,
+          // One viewport of travel per stop; a touch less on short windows,
+          // where the same distance already reads as a long scroll.
+          end: () => `+=${span * window.innerHeight * (window.innerHeight < 800 ? 0.85 : 1)}`,
           pin: pin.current,
           pinSpacing: true,
           scrub: 0.6,
@@ -257,7 +257,7 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                   className="absolute inset-0 flex flex-col justify-start pt-1 lg:pt-2"
                   style={{
                     ...domainStyle(0),
-                    pointerEvents: "none",
+                    pointerEvents: active === -1 ? "auto" : "none",
                     willChange: "opacity, transform",
                   } as CSSVars}
                   aria-hidden={active !== -1}
@@ -267,6 +267,26 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
                     {tealPeriod(x.title)}
                   </h2>
                   <p className="mt-6 max-w-2xl text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
+
+                  {/* The four domains up front, each with its one-line scope,
+                     so the intro announces what follows instead of an empty
+                     sky (the rail alone only repeats the names). Hairline key
+                     rows like the hero facts; each jumps the pin to its stop. */}
+                  <div className="mt-11 grid max-w-3xl grid-cols-4 gap-x-6">
+                    {items.map((it, i) => (
+                      <button
+                        key={it.slug}
+                        type="button"
+                        onClick={() => jumpTo(i)}
+                        className="group cursor-pointer self-start border-t border-white/15 pt-3.5 text-left"
+                      >
+                        <span className="block text-[13.5px] leading-snug text-white/85 transition-colors duration-300 group-hover:text-white">
+                          {it.name}
+                        </span>
+                        <span className="mt-1.5 block text-[12px] leading-relaxed text-white/45">{it.blurb}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 {items.map((it, i) => {
                   const isActive = i === active;
@@ -461,57 +481,51 @@ export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) 
             {x.eyebrow}
           </div>
           <h2 className="mt-5 max-w-3xl text-[clamp(1.7rem,3.2vw,2.7rem)] leading-[1.05] tracking-[-0.02em] font-medium">
-            {x.title}
+            {tealPeriod(x.title)}
           </h2>
           <p className="mt-4 max-w-2xl max-sm:hidden text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
-          {/* Phones show one domain at a time. The narrow selector keeps all
-              four choices visible without turning the page into a long stack. */}
-          <div className="mt-9 grid grid-cols-[6.5rem_minmax(0,1fr)] gap-5 sm:hidden">
-            <nav aria-label={x.eyebrow} className="border-r border-white/12 pr-3">
-              {items.map((it, i) => {
-                const selected = mobileActive === i;
-                return (
-                  <button
-                    key={it.slug}
-                    type="button"
-                    onClick={() => setMobileActive(i)}
-                    aria-pressed={selected}
-                    className={`block w-full border-b border-white/[0.08] py-3 text-left text-[10px] font-medium leading-snug tracking-[0.08em] uppercase transition-colors ${
-                      selected ? "text-[var(--brand-teal-bright)]" : "text-white/45"
-                    }`}
-                  >
-                    {it.name}
-                  </button>
-                );
-              })}
-            </nav>
-
-            {mobileItem && (
-              <article key={mobileItem.slug}>
-                <h3 className="font-display text-balance text-[1.55rem] font-medium leading-[1.06] tracking-[-0.02em]">
-                  {mobileItem.title}
-                </h3>
-                <p className="mt-3 line-clamp-3 text-[13.5px] leading-relaxed text-white/62">
-                  {mobileItem.short}
-                </p>
-                <ul className="mt-5 space-y-2.5">
-                  {mobileItem.capabilities.map((label) => (
-                    <li key={label} className="flex items-start gap-2 text-[12px] leading-snug text-white/72">
-                      <span aria-hidden className="mt-[0.42rem] h-1 w-1 shrink-0 rounded-full bg-[var(--brand-teal-bright)]" />
+          {/* Phones get all four domains as one vertical list, in reading
+              order: name, headline, a clamped summary and the subpage link.
+              Nothing to tap through, nothing hidden behind a selector. */}
+          <ul className="mt-8 border-b border-white/10 sm:hidden">
+            {items.map((it) => (
+              <li key={it.slug} className="border-t border-white/10 py-7">
+                {/* name + headline beside the domain's line-art instrument,
+                    so each entry carries its own visual identity */}
+                <div className="flex items-start justify-between gap-5">
+                  <div className="min-w-0">
+                    <div className="mono text-[10px] tracking-[0.3em] uppercase text-white/45">{it.name}</div>
+                    <h3 className="font-display mt-2.5 text-balance text-[1.45rem] font-medium leading-[1.08] tracking-[-0.02em]">
+                      {it.title}
+                    </h3>
+                  </div>
+                  <div className="w-[72px] shrink-0 opacity-80">
+                    <DomainArt slug={it.slug} />
+                  </div>
+                </div>
+                <p className="mt-3 line-clamp-3 text-[13.5px] leading-relaxed text-white/62">{it.short}</p>
+                {/* capability pairs — icon + label, two per row */}
+                <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3">
+                  {it.capabilities.slice(0, 4).map((label, k) => (
+                    <li key={label} className="flex items-center gap-2.5 text-[12px] leading-snug text-white/72">
+                      <Icon
+                        name={(CAP_ICONS[it.slug] ?? [])[k] ?? "layers"}
+                        className="h-4 w-4 shrink-0 text-[var(--brand-teal-bright)]"
+                      />
                       {label}
                     </li>
                   ))}
                 </ul>
                 <Link
-                  href={`/${lang}/expertise/${mobileItem.slug}`}
-                  className="mt-6 inline-block border-b border-[var(--brand-teal-bright)]/30 pb-0.5 text-[12px] text-[var(--brand-teal-bright)]"
+                  href={`/${lang}/expertise/${it.slug}`}
+                  className="mt-5 inline-block border-b border-[var(--brand-teal-bright)]/30 pb-0.5 text-[12px] text-[var(--brand-teal-bright)]"
                 >
-                  {x.allClientsIn.replace("{domain}", mobileItem.name)}
+                  {x.allClientsIn.replace("{domain}", it.name)}
                 </Link>
-              </article>
-            )}
-          </div>
+              </li>
+            ))}
+          </ul>
 
           <div className="mt-14 hidden space-y-14 sm:block">
             {items.map((it) => {

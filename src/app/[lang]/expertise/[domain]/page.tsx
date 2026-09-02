@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
-import { DomainArt, Medallion, Starfield } from "@/components/sections/visuals";
+import { DomainArt, Icon, Medallion, Starfield } from "@/components/sections/visuals";
 import { ClientMark } from "@/components/sections/Clients";
+import { CAP_ICONS } from "@/components/sections/expertiseMeta";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 // One page per expertise domain (finance / hr / healthcare / dms). The
 // homepage's pinned Expertise stop already carries the mock's headline +
@@ -59,6 +62,8 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
   const x = dict.expertise;
 
   return (
+    <>
+    <Navbar dict={dict} lang={lang} home={false} />
     <main className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white">
       <div
         aria-hidden
@@ -70,9 +75,9 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
       />
       <Starfield count={70} seed={0x3d0a} strength={0.5} bias={false} />
 
-      <div className="relative mx-auto max-w-[1280px] px-6 pt-12 pb-28 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-16 lg:px-10 lg:pt-16">
+      <div className="relative mx-auto max-w-[1280px] px-6 pt-28 pb-28 lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-16 lg:px-10 lg:pt-32">
         {/* ── Domain rail ── */}
-        <aside className="lg:sticky lg:top-16 lg:flex lg:h-fit lg:flex-col lg:self-start">
+        <aside className="lg:sticky lg:top-28 lg:flex lg:h-fit lg:flex-col lg:self-start">
           {/* back to the homepage's expertise section */}
           <Link
             href={`/${lang}#expertise`}
@@ -140,6 +145,24 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
               <p className="mt-6 max-w-2xl text-[15.5px] leading-relaxed text-white/65">
                 {item.body}
               </p>
+
+              {/* Capability row — the same hairline-divided icon + label
+                 pairs as the homepage stop, so a visitor landing here
+                 directly still gets the domain's scope at a glance. */}
+              <div className="mt-9 grid max-w-2xl grid-cols-2 gap-y-6 sm:grid-flow-col sm:auto-cols-fr sm:gap-y-0">
+                {item.capabilities.map((label, k) => (
+                  <div
+                    key={k}
+                    className={`flex flex-col gap-2.5 pr-4 ${k > 0 ? "sm:border-l sm:border-white/10 sm:pl-4" : ""}`}
+                  >
+                    <Icon
+                      name={(CAP_ICONS[item.slug] ?? [])[k] ?? "layers"}
+                      className="h-5 w-5 text-[var(--brand-teal-bright)]"
+                    />
+                    <span className="text-[12.5px] leading-snug text-white/75">{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
             {/* the tagline sits under the instrument, as in the mock */}
             <div className="hidden xl:flex xl:flex-col xl:items-center xl:gap-6">
@@ -158,12 +181,6 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
                 {x.clientsLabel}
               </span>
               <span aria-hidden className="h-px flex-1 bg-white/10" />
-              {item.clients.length > 0 && (
-                <span className="mono inline-flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-[var(--brand-teal-bright)]/90">
-                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[var(--brand-teal-bright)]" />
-                  {x.status}
-                </span>
-              )}
             </div>
 
             {item.clients.length > 0 ? (
@@ -194,8 +211,36 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
              homepage Expertise stop's "projects" cards are built from
              item.clients, so item.projects currently renders NOWHERE — it
              stays in the dict as parked content only. */}
+
+          {/* Closing call — the page's one action, in the process section's
+             hairline register: a headline, the reply promise, the red CTA
+             back to the homepage contact block, and the address for those
+             who would rather write. */}
+          <div className="mt-20 border-t border-white/10 pt-12 lg:mt-24 lg:pt-14">
+            <h2 className="font-display max-w-xl text-balance text-[clamp(1.7rem,3vw,2.5rem)] leading-[1.06] tracking-[-0.025em] font-medium">
+              {accentPeriod(x.ctaTitle)}
+            </h2>
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/60">{dict.contact.body}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+              <Link
+                href={`/${lang}#contact`}
+                className="inline-block rounded-xl bg-[var(--brand-red)] px-6 py-3 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[var(--brand-red-deep)]"
+                style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
+              >
+                {dict.nav.cta}
+              </Link>
+              <a
+                href={`mailto:${dict.contact.email}`}
+                className="mono text-[12.5px] tracking-[0.06em] text-white/70 transition-colors duration-200 hover:text-[var(--brand-teal-bright)]"
+              >
+                {dict.contact.email}
+              </a>
+            </div>
+          </div>
         </section>
       </div>
     </main>
+    <Footer dict={dict} />
+    </>
   );
 }
