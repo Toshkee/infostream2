@@ -23,7 +23,7 @@ npm run dev                  # http://localhost:3000 → redirects to /eng
 | `npm run build`     | Production build into `.next/`                                |
 | `npm run start`     | Serve the production build                                    |
 | `npm run lint`      | ESLint                                                        |
-| `npm run typecheck` | TypeScript, no emit                                           |
+| `npm run typecheck` | Generates Next's route types, then TypeScript with no emit    |
 | `npm run check`     | Repo invariants: dictionary parity, motion query, locale list |
 | `npm run verify`    | lint + check + typecheck + build, the same as CI              |
 

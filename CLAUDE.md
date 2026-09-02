@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build` — production build
 - `npm run start` — serve the production build
 - `npm run lint` — ESLint (flat config in `eslint.config.mjs`, extends `next/core-web-vitals` + `next/typescript`)
-- `npm run typecheck` — `tsc --noEmit`
+- `npm run typecheck` — `next typegen && tsc --noEmit` (the `PageProps`/`LayoutProps` globals live in `.next/types`, so a clean checkout must generate them first)
 - `npm run check` — repo invariants (dictionary parity, motion query, locale list)
 - `npm run verify` — lint + check + typecheck + build; this is what CI (`.github/workflows/ci.yml`) runs
 
