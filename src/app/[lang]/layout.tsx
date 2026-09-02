@@ -3,11 +3,17 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
-import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
+import {
+  getDictionary,
+  hasLocale,
+  locales,
+  htmlLang,
+  ogLocale,
+  languageAlternates,
+} from "@/lib/dictionaries";
+import { SITE_URL, absoluteUrl, company } from "@/lib/company";
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import Assistant from "@/components/Assistant";
-
-const SITE = "https://infostream.co.me";
+import AssistantLoader from "@/components/AssistantLoader";
 
 const sans = Inter({
   variable: "--font-sans-stack",
@@ -39,38 +45,27 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  const url = `${SITE}/${lang}`;
-
-  const title = lang === "mne"
-    ? "Infostream · Softver koji traje"
-    : "Infostream · Software built to last";
-  const description = dict.meta.description;
+  const url = absoluteUrl(`/${lang}`);
+  const { title, description, keywords } = dict.meta;
 
   return {
-    metadataBase: new URL(SITE),
+    metadataBase: new URL(SITE_URL),
     title,
     description,
-    applicationName: "Infostream",
-    authors: [{ name: "Infostream", url: SITE }],
-    keywords: lang === "mne"
-      ? ["Infostream", "Crna Gora", "finansijski softver", "ISO 27001", "Poreska uprava", "javni registri", "Fond PIO"]
-      : ["Infostream", "Montenegro", "financial software", "ISO 27001", "public registers", "treasury", "tax authority"],
+    applicationName: company.name,
+    authors: [{ name: company.name, url: SITE_URL }],
+    keywords,
     alternates: {
       canonical: url,
-      languages: {
-        ...Object.fromEntries(
-          locales.map((l) => [l === "mne" ? "sr-ME" : "en", `${SITE}/${l}`])
-        ),
-        "x-default": `${SITE}/eng`,
-      },
+      languages: languageAlternates((l) => absoluteUrl(`/${l}`)),
     },
     openGraph: {
       type: "website",
       url,
-      siteName: "Infostream",
+      siteName: company.name,
       title,
       description,
-      locale: lang === "mne" ? "sr_ME" : "en_US",
+      locale: ogLocale[lang],
       // Image intentionally omitted — the file-based opengraph-image.tsx in this
       // segment generates the social card per locale.
     },
@@ -83,6 +78,9 @@ export async function generateMetadata({
   };
 }
 
+// Escape "<" so no value can ever close an inline <script> tag early.
+const inlineJson = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c");
+
 export default async function RootLayout({
   children,
   params,
@@ -91,25 +89,24 @@ export default async function RootLayout({
   if (!hasLocale(lang)) notFound();
 
   const dict = await getDictionary(lang);
-  const skipLabel = lang === "mne" ? "Pređi na glavni sadržaj" : "Skip to main content";
 
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Infostream",
-    legalName: "Infostream",
-    url: `${SITE}/${lang}`,
-    logo: `${SITE}/infostream-logo.webp`,
-    image: `${SITE}/${lang}/opengraph-image`,
+    name: company.name,
+    legalName: company.legalName,
+    url: absoluteUrl(`/${lang}`),
+    logo: absoluteUrl(company.logoPath),
+    image: absoluteUrl(`/${lang}/opengraph-image`),
     email: dict.contact.email,
     description: dict.meta.description,
-    foundingDate: "2004",
+    foundingDate: company.foundingYear,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Rista Dragićevića 4",
-      addressLocality: "Podgorica",
-      postalCode: "81000",
-      addressCountry: "ME",
+      streetAddress: company.address.street,
+      addressLocality: company.address.locality,
+      postalCode: company.address.postalCode,
+      addressCountry: company.address.countryCode,
     },
     areaServed: { "@type": "Country", name: "Montenegro" },
     contactPoint: {
@@ -119,24 +116,30 @@ export default async function RootLayout({
       contactType: "customer support",
       availableLanguage: ["English", "Montenegrin"],
     },
-    sameAs: ["https://www.linkedin.com/company/infostream"],
+    sameAs: [company.social.linkedin, company.social.facebook],
   };
 
   return (
-    <html lang={lang === "mne" ? "sr-ME" : "en"} className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}>
+    <html lang={htmlLang[lang]} className={`${sans.variable} ${mono.variable} ${display.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <a href="#main-content" className="skip-link">{skipLabel}</a>
+        <a href="#main-content" className="skip-link">{dict.a11y.skipToContent}</a>
         <SmoothScroll>
           {children}
         </SmoothScroll>
-        <Assistant dict={dict} lang={lang} />
+        <AssistantLoader copy={dict.assistant} lang={lang} />
         <div className="grain-overlay" aria-hidden />
+        {/* Copy for the [lang] error boundary. error.tsx is a client component
+            that receives no route params and cannot load the dictionary, so
+            the layout hands it the localised strings through this inert data
+            block (type=application/json is never executed, so CSP is unaffected). */}
+        <script
+          id="i18n-error"
+          type="application/json"
+          dangerouslySetInnerHTML={{ __html: inlineJson(dict.errorPage) }}
+        />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            // "<" escaped so no value can ever close the tag early
-            __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
-          }}
+          dangerouslySetInnerHTML={{ __html: inlineJson(orgJsonLd) }}
         />
       </body>
     </html>

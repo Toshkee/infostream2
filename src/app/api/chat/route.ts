@@ -96,12 +96,6 @@ function isChatMessage(m: unknown): m is ChatMessage {
   return (role === "user" || role === "assistant") && typeof content === "string";
 }
 
-function fallbackReply(lang: Locale): string {
-  return lang === "mne"
-    ? "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me."
-    : "Sorry, I couldn't answer that just now. Try rephrasing your question about Infostream, or reach us at info@infostream.co.me.";
-}
-
 // Markers from buildSystemPrompt — if any surfaces in a reply, the model has
 // leaked its instructions; we swap in a safe fallback instead of returning it.
 const LEAK_MARKERS = ["YOUR ONE JOB", "HARD RULES", "FACT BRIEF"];
@@ -204,13 +198,13 @@ export async function POST(request: Request) {
     : "";
 
   // Empty/blocked completions fall back to a safe, on-brand message.
-  if (!reply) return Response.json({ reply: fallbackReply(lang) });
+  if (!reply) return Response.json({ reply: dict.assistant.fallback });
 
   // Output-side guard: if the model ever echoes its own instructions, don't
   // hand that to the user — return the safe fallback instead.
   if (LEAK_MARKERS.some((m) => reply.includes(m))) {
     console.error("[/api/chat] suppressed a reply that echoed system-prompt markers");
-    return Response.json({ reply: fallbackReply(lang) });
+    return Response.json({ reply: dict.assistant.fallback });
   }
 
   return Response.json({ reply });

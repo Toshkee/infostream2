@@ -9,7 +9,7 @@ import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export default function Contact({ dict }: { dict: Dict }) {
+export default function Contact({ contact }: { contact: Dict["contact"] }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -47,13 +47,13 @@ export default function Contact({ dict }: { dict: Dict }) {
         <div className="grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-6 cta-heading">
             <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-red)]">
-              {dict.contact.eyebrow}
+              {contact.eyebrow}
             </div>
             <h2 className="cta-h2 mask-reveal mt-5 text-[clamp(2rem,4vw,3.4rem)] leading-[1.04] tracking-[-0.02em] font-medium">
-              {dict.contact.title}
+              {contact.title}
             </h2>
             <p className="mt-6 text-[var(--fg-dim)] leading-relaxed max-w-md">
-              {dict.contact.body}
+              {contact.body}
             </p>
           </div>
 
@@ -61,14 +61,14 @@ export default function Contact({ dict }: { dict: Dict }) {
             <dl className="cta-list space-y-8">
               <div className="cta-item">
                 <dt className="text-[11px] font-medium tracking-[0.22em] uppercase text-[var(--fg-dim)]">
-                  {dict.contact.emailLabel}
+                  {contact.emailLabel}
                 </dt>
                 <dd className="mt-2 relative inline-block">
                   <a
-                    href={`mailto:${dict.contact.email}`}
+                    href={`mailto:${contact.email}`}
                     className="inline-block text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors"
                   >
-                    {dict.contact.email}
+                    {contact.email}
                   </a>
                   <span
                     aria-hidden
@@ -78,14 +78,14 @@ export default function Contact({ dict }: { dict: Dict }) {
               </div>
               <div className="cta-item">
                 <dt className="text-[11px] font-medium tracking-[0.22em] uppercase text-[var(--fg-dim)]">
-                  {dict.contact.phoneLabel}
+                  {contact.phoneLabel}
                 </dt>
                 <dd className="mt-2 relative inline-block">
                   <a
-                    href={`tel:${dict.contact.phone.replace(/\s/g, "")}`}
+                    href={`tel:${contact.phone.replace(/\s/g, "")}`}
                     className="inline-block text-2xl text-[var(--fg)] hover:text-[var(--brand-red)] transition-colors"
                   >
-                    {dict.contact.phone}
+                    {contact.phone}
                   </a>
                   <span
                     aria-hidden
@@ -98,7 +98,7 @@ export default function Contact({ dict }: { dict: Dict }) {
                   Podgorica
                 </dt>
                 <dd className="mt-2 text-[var(--fg)] max-w-sm leading-relaxed">
-                  {dict.contact.office}
+                  {contact.office}
                 </dd>
               </div>
             </dl>

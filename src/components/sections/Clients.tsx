@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Dict, Locale } from "@/lib/dictionaries";
+import type { Dict } from "@/lib/dictionaries";
 import { Icon, type IconName } from "./visuals";
 
 /* ─── Clients — a proof-strip of verified institutional marks ───────────
@@ -9,26 +9,30 @@ import { Icon, type IconName } from "./visuals";
 
 type ClientLogo = { src?: string; label: string; className?: string; officialKicker?: string };
 
-function featuredLogos(lang: Locale): ClientLogo[] {
-  const mne = lang === "mne";
-  return [
-    { src: "/clients/ministry-finance.transparent.png", label: mne ? "Ministarstvo finansija" : "Ministry of Finance" },
-    { src: "/clients/parliament.transparent.png", label: mne ? "Skupština Crne Gore" : "Parliament of Montenegro" },
-    { label: mne ? "Poreska uprava" : "Tax Administration", officialKicker: mne ? "Crna Gora" : "Montenegro" },
-    { src: "/clients/innovation-fund.transparent.png", label: mne ? "Fond za inovacije" : "Innovation Fund" },
-    { src: "/clients/employment-agency.transparent.png", label: mne ? "Zavod za zapošljavanje" : "Employment Agency" },
-    { src: "/clients/pio.transparent.png", label: mne ? "Fond PIO" : "Pension and Disability Insurance Fund" },
-    { src: "/clients/ministry-defense.transparent.png", label: mne ? "Ministarstvo odbrane" : "Ministry of Defence" },
-    { label: mne ? "Službeni list Crne Gore" : "Official Gazette of Montenegro" },
-    { src: "/clients/erste-s.transparent.png", label: "Erste Bank" },
-    { src: "/clients/grawe.transparent.png", label: "GRAWE" },
-    { src: "/clients/rtcg.transparent.png", label: "RTCG" },
-    { src: "/clients/port-of-adria.transparent.png", label: "Port of Adria", className: "max-h-10 max-w-[8.5rem]" },
-    { src: "/clients/eu.transparent.png", label: "European Union", className: "max-h-12 max-w-[8.5rem]" },
-    { label: mne ? "Uprava za zaštitu kulturnih dobara" : "Cultural Heritage Administration", officialKicker: mne ? "Crna Gora" : "Montenegro" },
-    { label: mne ? "Ministarstvo regionalno-investicionog razvoja" : "Ministry of Regional and Investment Development", officialKicker: mne ? "Crna Gora" : "Montenegro" },
-    { label: mne ? "Vlada Crne Gore" : "Government of Montenegro", officialKicker: mne ? "Crna Gora" : "Montenegro" },
-  ];
+/* Structure in code, copy in dict: dict.clients.featured carries the labels
+   (and which marks are official state bodies); this map holds the matching
+   asset and any per-logo sizing, keyed by the entry's id. An entry with no
+   asset renders as a typographic nameplate. */
+const FEATURED_ASSETS: Record<string, { src?: string; className?: string }> = {
+  "ministry-finance": { src: "/clients/ministry-finance.transparent.png" },
+  parliament: { src: "/clients/parliament.transparent.png" },
+  "innovation-fund": { src: "/clients/innovation-fund.transparent.png" },
+  "employment-agency": { src: "/clients/employment-agency.transparent.png" },
+  pio: { src: "/clients/pio.transparent.png" },
+  "ministry-defense": { src: "/clients/ministry-defense.transparent.png" },
+  erste: { src: "/clients/erste-s.transparent.png" },
+  grawe: { src: "/clients/grawe.transparent.png" },
+  rtcg: { src: "/clients/rtcg.transparent.png" },
+  "port-of-adria": { src: "/clients/port-of-adria.transparent.png", className: "max-h-10 max-w-[8.5rem]" },
+  eu: { src: "/clients/eu.transparent.png", className: "max-h-12 max-w-[8.5rem]" },
+};
+
+function featuredLogos(c: Dict["clients"]): ClientLogo[] {
+  return c.featured.map((f) => ({
+    label: f.label,
+    ...FEATURED_ASSETS[f.id],
+    officialKicker: f.official ? c.officialKicker : undefined,
+  }));
 }
 
 function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: boolean }) {
@@ -75,9 +79,9 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
   );
 }
 
-export default function Clients({ dict, lang }: { dict: Dict; lang: Locale }) {
+export default function Clients({ dict }: { dict: Dict }) {
   const c = dict.clients;
-  const logos = featuredLogos(lang);
+  const logos = featuredLogos(c);
 
   return (
     <section id="clients" className="overflow-hidden bg-[#151b24] text-white">

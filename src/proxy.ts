@@ -1,7 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-
-const locales = ['eng', 'mne'] as const;
-const defaultLocale = 'eng';
+import { locales, defaultLocale } from '@/lib/locales';
 
 // Code-based metadata icons emit at extension-less root URLs (`/icon`,
 // `/apple-icon`) so the dotted-path matcher exclusion below can't catch them —

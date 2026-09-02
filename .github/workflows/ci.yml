@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Repo invariants (dictionary parity, motion query, locales)
+        run: npm run check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # The chat route reads GEMINI_API_KEY at request time, not at build time,
+      # so the build needs no secrets.
+      - name: Build
+        run: npm run build

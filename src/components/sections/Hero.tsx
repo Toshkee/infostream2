@@ -7,8 +7,8 @@ import { EyebrowBars, Starfield, tealPeriod } from "./visuals";
 // it starts with the first painted frame — before the JS bundle hydrates —
 // so slow devices never stare at an empty starfield, and a frozen/occluded
 // tab can't strand it mid-fade the way rAF-driven time-tweens are.
-export default function Hero({ dict }: { dict: Dict }) {
-  const titleWords = dict.hero.title.split(" ");
+export default function Hero({ hero }: { hero: Dict["hero"] }) {
+  const titleWords = hero.title.split(" ");
 
   return (
     <section className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white">
@@ -44,7 +44,7 @@ export default function Hero({ dict }: { dict: Dict }) {
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1280px] flex-col justify-center px-6 pt-20 pb-8 md:pt-24 md:pb-12 lg:px-10">
         <div className="hero-rise text-[10px] font-medium tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3 sm:text-[11px] sm:tracking-[0.25em]">
           <EyebrowBars />
-          {dict.hero.eyebrow}
+          {hero.eyebrow}
         </div>
         <h1 className="font-display mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
           {titleWords.map((w, i) => (
@@ -61,7 +61,7 @@ export default function Hero({ dict }: { dict: Dict }) {
           className="hero-rise mt-6 max-w-xl text-white/70 text-[16.5px] leading-relaxed"
           style={{ animationDelay: "0.45s" }}
         >
-          {dict.hero.body}
+          {hero.body}
         </p>
 
         {/* Primary action — same red-pill affordance as the navbar CTA */}
@@ -71,7 +71,7 @@ export default function Hero({ dict }: { dict: Dict }) {
             className="inline-block text-[14px] font-medium px-6 py-3 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
             style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
           >
-            {dict.hero.cta}
+            {hero.cta}
           </a>
         </div>
 
@@ -79,7 +79,7 @@ export default function Hero({ dict }: { dict: Dict }) {
            register, no boxes or icons. A 2×2 grid on phones, where they also
            fill what was an empty lower half of the opening screen. */}
         <div className="mt-12 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 sm:mt-14 sm:grid-cols-4 sm:gap-x-10 sm:gap-y-7">
-          {dict.hero.meta.map((m, i) => (
+          {hero.meta.map((m, i) => (
             <div
               key={i}
               className="hero-rise border-t border-white/15 pt-3.5"

@@ -67,8 +67,8 @@ const TEAL = "rgba(122,216,210,0.55)";
 const TEAL_FILL = "rgba(122,216,210,0.06)";
 const RED = "var(--brand-red)";
 
-export default function Technology({ dict }: { dict: Dict }) {
-  const tech = dict.technology;
+export default function Technology({ technology }: { technology: Dict["technology"] }) {
+  const tech = technology;
   const groups = tech.groups;
   const rotate = tech.rotate;
   const ref = useRef<HTMLDivElement>(null);

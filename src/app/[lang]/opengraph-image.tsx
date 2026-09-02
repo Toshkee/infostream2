@@ -101,7 +101,7 @@ export default async function Image({
                 background: "#7ce38b",
               }}
             />
-            ISO 27001 · 20+ years · Podgorica, Montenegro
+            {dict.meta.ogFooter}
           </div>
         </div>
       </div>

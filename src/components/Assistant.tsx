@@ -23,8 +23,8 @@ const prefersReduced = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export default function Assistant({ dict, lang }: { dict: Dict; lang: Locale }) {
-  const t = dict.assistant;
+export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lang: Locale }) {
+  const t = copy;
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
+import { htmlLang, localeNames } from "@/lib/locales";
 import { smoothScrollTo } from "@/components/providers/SmoothScroll";
 
 const SECTIONS = ["expertise", "platform", "clients", "technology", "security", "contact"] as const;
@@ -12,7 +13,7 @@ type Section = (typeof SECTIONS)[number];
 // `home` is the homepage: section links are in-page anchors and the pill
 // stays hidden over the hero. Elsewhere (the expertise subpages) the links
 // point back to the homepage sections and the pill is present from the start.
-export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: Locale; home?: boolean }) {
+export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; lang: Locale; home?: boolean }) {
   const other: Locale = lang === "eng" ? "mne" : "eng";
   const target = (id: string) => (home ? `#${id}` : `/${lang}#${id}`);
   const [scrolled, setScrolled] = useState(false);
@@ -74,12 +75,12 @@ export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: 
   }, [mobileOpen]);
 
   const links = [
-    { id: "expertise",  label: dict.nav.expertise },
-    { id: "platform",   label: dict.nav.platform },
-    { id: "clients",    label: dict.nav.clients },
-    { id: "technology", label: dict.nav.technology },
-    { id: "security",   label: dict.nav.security },
-    { id: "contact",    label: dict.nav.contact },
+    { id: "expertise",  label: nav.expertise },
+    { id: "platform",   label: nav.platform },
+    { id: "clients",    label: nav.clients },
+    { id: "technology", label: nav.technology },
+    { id: "security",   label: nav.security },
+    { id: "contact",    label: nav.contact },
   ] as const;
 
   return (
@@ -144,8 +145,8 @@ export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: 
           <div className="flex items-center gap-2 flex-none">
             <Link
               href={`/${other}`}
-              hrefLang={other === "mne" ? "sr-ME" : "en"}
-              aria-label={other === "mne" ? "Pređi na crnogorski" : "Switch to English"}
+              hrefLang={htmlLang[other]}
+              aria-label={localeNames[other].switchLabel}
               className="hidden sm:flex items-center text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
             >
               {other}
@@ -156,7 +157,7 @@ export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: 
               className="text-[13px] max-sm:text-[12px] font-medium px-4 max-sm:px-3 py-2.5 max-sm:py-2 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
               style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
             >
-              {dict.nav.cta}
+              {nav.cta}
             </a>
 
             {/* Hamburger */}
@@ -218,14 +219,14 @@ export default function Navbar({ dict, lang, home = true }: { dict: Dict; lang: 
                 href={`/${other}`}
                 className="text-[12px] font-medium text-white/60 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
               >
-                {other === "mne" ? "Crnogorski" : "English"}
+                {localeNames[other].native}
               </Link>
               <a
                 href={target("contact")}
                 onClick={() => setMobileOpen(false)}
                 className="text-[13px] font-medium px-5 py-2 rounded-xl bg-[var(--brand-red)] text-white"
               >
-                {dict.nav.cta}
+                {nav.cta}
               </a>
             </div>
           </div>

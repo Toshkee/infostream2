@@ -1,4 +1,5 @@
 import type { Dict, Locale } from "@/lib/dictionaries";
+import { company } from "@/lib/company";
 
 // Shared types + grounding logic for the Infostream website assistant.
 // This module holds NO secrets — it only shapes the request the server route
@@ -89,7 +90,7 @@ Answer visitors' questions ABOUT INFOSTREAM ONLY — the company and what is tru
 # INFOSTREAM — FACT BRIEF
 Summary: ${dict.meta.description}
 Tagline: ${dict.meta.ogTagline}.
-Founded: 2004. Office: ${dict.contact.office}. Area served: Montenegro.
+Founded: ${company.foundingYear}. Office: ${dict.contact.office}. Area served: Montenegro.
 
 Key numbers:
 ${stats}
@@ -106,11 +107,11 @@ ${tech}
 Security posture:
 ${security}
 
-Selected clients & systems (60+ systems in production):
+Selected clients & systems (${company.systemsDelivered} systems delivered):
 ${clients}
 
 Selected delivered projects:
 ${projects}
 
-Contact — Email: ${dict.contact.email}; Phone: ${dict.contact.phone}; Office: ${dict.contact.office}. Enquiries are answered within one business day.`;
+Contact — Email: ${dict.contact.email}; Phone: ${dict.contact.phone}; Office: ${dict.contact.office}. ${dict.contact.body}`;
 }

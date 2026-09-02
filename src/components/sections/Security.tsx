@@ -11,7 +11,7 @@ import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, useGSAP);
 
-export default function Security({ dict }: { dict: Dict }) {
+export default function Security({ security }: { security: Dict["security"] }) {
   const ref = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -158,24 +158,24 @@ export default function Security({ dict }: { dict: Dict }) {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
             <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal)]">
-              {dict.security.eyebrow}
+              {security.eyebrow}
             </div>
             <h2 className="sec-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
-              {dict.security.title}
+              {security.title}
             </h2>
             <p className="mt-6 max-sm:hidden text-[var(--fg-dim)] leading-relaxed max-w-md text-[15.5px]">
-              {dict.security.body}
+              {security.body}
             </p>
           </div>
 
           {/* Orbital standards diagram — satellites circle the certified core. */}
           <div className="sec-viz hidden lg:col-span-7 relative lg:block">
-            <OrbitalDiagram />
+            <OrbitalDiagram label={security.diagramLabel} />
           </div>
         </div>
 
         <div className="sec-cards grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-16">
-          {dict.security.cards.map((c) => (
+          {security.cards.map((c) => (
             <div
               key={c.id}
               className="sec-card group relative rounded-2xl border border-black/[0.08] bg-white p-6 shadow-[0_1px_2px_rgba(10,14,22,0.04)] hover:border-[rgba(58,165,160,0.45)] transition-colors duration-300"
@@ -404,13 +404,13 @@ const SATS: { angle: number; icon: React.JSX.Element }[] = [
   },
 ];
 
-function OrbitalDiagram() {
+function OrbitalDiagram({ label }: { label: string }) {
   return (
     <svg
       viewBox="0 0 560 560"
       className="mx-auto w-full max-w-[520px] h-auto"
       role="img"
-      aria-label="Certified standards linked to a protected core"
+      aria-label={label}
     >
       {/* Dashed orbit rings */}
       <circle className="sec-orbit" cx="280" cy="280" r={ORBIT_R} fill="none" stroke="rgba(58,165,160,0.35)" strokeWidth="1" strokeDasharray="3 7" />

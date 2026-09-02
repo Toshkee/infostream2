@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { getDictionary, hasLocale, locales } from "@/lib/dictionaries";
+import { defaultLocale, getDictionary, hasLocale, locales } from "@/lib/dictionaries";
 import { DomainArt, Icon, Medallion, Starfield } from "@/components/sections/visuals";
 import { ClientMark } from "@/components/sections/Clients";
 import { CAP_ICONS } from "@/components/sections/expertiseMeta";
@@ -15,8 +15,6 @@ import Footer from "@/components/layout/Footer";
 // repeating it: the domain's longer narrative (item.body — used nowhere
 // else) and the FULL client register as an org — system index. Content lives
 // in dict.expertise.items; adding a domain there adds a page here.
-
-const DOMAINS = ["finance", "hr", "dms", "healthcare"] as const;
 
 // Mirrors visuals.tealPeriod, which lives in a "use client" module and so
 // can't be called from this server component.
@@ -31,8 +29,11 @@ function accentPeriod(text: string): ReactNode {
   );
 }
 
-export function generateStaticParams() {
-  return locales.flatMap((lang) => DOMAINS.map((domain) => ({ lang, domain })));
+// Slugs come from the dictionary, so a domain added there gets a page here.
+export async function generateStaticParams() {
+  const dict = await getDictionary(defaultLocale);
+  const domains = dict.expertise.items.map((it) => it.slug);
+  return locales.flatMap((lang) => domains.map((domain) => ({ lang, domain })));
 }
 
 async function resolveDomain(params: PageProps<"/[lang]/expertise/[domain]">["params"]) {
@@ -63,7 +64,7 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
 
   return (
     <>
-    <Navbar dict={dict} lang={lang} home={false} />
+    <Navbar nav={dict.nav} lang={lang} home={false} />
     <main className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white">
       <div
         aria-hidden

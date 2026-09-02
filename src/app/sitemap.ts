@@ -1,44 +1,28 @@
 import type { MetadataRoute } from "next";
-import { locales } from "@/lib/dictionaries";
+import { defaultLocale, getDictionary, locales, languageAlternates, type Locale } from "@/lib/dictionaries";
+import { absoluteUrl } from "@/lib/company";
 
-const SITE = "https://infostream.co.me";
+// Expertise slugs come from the dictionary (dict.expertise.items[].slug) so a
+// new domain added there is listed here without a second edit.
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const dict = await getDictionary(defaultLocale);
+  const domains = dict.expertise.items.map((it) => it.slug);
 
-const DOMAINS = ["finance", "hr", "dms", "healthcare"] as const;
-
-export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const home: MetadataRoute.Sitemap = locales.map((lang) => ({
-    url: `${SITE}/${lang}`,
-    lastModified: now,
+  const entry = (
+    path: (lang: Locale) => string,
+    lang: Locale,
+    priority: number
+  ): MetadataRoute.Sitemap[number] => ({
+    url: absoluteUrl(path(lang)),
     changeFrequency: "monthly",
-    priority: lang === "eng" ? 1 : 0.9,
-    alternates: {
-      languages: {
-        ...Object.fromEntries(
-          locales.map((l) => [l === "mne" ? "sr-ME" : "en", `${SITE}/${l}`])
-        ),
-        "x-default": `${SITE}/eng`,
-      },
-    },
-  }));
-  const domains: MetadataRoute.Sitemap = locales.flatMap((lang) =>
-    DOMAINS.map((domain) => ({
-      url: `${SITE}/${lang}/expertise/${domain}`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-      alternates: {
-        languages: {
-          ...Object.fromEntries(
-            locales.map((l) => [
-              l === "mne" ? "sr-ME" : "en",
-              `${SITE}/${l}/expertise/${domain}`,
-            ])
-          ),
-          "x-default": `${SITE}/eng/expertise/${domain}`,
-        },
-      },
-    }))
-  );
-  return [...home, ...domains];
+    priority,
+    alternates: { languages: languageAlternates((l) => absoluteUrl(path(l))) },
+  });
+
+  return [
+    ...locales.map((lang) => entry((l) => `/${l}`, lang, lang === defaultLocale ? 1 : 0.9)),
+    ...locales.flatMap((lang) =>
+      domains.map((domain) => entry((l) => `/${l}/expertise/${domain}`, lang, 0.6))
+    ),
+  ];
 }

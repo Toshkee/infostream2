@@ -10,7 +10,18 @@
   },
   "meta": {
     "description": "Infostream je crnogorska softverska kompanija koja gradi sisteme koji traju: poreske, trezorske, privredne i penzijske registre zemlje. ISO 27001, 20+ godina.",
-    "ogTagline": "Softver koji traje"
+    "ogTagline": "Softver koji traje",
+    "title": "Infostream · Softver koji traje",
+    "keywords": [
+      "Infostream",
+      "Crna Gora",
+      "finansijski softver",
+      "ISO 27001",
+      "Poreska uprava",
+      "javni registri",
+      "Fond PIO"
+    ],
+    "ogFooter": "ISO 27001 · 20+ godina · Podgorica, Crna Gora"
   },
   "hero": {
     "eyebrow": "Infostream / Softver napravljen da traje",
@@ -376,7 +387,90 @@
     "status": "u produkciji",
     "domainLink": "Svi klijenti — {domain}",
     "banner": "Dugoročna partnerstva izgrađena na povjerenju, pouzdanosti i zajedničkoj posvećenosti rezultatima.",
-    "more": "sistema u produkciji"
+    "more": "sistema u produkciji",
+    "officialKicker": "Crna Gora",
+    "featured": [
+      {
+        "id": "ministry-finance",
+        "label": "Ministarstvo finansija",
+        "official": false
+      },
+      {
+        "id": "parliament",
+        "label": "Skupština Crne Gore",
+        "official": false
+      },
+      {
+        "id": "tax-administration",
+        "label": "Poreska uprava",
+        "official": true
+      },
+      {
+        "id": "innovation-fund",
+        "label": "Fond za inovacije",
+        "official": false
+      },
+      {
+        "id": "employment-agency",
+        "label": "Zavod za zapošljavanje",
+        "official": false
+      },
+      {
+        "id": "pio",
+        "label": "Fond PIO",
+        "official": false
+      },
+      {
+        "id": "ministry-defense",
+        "label": "Ministarstvo odbrane",
+        "official": false
+      },
+      {
+        "id": "official-gazette",
+        "label": "Službeni list Crne Gore",
+        "official": false
+      },
+      {
+        "id": "erste",
+        "label": "Erste Bank",
+        "official": false
+      },
+      {
+        "id": "grawe",
+        "label": "GRAWE",
+        "official": false
+      },
+      {
+        "id": "rtcg",
+        "label": "RTCG",
+        "official": false
+      },
+      {
+        "id": "port-of-adria",
+        "label": "Port of Adria",
+        "official": false
+      },
+      {
+        "id": "eu",
+        "label": "Evropska unija",
+        "official": false
+      },
+      {
+        "id": "cultural-heritage",
+        "label": "Uprava za zaštitu kulturnih dobara",
+        "official": true
+      },
+      {
+        "id": "regional-development",
+        "label": "Ministarstvo regionalno-investicionog razvoja",
+        "official": true
+      },
+      {
+        "id": "government",
+        "label": "Vlada Crne Gore",
+        "official": true
+      }
+    ]
   },
   "projects": {
     "items": [
@@ -461,7 +555,8 @@
         "desc": "Sertifikovano upravljanje bezbjednošću informacija.",
         "status": "Sertifikovano"
       }
-    ]
+    ],
+    "diagramLabel": "Sertifikovani standardi povezani sa zaštićenim jezgrom"
   },
   "contact": {
     "eyebrow": "Kontaktirajte nas",
@@ -558,7 +653,8 @@
       "Kako se čuvaju podaci?",
       "Koje tehnologije koristite?",
       "Kako da vas kontaktiram?"
-    ]
+    ],
+    "fallback": "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me."
   },
   "footer": {
     "tagline": "Softver koji traje, građen u Podgorici.",
@@ -574,5 +670,13 @@
     "title": "Stranica nije pronađena.",
     "body": "Stranica koju tražite ne postoji ili je premještena.",
     "cta": "Nazad na početnu"
+  },
+  "a11y": {
+    "skipToContent": "Pređi na glavni sadržaj"
+  },
+  "errorPage": {
+    "title": "Došlo je do greške",
+    "body": "Neočekivana greška je prekinula ovu stranicu. Možete pokušati ponovo.",
+    "retry": "Pokušaj ponovo"
   }
 }

@@ -87,14 +87,14 @@ const DOMAIN_TINT: Record<string, string> = {
   dms: "rgba(92, 142, 214, 0.1)",
 };
 
-export default function Expertise({ dict, lang }: { dict: Dict; lang: Locale }) {
+export default function Expertise({ expertise, lang }: { expertise: Dict["expertise"]; lang: Locale }) {
   const outer = useRef<HTMLDivElement>(null);
   const pin = useRef<HTMLDivElement>(null);
   const st = useRef<ScrollTrigger | null>(null);
   // Active domain index; -1 = the intro beat.
   const [active, setActive] = useState(-1);
 
-  const x = dict.expertise;
+  const x = expertise;
   const items = x.items;
   const last = items.length - 1;
   // Scroll units in the pin: intro → first domain is one unit, then one per

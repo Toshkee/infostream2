@@ -2,27 +2,32 @@
 
 import { useEffect, useState } from "react";
 
-// Read the locale once, at mount, from the <html lang> the layout set.
-function detectLocale(): "eng" | "mne" {
-  if (typeof document === "undefined") return "eng";
-  return document.documentElement.lang.startsWith("sr") ? "mne" : "eng";
-}
+type Copy = { title: string; body: string; retry: string };
 
-// Branded error boundary for the [lang] segment. Rendered inside the layout,
-// so globals.css + fonts are available. It can't read the server `dict`, so it
-// derives locale from the <html lang> the layout already set and picks copy.
-const COPY = {
-  eng: {
-    title: "Something went wrong",
-    body: "An unexpected error interrupted this page. You can try again.",
-    retry: "Try again",
-  },
-  mne: {
-    title: "Došlo je do greške",
-    body: "Neočekivana greška je prekinula ovu stranicu. Možete pokušati ponovo.",
-    retry: "Pokušaj ponovo",
-  },
-} as const;
+// Last-resort strings if the data block is missing (e.g. the layout itself
+// failed to render). Real copy lives in the dictionaries under `errorPage`.
+const FALLBACK: Copy = {
+  title: "Something went wrong",
+  body: "An unexpected error interrupted this page. You can try again.",
+  retry: "Try again",
+};
+
+// Branded error boundary for the [lang] segment. It renders inside the layout
+// (so globals.css + fonts are available) but receives no route params and
+// cannot load the dictionary; the layout hands it the localised copy through
+// an inert <script id="i18n-error" type="application/json"> block instead.
+function readCopy(): Copy {
+  if (typeof document === "undefined") return FALLBACK;
+  try {
+    const raw = document.getElementById("i18n-error")?.textContent;
+    const parsed = raw ? (JSON.parse(raw) as Partial<Copy>) : null;
+    if (parsed && typeof parsed.title === "string" && typeof parsed.body === "string" && typeof parsed.retry === "string")
+      return parsed as Copy;
+  } catch {
+    // fall through
+  }
+  return FALLBACK;
+}
 
 export default function Error({
   error,
@@ -31,14 +36,12 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [locale] = useState<"eng" | "mne">(detectLocale);
+  const [t] = useState<Copy>(readCopy);
 
   useEffect(() => {
     // Surface the error for observability without crashing the boundary.
     console.error(error);
   }, [error]);
-
-  const t = COPY[locale];
 
   return (
     <div className="min-h-[100svh] flex flex-col items-center justify-center bg-[var(--bg-inset)] text-white px-6 text-center">

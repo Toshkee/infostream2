@@ -10,7 +10,18 @@
   },
   "meta": {
     "description": "Infostream is a Montenegrin software firm building systems that last: the country's tax, treasury, business and pension registers. ISO 27001, 20+ years.",
-    "ogTagline": "Software built to last"
+    "ogTagline": "Software built to last",
+    "title": "Infostream · Software built to last",
+    "keywords": [
+      "Infostream",
+      "Montenegro",
+      "financial software",
+      "ISO 27001",
+      "public registers",
+      "treasury",
+      "tax authority"
+    ],
+    "ogFooter": "ISO 27001 · 20+ years · Podgorica, Montenegro"
   },
   "hero": {
     "eyebrow": "Infostream / Software Built To Last",
@@ -376,7 +387,90 @@
     "status": "in production",
     "domainLink": "View clients in {domain}",
     "banner": "Long-term partnerships built on trust, reliability and a shared commitment to results.",
-    "more": "more systems in production"
+    "more": "more systems in production",
+    "officialKicker": "Montenegro",
+    "featured": [
+      {
+        "id": "ministry-finance",
+        "label": "Ministry of Finance",
+        "official": false
+      },
+      {
+        "id": "parliament",
+        "label": "Parliament of Montenegro",
+        "official": false
+      },
+      {
+        "id": "tax-administration",
+        "label": "Tax Administration",
+        "official": true
+      },
+      {
+        "id": "innovation-fund",
+        "label": "Innovation Fund",
+        "official": false
+      },
+      {
+        "id": "employment-agency",
+        "label": "Employment Agency",
+        "official": false
+      },
+      {
+        "id": "pio",
+        "label": "Pension and Disability Insurance Fund",
+        "official": false
+      },
+      {
+        "id": "ministry-defense",
+        "label": "Ministry of Defence",
+        "official": false
+      },
+      {
+        "id": "official-gazette",
+        "label": "Official Gazette of Montenegro",
+        "official": false
+      },
+      {
+        "id": "erste",
+        "label": "Erste Bank",
+        "official": false
+      },
+      {
+        "id": "grawe",
+        "label": "GRAWE",
+        "official": false
+      },
+      {
+        "id": "rtcg",
+        "label": "RTCG",
+        "official": false
+      },
+      {
+        "id": "port-of-adria",
+        "label": "Port of Adria",
+        "official": false
+      },
+      {
+        "id": "eu",
+        "label": "European Union",
+        "official": false
+      },
+      {
+        "id": "cultural-heritage",
+        "label": "Cultural Heritage Administration",
+        "official": true
+      },
+      {
+        "id": "regional-development",
+        "label": "Ministry of Regional and Investment Development",
+        "official": true
+      },
+      {
+        "id": "government",
+        "label": "Government of Montenegro",
+        "official": true
+      }
+    ]
   },
   "projects": {
     "items": [
@@ -461,7 +555,8 @@
         "desc": "Certified Information Security Management.",
         "status": "Certified"
       }
-    ]
+    ],
+    "diagramLabel": "Certified standards linked to a protected core"
   },
   "contact": {
     "eyebrow": "Get in touch",
@@ -558,7 +653,8 @@
       "How is data kept secure?",
       "Which technologies do you use?",
       "How do I get in touch?"
-    ]
+    ],
+    "fallback": "Sorry, I couldn't answer that just now. Try rephrasing your question about Infostream, or reach us at info@infostream.co.me."
   },
   "footer": {
     "tagline": "Software built to last, built in Podgorica.",
@@ -574,5 +670,13 @@
     "title": "Page not found.",
     "body": "The page you're looking for doesn't exist or has moved.",
     "cta": "Back to home"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "body": "An unexpected error interrupted this page. You can try again.",
+    "retry": "Try again"
   }
 }
