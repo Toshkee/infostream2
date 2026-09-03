@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...except the template. README tells a new maintainer to run
+# `cp .env.example .env.local`, which needs the template to be in the repo.
+# It holds variable names and comments only, never a value.
+!.env.example
 
 # vercel
 .vercel

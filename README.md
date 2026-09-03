@@ -67,6 +67,7 @@ Read `docs/animation.md` before touching anything that scrolls or animates.
 | `GEMINI_API_KEY` | yes      | Google AI Studio key for the assistant. Server-only.        |
 | `GEMINI_MODEL`   | no       | Override the primary model (default `gemini-2.5-flash`).    |
 | `ASSISTANT_ENABLED` | no    | `0` removes the chat widget and refuses `/api/chat`. Rebuild after changing it. |
+| `TRUSTED_PROXY`  | no       | `1` enables per-IP rate limiting on `/api/chat`. Set it only when a proxy you control sets `x-real-ip`. See step 2 below. |
 | `CHAT_DEBUG`     | no       | `1` returns upstream error detail to the browser. Dev only. |
 
 Without `GEMINI_API_KEY` the site builds and runs; only the assistant replies
@@ -91,10 +92,18 @@ platform's load balancer). Checklist:
 
 1. **HTTPS is mandatory.** In production the app sends HSTS and
    `upgrade-insecure-requests`; over plain HTTP the page will break.
-2. **Forward the real client IP.** The chat route reads `x-real-ip` first and
-   `x-forwarded-for` second. The proxy must set `x-real-ip` itself and strip
-   any incoming value, otherwise a client can forge it. nginx:
-   `proxy_set_header X-Real-IP $remote_addr;`
+2. **Forward the real client IP, then set `TRUSTED_PROXY=1`.** The chat route
+   ignores `x-real-ip` and `x-forwarded-for` unless `TRUSTED_PROXY=1`, because
+   a client can forge either header and buy itself a fresh per-IP budget on
+   every request. So:
+   - Make the proxy set the header itself and strip any incoming value. nginx:
+     `proxy_set_header X-Real-IP $remote_addr;`
+   - Only then set `TRUSTED_PROXY=1` on the app.
+
+   Leave it unset and the route simply does not rate-limit per IP; the
+   aggregate ceiling (240 requests/minute across all callers) still applies.
+   That is the safe default, not a working configuration: without step 2 a
+   single abuser is capped only by that shared ceiling.
 3. **Rate-limit `/api/chat` at the proxy.** The app's own limiter is
    in-memory per process and resets on every restart; it is a soft guard, not
    a quota. Something like nginx `limit_req` (a few requests per second per
@@ -106,9 +115,11 @@ platform's load balancer). Checklist:
 
 **Option B: Vercel**
 
-Connect the GitHub repository, set `GEMINI_API_KEY` in the project's
-environment variables, deploy. Steps 1 and 2 above are handled by the
-platform. For step 3, enable a WAF rate-limit rule on `/api/chat` or accept
+Connect the GitHub repository, set `GEMINI_API_KEY` and `TRUSTED_PROXY=1` in
+the project's environment variables, deploy. Vercel overwrites `x-real-ip`
+with a value the caller cannot control, which is exactly the condition
+`TRUSTED_PROXY` asks about, so step 1 and the proxy half of step 2 are handled
+for you. For step 3, enable a WAF rate-limit rule on `/api/chat` or accept
 that the in-app limiter is per-instance.
 
 **Domain.** All canonical URLs, sitemap entries and the JSON-LD point at
