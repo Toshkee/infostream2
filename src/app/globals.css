@@ -139,7 +139,7 @@ h1, h2, h3,
   align-items: center;
   border-block: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display-stack), Georgia, serif;
   font-size: 1rem;
   font-weight: 500;
   letter-spacing: -0.025em;
@@ -170,7 +170,7 @@ h1, h2, h3,
   text-transform: uppercase;
 }
 .proof-strip-official-lockup strong {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display-stack), Georgia, serif;
   font-size: 0.86rem;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -381,4 +381,14 @@ h1, h2, h3,
   .proof-strip { overflow-x: auto; mask-image: none; }
   .proof-strip-track { animation: none; }
   .proof-strip-group[aria-hidden="true"] { display: none; }
+
+  /* Safety net for state JS may have already written to the DOM before the
+     preference was known (or that a mid-session toggle stranded): an armed
+     heading whose release trigger is gone would stay clipped to zero width,
+     and a .proc-live ledger with no scroll rail would sit permanently dimmed.
+     Reduced motion must never cost anyone the content itself. */
+  .mask-reveal-armed { clip-path: none; }
+  .proc-live .proc-row,
+  .proc-live .proc-row.is-past,
+  .proc-live .proc-row.is-active { --pa: 1; }
 }

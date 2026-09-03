@@ -6,7 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Dict } from "@/lib/dictionaries";
 import { maskReveal } from "@/lib/maskReveal";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { reducedMotionNow, usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { EyebrowBars, Icon, tealPeriod, type CSSVars } from "./visuals";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -36,7 +36,8 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
 
   useGSAP(
     () => {
-      if (reducedMotion || !list.current) return;
+      // reducedMotionNow(), not the hook value — see the helper's comment.
+      if (reducedMotionNow() || !list.current) return;
       maskReveal(".proc-h2");
 
       const ol = list.current;

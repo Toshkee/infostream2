@@ -24,3 +24,20 @@ const getServerSnapshot = () => false;
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
+
+/**
+ * The live preference, read synchronously. Use this INSIDE a `useGSAP`
+ * callback instead of the hook's value.
+ *
+ * `useGSAP` runs in a layout effect, which fires before `useSyncExternalStore`
+ * has swapped the hydration snapshot (`false`) for the real one. A callback
+ * branching on the hook value therefore runs the motion path once even for a
+ * reduced-motion visitor, arming `mask-reveal-armed` / `proc-live`; the
+ * follow-up re-render reverts the GSAP context (killing the ScrollTriggers that
+ * would have released them) but leaves those classes on the DOM, so headings
+ * stay clipped to zero width forever. Reading matchMedia here is correct on the
+ * very first pass. Keep the hook as the `dependencies` entry so a mid-session
+ * preference change still re-runs the callback.
+ */
+export const reducedMotionNow = (): boolean =>
+  typeof window !== "undefined" && window.matchMedia(QUERY).matches;

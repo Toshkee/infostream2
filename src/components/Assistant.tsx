@@ -193,6 +193,12 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
           { id: nextId(), role: "assistant", content: reply, animate: !prefersReduced() },
         ]);
       } catch (e) {
+        // The route requires strict user/assistant alternation. Leaving a user
+        // turn with no reply in state would make every later send post two user
+        // turns in a row ("Malformed conversation"), bricking the panel until
+        // reload — so drop the turn and hand the text back to the composer.
+        setMessages((m) => m.filter((x) => x.id !== userMsg.id));
+        setInput((cur) => (cur ? cur : content));
         setError(e instanceof Error ? e.message : t.error);
       } finally {
         setLoading(false);

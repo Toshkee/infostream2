@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { maskReveal } from "@/lib/maskReveal";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { reducedMotionNow, usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { TECH_LOGOS } from "@/components/TechLogos";
 import type { Dict } from "@/lib/dictionaries";
 
@@ -101,7 +101,8 @@ export default function Technology({ technology }: { technology: Dict["technolog
       const nodes = gsap.utils.toArray<SVGGElement>(".tech-node");
       const packets = gsap.utils.toArray<SVGCircleElement>(".tech-packet");
 
-      if (reducedMotion) {
+      // reducedMotionNow(), not the hook value — see the helper's comment.
+      if (reducedMotionNow()) {
         gsap.set(links, { drawSVG: "100%" });
         gsap.set(nodes, { opacity: 1, scale: 1 });
         gsap.set(packets, { opacity: 0 });

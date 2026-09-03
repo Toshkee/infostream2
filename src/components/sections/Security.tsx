@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { maskReveal } from "@/lib/maskReveal";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { useRef } from "react";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { reducedMotionNow, usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, useGSAP);
@@ -17,7 +17,8 @@ export default function Security({ security }: { security: Dict["security"] }) {
 
   useGSAP(
     () => {
-      if (reducedMotion) {
+      // reducedMotionNow(), not the hook value — see the helper's comment.
+      if (reducedMotionNow()) {
         gsap.set(".sec-link", { drawSVG: "100%", opacity: 1 });
         gsap.set([".sec-sat", ".sec-core", ".sec-orbit", ".ps-dot", ".ps-ghost", ".sec-logo-solid"], { opacity: 1, scale: 1 });
         gsap.set(".ps-mark", { opacity: 0 }); // settled state: solid logo, no particle mark

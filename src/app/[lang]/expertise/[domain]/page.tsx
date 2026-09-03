@@ -2,7 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { defaultLocale, getDictionary, hasLocale, locales } from "@/lib/dictionaries";
+import {
+  defaultLocale,
+  getDictionary,
+  hasLocale,
+  languageAlternates,
+  locales,
+  ogLocale,
+} from "@/lib/dictionaries";
+import { absoluteUrl, company } from "@/lib/company";
 import { DomainArt, Icon, Starfield } from "@/components/sections/visuals";
 import { ClientMark } from "@/components/sections/Clients";
 import { CAP_ICONS } from "@/components/sections/expertiseMeta";
@@ -50,9 +58,31 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const resolved = await resolveDomain(props.params);
   if (!resolved) return {};
+  const { lang, item } = resolved;
+  const title = `${item.name} · Infostream`;
+  const description = item.short;
+  // Metadata merges per top-level key, so a page that only sets title +
+  // description would inherit the LAYOUT's canonical/hreflang/og:url — every
+  // domain page would then declare itself a duplicate of the homepage. The
+  // slug is locale-independent, so the same path shape works for every locale.
+  const path = (l: string) => `/${l}/expertise/${item.slug}`;
+  const url = absoluteUrl(path(lang));
   return {
-    title: `${resolved.item.name} · Infostream`,
-    description: resolved.item.short,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: languageAlternates((l) => absoluteUrl(path(l))),
+    },
+    openGraph: {
+      type: "website",
+      url,
+      siteName: company.name,
+      title,
+      description,
+      locale: ogLocale[lang],
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -65,7 +95,11 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
   return (
     <>
     <Navbar nav={dict.nav} lang={lang} home={false} />
-    <main className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="relative min-h-[100svh] overflow-hidden bg-[var(--bg-inset)] text-white outline-none"
+    >
       <div
         aria-hidden
         className="absolute inset-0"
