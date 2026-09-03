@@ -233,6 +233,18 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
     }
   };
 
+  // Back to the opening screen: greeting plus the four suggestion chips, which
+  // are otherwise visible only before the first question. Closing the panel
+  // deliberately does NOT do this — a visitor can look at the page and come
+  // back to the conversation still in place — so this is the one explicit way
+  // to start over without reloading. Nothing worth a confirm prompt is lost.
+  const reset = useCallback(() => {
+    setMessages([]);
+    setInput("");
+    setError(null);
+    inputRef.current?.focus();
+  }, []);
+
   const empty = messages.length === 0;
   // Announce the full assistant reply once, in a dedicated polite region — the
   // visible transcript is NOT a live region, so the GSAP typewriter's
@@ -286,16 +298,35 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
               {t.title}
             </h2>
           </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label={t.close}
-            className="flex-none grid place-items-center h-8 w-8 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.06] transition-colors"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
+          {/* Grouped: the header row is justify-between, so two loose buttons
+              would drift apart instead of sitting together on the right. */}
+          <div className="flex-none flex items-center gap-0.5">
+            {!empty && (
+              <button
+                type="button"
+                onClick={reset}
+                aria-label={t.reset}
+                title={t.reset}
+                className="grid place-items-center h-8 w-8 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                {/* Counter-clockwise arrow: start over, not "undo one step". */}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M3 12a9 9 0 1 0 3-6.7L3 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M3 3.5V8h4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t.close}
+              className="grid place-items-center h-8 w-8 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.06] transition-colors"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Transcript */}

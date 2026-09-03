@@ -476,6 +476,7 @@
     "send": "Pošalji",
     "launch": "Otvorite Infostream asistenta",
     "close": "Zatvorite asistenta",
+    "reset": "Započnite novi razgovor",
     "thinking": "Razmišlja…",
     "error": "Došlo je do greške. Pokušajte ponovo.",
     "errors": {

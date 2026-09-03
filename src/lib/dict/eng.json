@@ -476,6 +476,7 @@
     "send": "Send",
     "launch": "Open the Infostream assistant",
     "close": "Close assistant",
+    "reset": "Start a new conversation",
     "thinking": "Thinking…",
     "error": "Something went wrong. Please try again.",
     "errors": {
