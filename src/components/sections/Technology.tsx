@@ -8,7 +8,7 @@ import { maskReveal } from "@/lib/maskReveal";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { reducedMotionNow, usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { TECH_LOGOS } from "@/components/TechLogos";
+import { TECH_LOGOS } from "./TechLogos";
 import type { Dict } from "@/lib/dictionaries";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin, useGSAP);

@@ -55,12 +55,7 @@ byte-identical or one variant renders without its behaviour (or both render).
 
 `npm run check` fails when they drift. Change both or neither.
 
-## 6. Node count must match scene count
-
-In the pinned sections the number of data nodes must equal the number of
-scenes (stops). A mismatch makes the dust-cloud transition white out.
-
-## 7. Reduced motion
+## 6. Reduced motion
 
 Every animated component reads `usePrefersReducedMotion()` (or the media
 query directly) and settles to its final state immediately. Test any new

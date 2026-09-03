@@ -123,31 +123,6 @@ export function Starfield({
   );
 }
 
-// ─── Circular line-art icon medallion ───
-export function Medallion({
-  name,
-  size = "md",
-  tone = "teal",
-}: {
-  name: IconName;
-  size?: "sm" | "md" | "lg";
-  tone?: "teal" | "danger" | "warn";
-}) {
-  const dim = size === "sm" ? "w-9 h-9" : size === "lg" ? "w-16 h-16" : "w-11 h-11";
-  const ic = size === "sm" ? "w-4 h-4" : size === "lg" ? "w-7 h-7" : "w-[18px] h-[18px]";
-  const tint =
-    tone === "danger"
-      ? "border-[var(--brand-red)]/50 text-[var(--brand-red)]"
-      : tone === "warn"
-      ? "border-[var(--brand-teal-bright)]/35 text-[var(--brand-red)]"
-      : "border-[var(--brand-teal-bright)]/35 text-[var(--brand-teal-bright)]";
-  return (
-    <span className={`relative grid place-items-center rounded-full border shrink-0 ${tint} ${dim}`}>
-      <Icon name={name} className={ic} />
-    </span>
-  );
-}
-
 /* ─── Line-art icon set ───
    No emoji, single consistent stroke weight — one icon family across the
    hero/process sections. */

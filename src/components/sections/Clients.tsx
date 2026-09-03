@@ -101,8 +101,8 @@ export default function Clients({ dict }: { dict: Dict }) {
 /* ─── Client entries — two-line names + tinted icon marks ───
    The name splits into a primary line and a dimmed qualifier ("Tax
    Administration" / "of Montenegro") so columns read as tidy pairs instead
-   of arbitrary wraps. Icons are stand-ins until real logos exist; swap
-   ClientMark for an <Image> lookup when assets land. */
+   of arbitrary wraps. ClientMark renders the real logo when LOGO_RULES has
+   one and falls back to a tinted line icon otherwise. */
 
 /* Real marks first. A state coat of arms is deliberately not used as a stand-in
    for another public body's logo. Assets in public/clients/ are local static
