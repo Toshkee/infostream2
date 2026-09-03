@@ -1,11 +1,13 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
-import { htmlLang, localeNames } from "@/lib/locales";
+import { htmlLang, localeNames, locales } from "@/lib/locales";
 import { smoothScrollTo } from "@/components/providers/SmoothScroll";
 
 const SECTIONS = ["expertise", "platform", "clients", "technology", "security", "contact"] as const;
@@ -153,14 +155,23 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
 
           {/* Right */}
           <div className="flex items-center gap-2 flex-none">
-            <Link
-              href={otherHref}
-              hrefLang={htmlLang[other]}
-              aria-label={localeNames[other].switchLabel}
-              className="hidden sm:flex items-center text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
+            {/* Language tabs — the indicator sits under the current locale and
+                slides toward the other one on hover (CSS, see .locale-tabs). */}
+            <div
+              className="locale-tabs hidden sm:grid"
+              style={{ "--tab": locales.indexOf(lang), "--tab-hover": locales.indexOf(other) } as CSSProperties}
             >
-              {other}
-            </Link>
+              <span aria-hidden className="locale-tabs-ind" />
+              {locales.map((l) =>
+                l === lang ? (
+                  <span key={l} aria-current="true">{l}</span>
+                ) : (
+                  <Link key={l} href={otherHref} hrefLang={htmlLang[l]} aria-label={localeNames[l].switchLabel}>
+                    {l}
+                  </Link>
+                )
+              )}
+            </div>
 
             <a
               href={target("contact")}

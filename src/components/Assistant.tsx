@@ -1,6 +1,7 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
+import Tooltip from "@/components/Tooltip";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
@@ -302,11 +303,11 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
               would drift apart instead of sitting together on the right. */}
           <div className="flex-none flex items-center gap-0.5">
             {!empty && (
+              <Tooltip label={t.reset} side="bottom">
               <button
                 type="button"
                 onClick={reset}
                 aria-label={t.reset}
-                title={t.reset}
                 className="grid place-items-center h-8 w-8 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.06] transition-colors"
               >
                 {/* Counter-clockwise arrow: start over, not "undo one step". */}
@@ -315,7 +316,9 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
                   <path d="M3 3.5V8h4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
+              </Tooltip>
             )}
+            <Tooltip label={t.close} side="bottom">
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -326,6 +329,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
                 <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </button>
+            </Tooltip>
           </div>
         </div>
 
@@ -417,7 +421,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
           data-stagger
           className="border-t border-white/[0.07] p-3"
         >
-          <div className="flex items-end gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] focus-within:border-[var(--brand-teal)]/50 transition-colors px-3 py-2">
+          <div className="flex items-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] focus-within:border-[var(--brand-teal)]/50 transition-colors px-3 py-2">
             <textarea
               ref={inputRef}
               rows={1}
@@ -433,7 +437,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
               type="submit"
               disabled={!input.trim() || loading}
               aria-label={t.send}
-              className="flex-none grid place-items-center h-8 w-8 rounded-lg bg-[var(--brand-red)] text-white
+              className="flex-none grid place-items-center h-8.5 w-8.5 rounded-lg bg-[var(--brand-red)] text-white
                          hover:bg-[var(--brand-red-deep)] disabled:opacity-35 disabled:cursor-not-allowed
                          transition-colors"
               style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
@@ -456,6 +460,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
       </div>
 
       {/* ── Launcher ── */}
+      <Tooltip label={open ? t.close : t.launch} side="left">
       <button
         ref={launcherRef}
         type="button"
@@ -504,6 +509,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
           <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+      </Tooltip>
     </div>
   );
 }
