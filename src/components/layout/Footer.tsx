@@ -1,7 +1,8 @@
-import type { Dict } from "@/lib/dictionaries";
+import Link from "next/link";
+import type { Dict, Locale } from "@/lib/dictionaries";
 import CurrentYear from "@/components/CurrentYear";
 
-export default function Footer({ dict }: { dict: Dict }) {
+export default function Footer({ dict, lang }: { dict: Dict; lang: Locale }) {
   return (
     <footer className="relative overflow-hidden bg-[var(--bg-inset)] text-white">
       {/* Top scope sweep — thin teal beam traverses the edge */}
@@ -59,7 +60,12 @@ export default function Footer({ dict }: { dict: Dict }) {
             © <CurrentYear buildYear={new Date().getFullYear()} /> Infostream ·{" "}
             {dict.footer.rights}
           </div>
-          <div>{dict.footer.ethos}</div>
+          <div className="flex gap-6 md:items-center">
+            <Link href={`/${lang}/privacy`} className="text-white/70 transition-colors hover:text-[var(--brand-teal-bright)]">
+              {dict.footer.privacy}
+            </Link>
+            <span>{dict.footer.ethos}</span>
+          </div>
         </div>
       </div>
     </footer>

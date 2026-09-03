@@ -266,7 +266,7 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
         </section>
       </div>
     </main>
-    <Footer dict={dict} />
+    <Footer dict={dict} lang={lang} />
     </>
   );
 }

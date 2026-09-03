@@ -492,7 +492,8 @@
       "Kako da vas kontaktiram?"
     ],
     "fallback": "Izvinite, trenutno ne mogu da odgovorim na to. Pokušajte da preformulišete pitanje o Infostreamu ili nas kontaktirajte na info@infostream.co.me.",
-    "disclaimer": "Automatizovani asistent. Odgovori mogu biti netačni ili nepotpuni; za sve obavezujuće obratite se timu direktno."
+    "disclaimer": "Automatizovani asistent. Odgovori mogu biti netačni ili nepotpuni; za sve obavezujuće obratite se timu direktno.",
+    "privacyLink": "Kako obrađujemo vaše poruke"
   },
   "footer": {
     "tagline": "Softver koji traje, građen u Podgorici.",
@@ -501,8 +502,8 @@
     "certifications": "Sertifikati",
     "partner": "Oracle i Microsoft partner",
     "experience": "20+ godina · kritični državni sistemi",
-    "status": "Svi sistemi · operativni",
-    "ethos": "bezbjedno · odgovorno · na liniji"
+    "ethos": "bezbjedno · odgovorno · na liniji",
+    "privacy": "Privatnost"
   },
   "notFound": {
     "title": "Stranica nije pronađena.",
@@ -516,5 +517,35 @@
     "title": "Došlo je do greške",
     "body": "Neočekivana greška je prekinula ovu stranicu. Možete pokušati ponovo.",
     "retry": "Pokušaj ponovo"
+  },
+  "privacy": {
+    "eyebrow": "Privatnost",
+    "title": "Obavještenje o privatnosti.",
+    "intro": "Ovaj sajt vodi Infostream, Rista Dragićevića 4, 81000 Podgorica, Crna Gora. Ovdje objašnjavamo koje podatke sajt obrađuje i zašto. Ukratko: bez analitike, bez kolačića za praćenje, a jedini podaci koje obrađujemo su oni koje nam sami pošaljete.",
+    "updatedLabel": "Posljednja izmjena",
+    "updated": "3. septembar 2026.",
+    "back": "Nazad na početnu",
+    "sections": [
+      {
+        "heading": "Posjeta sajtu",
+        "body": "Sajt ne postavlja kolačiće i ne koristi analitičke ni reklamne skripte. Kao i svaki veb server, hosting infrastruktura kratko čuva pristupne logove (IP adresa, tip pregledača, tražena stranica, vrijeme) radi bezbjednosti i rada sistema. Ne koriste se za profilisanje posjetilaca."
+      },
+      {
+        "heading": "Asistent",
+        "body": "Poruke koje unesete u asistenta šalju se preko našeg servera Google-ovom Gemini servisu, koji generiše odgovor. Google taj sadržaj obrađuje po sopstvenim uslovima. Mi razgovore ne čuvamo: postoje samo u vašem pregledaču dok ne zatvorite ili resetujete razgovor. Radi sprečavanja zloupotrebe server može nekoliko minuta privremeno brojati zahtjeve po IP adresi, isključivo u memoriji. Molimo vas da u asistenta ne unosite lične, povjerljive ni klijentske podatke."
+      },
+      {
+        "heading": "Kontakt",
+        "body": "Ako nam pišete ili nas pozovete, vaše podatke koristimo samo da odgovorimo i obradimo upit. Čuvaju se kao uobičajena poslovna prepiska i ne dijele se sa trećim licima, osim kada to zakon nalaže."
+      },
+      {
+        "heading": "Vaša prava",
+        "body": "Prema Zakonu o zaštiti podataka o ličnosti možete tražiti uvid u podatke koje imamo o vama, kao i njihovu ispravku ili brisanje. Pišite nam na adresu ispod i odgovorićemo u roku od 15 dana."
+      },
+      {
+        "heading": "Izmjene",
+        "body": "Ovo obavještenje ćemo ažurirati ako sajt počne drugačije da obrađuje podatke. Datum na vrhu pokazuje važeću verziju."
+      }
+    ]
   }
 }

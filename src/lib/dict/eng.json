@@ -492,7 +492,8 @@
       "How do I get in touch?"
     ],
     "fallback": "Sorry, I couldn't answer that just now. Try rephrasing your question about Infostream, or reach us at info@infostream.co.me.",
-    "disclaimer": "Automated assistant. Answers can be wrong or incomplete; for anything binding, contact the team directly."
+    "disclaimer": "Automated assistant. Answers can be wrong or incomplete; for anything binding, contact the team directly.",
+    "privacyLink": "How your messages are handled"
   },
   "footer": {
     "tagline": "Software built to last, built in Podgorica.",
@@ -501,8 +502,8 @@
     "certifications": "Certifications",
     "partner": "Oracle & Microsoft Partner",
     "experience": "20+ years · critical state systems",
-    "status": "All systems · operational",
-    "ethos": "secure · accountable · on the line"
+    "ethos": "secure · accountable · on the line",
+    "privacy": "Privacy"
   },
   "notFound": {
     "title": "Page not found.",
@@ -516,5 +517,35 @@
     "title": "Something went wrong",
     "body": "An unexpected error interrupted this page. You can try again.",
     "retry": "Try again"
+  },
+  "privacy": {
+    "eyebrow": "Privacy",
+    "title": "Privacy notice.",
+    "intro": "This site is run by Infostream, Rista Dragićevića 4, 81000 Podgorica, Montenegro. It explains what data the site handles and why. The short version: no analytics, no tracking cookies, and the only data we process is what you choose to send us.",
+    "updatedLabel": "Last updated",
+    "updated": "3 September 2026",
+    "back": "Back to home",
+    "sections": [
+      {
+        "heading": "Visiting the site",
+        "body": "The site sets no cookies and runs no analytics or advertising scripts. Like any web server, the hosting infrastructure keeps short-lived access logs (IP address, browser type, requested page, time) for security and operations. They are not used to profile visitors."
+      },
+      {
+        "heading": "The assistant",
+        "body": "Messages you type into the assistant are sent through our server to Google's Gemini API, which generates the reply. Google processes that content under its own terms. We do not store conversations: they exist only in your browser until you close or reset the chat. To prevent abuse the server may keep a temporary in-memory count of requests per IP address for a few minutes. Please do not enter personal, confidential or client data into the assistant."
+      },
+      {
+        "heading": "Contacting us",
+        "body": "If you email or call us, we use your details only to reply and to handle the enquiry. They are kept as ordinary business correspondence and are not shared with third parties except where the law requires it."
+      },
+      {
+        "heading": "Your rights",
+        "body": "Under the Montenegrin Law on Personal Data Protection you may ask what data we hold about you and request correction or deletion. Write to the address below and we will respond within 15 days."
+      },
+      {
+        "heading": "Changes",
+        "body": "We will update this notice if the site starts handling data differently. The date at the top shows the current version."
+      }
+    ]
   }
 }

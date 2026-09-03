@@ -24,5 +24,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...locales.flatMap((lang) =>
       domains.map((domain) => entry((l) => `/${l}/expertise/${domain}`, lang, 0.6))
     ),
+    ...locales.map((lang) => entry((l) => `/${l}/privacy`, lang, 0.2)),
   ];
 }

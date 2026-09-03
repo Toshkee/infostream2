@@ -28,7 +28,7 @@ export default async function Page({ params }: PageProps<'/[lang]'>) {
         <EdgeBeam><Security security={dict.security} /></EdgeBeam>
         <EdgeBeam><Contact contact={dict.contact} /></EdgeBeam>
       </main>
-      <Footer dict={dict} />
+      <Footer dict={dict} lang={lang} />
     </>
   );
 }

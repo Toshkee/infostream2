@@ -447,7 +447,10 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
             {t.tag}
           </p>
           <p className="mt-1.5 px-1 text-[11px] leading-snug text-white/45">
-            {t.disclaimer}
+            {t.disclaimer}{" "}
+            <a href={`/${lang}/privacy`} className="underline decoration-white/30 underline-offset-2 transition-colors hover:text-white/80">
+              {t.privacyLink}
+            </a>
           </p>
         </form>
       </div>
