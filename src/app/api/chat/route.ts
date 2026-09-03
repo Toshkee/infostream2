@@ -7,6 +7,7 @@ import {
   LIMITS,
   type ChatMessage,
 } from "@/lib/assistant";
+import type { ChatErrorCode } from "@/lib/chatLimits";
 
 // Server route — proxies the browser to Gemini so the API key never ships to
 // the client. POST is never cached by Next. The key is read from process.env.
@@ -29,12 +30,16 @@ const GLOBAL = { windowMs: 60_000, max: 240 };
 const hits = new Map<string, number[]>();
 let globalHits: number[] = [];
 
-function rateLimited(ip: string): boolean {
+// `ip` is null when no trusted proxy identifies the caller — only the aggregate
+// ceiling applies then, since every request would otherwise share one bucket.
+function rateLimited(ip: string | null): boolean {
   const now = Date.now();
 
   globalHits = globalHits.filter((t) => now - t < GLOBAL.windowMs);
   globalHits.push(now);
   if (globalHits.length > GLOBAL.max) return true;
+
+  if (ip === null) return false;
 
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE.windowMs);
   recent.push(now);
@@ -106,32 +111,47 @@ export async function POST(request: Request) {
   const startedAt = Date.now();
   // Kill switch: ASSISTANT_ENABLED=0 hides the widget (layout) and refuses
   // the endpoint, so a misbehaving bot can be turned off without a code change.
-  if (!assistantEnabled()) return Response.json({ error: "The assistant is disabled." }, { status: 503 });
+  if (!assistantEnabled())
+    return Response.json(
+      { error: "The assistant is disabled.", code: "disabled" satisfies ChatErrorCode },
+      { status: 503 }
+    );
 
   // Verbose upstream error detail is opt-in (CHAT_DEBUG=1) — never tied to
   // NODE_ENV, so a misconfigured deploy can't leak provider detail to clients.
   const debug = process.env.CHAT_DEBUG === "1";
-  const fail = (status: number, error: string, log?: unknown) => {
+  // `error` stays English for logs and the network tab; `code` is what the
+  // widget renders, mapped through the visitor's own dictionary.
+  const fail = (status: number, error: string, code: ChatErrorCode, log?: unknown) => {
     if (log !== undefined) console.error("[/api/chat]", log);
-    return Response.json({ error }, { status });
+    return Response.json({ error, code }, { status });
   };
 
-  // Rate limit by client IP. Prefer x-real-ip — the platform (e.g. Vercel) sets
-  // it to a single, non-client-controllable value; x-forwarded-for is a
-  // caller-influenceable list, so it's only a fallback. The aggregate ceiling
-  // in rateLimited() backstops whatever a forged header lets through.
-  const ip =
-    request.headers.get("x-real-ip")?.trim() ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    "anon";
-  if (rateLimited(ip)) return fail(429, "Too many requests. Please slow down.");
+  // Rate limit by client IP, read from forwarding headers ONLY when the deploy
+  // declares that a trusted proxy sets them (TRUSTED_PROXY=1). A platform like
+  // Vercel overwrites x-real-ip with a value the caller can't control, but on a
+  // host that passes client headers through, an attacker rotating a forged
+  // x-real-ip would get a fresh per-IP budget on every request. Without the
+  // flag every caller shares the "anon" bucket, so the limit still bites; the
+  // aggregate ceiling in rateLimited() backstops either way.
+  // With no trusted proxy the request is NOT bucketed per IP at all: lumping
+  // every visitor into one shared 20/min bucket would throttle a handful of
+  // simultaneous legitimate readers off the assistant, which is worse than the
+  // abuse it prevents. The global ceiling still bounds upstream spend.
+  const trustProxy = process.env.TRUSTED_PROXY === "1";
+  const ip = trustProxy
+    ? request.headers.get("x-real-ip")?.trim() ||
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "anon"
+    : null;
+  if (rateLimited(ip)) return fail(429, "Too many requests. Please slow down.", "rateLimited");
 
   // Parse + validate the body.
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return fail(400, "Invalid request body.");
+    return fail(400, "Invalid request body.", "generic");
   }
   const obj = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
 
@@ -141,30 +161,30 @@ export async function POST(request: Request) {
 
   const rawMessages = obj.messages;
   if (!Array.isArray(rawMessages) || rawMessages.length === 0)
-    return fail(400, "No messages provided.");
+    return fail(400, "No messages provided.", "generic");
   if (rawMessages.length > LIMITS.maxMessages)
-    return fail(400, "Conversation is too long.");
-  if (!rawMessages.every(isChatMessage)) return fail(400, "Malformed messages.");
+    return fail(400, "Conversation is too long.", "tooLong");
+  if (!rawMessages.every(isChatMessage)) return fail(400, "Malformed messages.", "generic");
 
   const messages = rawMessages as ChatMessage[];
   let total = 0;
   for (const m of messages) {
     if (m.content.length > LIMITS.maxCharsPerMessage)
-      return fail(400, "Message is too long.");
+      return fail(400, "Message is too long.", "tooLong");
     total += m.content.length;
   }
-  if (total > LIMITS.maxTotalChars) return fail(400, "Conversation is too long.");
+  if (total > LIMITS.maxTotalChars) return fail(400, "Conversation is too long.", "tooLong");
   // Enforce strict user/assistant alternation starting and ending with the user.
   // The client only ever sends well-formed histories, so this rejects forged
   // requests that inject self-attributed "assistant" turns to prime a jailbreak.
   for (let i = 0; i < messages.length; i++) {
     const expected = i % 2 === 0 ? "user" : "assistant";
-    if (messages[i].role !== expected) return fail(400, "Malformed conversation.");
+    if (messages[i].role !== expected) return fail(400, "Malformed conversation.", "generic");
   }
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey)
-    return fail(500, "The assistant isn't configured yet.", "GEMINI_API_KEY is not set");
+    return fail(500, "The assistant isn't configured yet.", "generic", "GEMINI_API_KEY is not set");
 
   const [dict, facts] = await Promise.all([getDictionary(lang), getAssistantFacts(lang)]);
   const payload = {
@@ -188,6 +208,7 @@ export async function POST(request: Request) {
         : busy
           ? "The assistant is busy right now. Please try again in a moment."
           : "The assistant had a problem. Please try again.",
+      busy ? "busy" : "generic",
       `Gemini ${call.status}: ${call.detail.slice(0, 1000)}`
     );
   }
@@ -196,7 +217,7 @@ export async function POST(request: Request) {
   try {
     data = (await call.res.json()) as GeminiResponse;
   } catch (e) {
-    return fail(502, "Unexpected response from the assistant.", e);
+    return fail(502, "Unexpected response from the assistant.", "generic", e);
   }
 
   const parts = data.candidates?.[0]?.content?.parts;

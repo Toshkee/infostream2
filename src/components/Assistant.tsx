@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
+import { conversationWindow, isChatErrorCode, LIMITS } from "@/lib/chatLimits";
 
 gsap.registerPlugin(useGSAP);
 
@@ -161,6 +162,13 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
     scrollToEnd();
   }, [messages, loading, scrollToEnd]);
 
+  // Localized copy for a failure code from /api/chat; anything unrecognized
+  // (or a network error, which never reaches the route) falls back to t.error.
+  const errorText = useCallback(
+    (code?: string) => (isChatErrorCode(code) && code !== "generic" ? t.errors[code] : t.error),
+    [t]
+  );
+
   // ── Send a message ────────────────────────────────────────────────────────
   const send = useCallback(
     async (text: string) => {
@@ -178,15 +186,21 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            lang,
-            messages: history.map(({ role, content }) => ({ role, content })),
-          }),
+          // Only a trailing window goes upstream. The panel keeps the whole
+          // transcript on screen, but the route caps a request at
+          // LIMITS.maxMessages, so sending everything would fail every send
+          // from the 9th exchange onward.
+          body: JSON.stringify({ lang, messages: conversationWindow(history) }),
+          // Without a deadline the "thinking" dots can sit for minutes: the
+          // route walks three models with a retry, each on a 20s timeout.
+          signal: AbortSignal.timeout(45_000),
         });
-        const data: { reply?: string; error?: string } = await res
+        const data: { reply?: string; error?: string; code?: string } = await res
           .json()
           .catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || t.error);
+        // Prefer the localized string for the returned code — `data.error` is
+        // English server copy and would otherwise reach Montenegrin visitors.
+        if (!res.ok) throw new Error(errorText(data.code));
         const reply = typeof data.reply === "string" && data.reply ? data.reply : t.error;
         setMessages((m) => [
           ...m,
@@ -204,7 +218,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
         setLoading(false);
       }
     },
-    [messages, loading, lang, t.error]
+    [messages, loading, lang, t.error, errorText]
   );
 
   const onSubmit = (e: React.FormEvent) => {
@@ -381,7 +395,7 @@ export default function Assistant({ copy, lang }: { copy: Dict["assistant"]; lan
               onKeyDown={onKeyDown}
               placeholder={t.placeholder}
               aria-label={t.title}
-              maxLength={2000}
+              maxLength={LIMITS.maxCharsPerMessage}
               className="flex-1 resize-none bg-transparent text-white text-[14px] leading-relaxed placeholder:text-white/45 outline-none max-h-28 no-scrollbar"
             />
             <button

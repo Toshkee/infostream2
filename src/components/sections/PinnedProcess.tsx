@@ -107,13 +107,18 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             aria-label={platform.title}
             style={{ "--fill": 0 } as CSSVars}
           >
-            {/* Rail — hairline track with a scroll-scrubbed teal fill. */}
-            <div aria-hidden className="absolute inset-y-0 left-0 hidden w-px bg-white/10 lg:block">
+            {/* Rail — hairline track with a scroll-scrubbed teal fill. An <li>
+                rather than a <div>: only list items may be children of an <ol>.
+                It stays inside the list (not in a wrapper) because its fill
+                height reads --fill, which JS writes on the <ol> itself. It is
+                absolutely positioned and aria-hidden, so it neither occupies a
+                row nor reaches the accessibility tree. */}
+            <li aria-hidden className="absolute inset-y-0 left-0 hidden w-px bg-white/10 lg:block">
               <div
                 className="absolute left-0 top-0 w-px bg-[var(--brand-teal-bright)]"
                 style={{ height: "calc(var(--fill) * 100%)" }}
               />
-            </div>
+            </li>
 
             {platform.stages.map((stage, index) => (
               <li

@@ -1,4 +1,5 @@
 import type { Dict } from "@/lib/dictionaries";
+import CurrentYear from "@/components/CurrentYear";
 
 export default function Footer({ dict }: { dict: Dict }) {
   return (
@@ -54,7 +55,10 @@ export default function Footer({ dict }: { dict: Dict }) {
 
         {/* Bottom hairline + meta row */}
         <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-[12.5px] text-white/55">
-          <div>© {new Date().getFullYear()} Infostream · {dict.footer.rights}</div>
+          <div>
+            © <CurrentYear buildYear={new Date().getFullYear()} /> Infostream ·{" "}
+            {dict.footer.rights}
+          </div>
           <div>{dict.footer.ethos}</div>
         </div>
       </div>

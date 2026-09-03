@@ -6,7 +6,9 @@
     "clients": "Klijenti",
     "security": "Standardi",
     "contact": "Kontakt",
-    "cta": "Razgovarajmo"
+    "cta": "Razgovarajmo",
+    "openMenu": "Otvorite meni",
+    "closeMenu": "Zatvorite meni"
   },
   "meta": {
     "description": "Infostream je crnogorska softverska kompanija koja gradi sisteme koji traju: poreske, trezorske, privredne i penzijske registre zemlje. ISO 27001, 20+ godina.",
@@ -161,7 +163,7 @@
         "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO, a ista platforma vodi evidencije i poslodavcima van javnog sektora — Erste banci, Grawe osiguranju i nacionalnom javnom servisu.",
         "clients": [
           {
-            "org": "Uprava za kadrove",
+            "org": "Uprava za ljudske resurse",
             "system": "Informacioni sistem za upravljanje kadrovima"
           },
           {
@@ -476,6 +478,12 @@
     "close": "Zatvorite asistenta",
     "thinking": "Razmišlja…",
     "error": "Došlo je do greške. Pokušajte ponovo.",
+    "errors": {
+      "rateLimited": "Previše poruka. Sačekajte trenutak prije nego što pokušate ponovo.",
+      "busy": "Asistent je trenutno zauzet. Pokušajte ponovo za trenutak.",
+      "tooLong": "Razgovor je postao predugačak. Započnite novi.",
+      "disabled": "Asistent je trenutno isključen."
+    },
     "suggestions": [
       "Čime se Infostream bavi?",
       "Kako se čuvaju podaci?",

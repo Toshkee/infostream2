@@ -26,6 +26,13 @@ export function proxy(request: NextRequest) {
   return NextResponse.redirect(url, 308);
 }
 
+// `_next/` and `api/` carry a trailing slash on purpose. Without it the
+// lookahead also matches any path merely STARTING with those letters, so
+// /apiary or /_nextfoo skipped the redirect, reached [lang] with an invalid
+// locale and got Next's bare built-in 404 instead of the branded one — the
+// root layout calls notFound(), which [lang]/not-found.tsx can't render from
+// inside. Dotted paths stay excluded deliberately: /robots.txt, /sitemap.xml
+// and /manifest.webmanifest are real root routes and must not be redirected.
 export const config = {
-  matcher: ['/((?!_next|api|favicon.ico|icon$|apple-icon$|.*\\..*).*)'],
+  matcher: ['/((?!_next/|api/|favicon.ico|icon$|apple-icon$|.*\\..*).*)'],
 };

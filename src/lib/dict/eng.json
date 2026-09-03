@@ -6,7 +6,9 @@
     "clients": "Clients",
     "security": "Standards",
     "contact": "Contact",
-    "cta": "Talk to us"
+    "cta": "Talk to us",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "meta": {
     "description": "Infostream is a Montenegrin software firm building systems that last: the country's tax, treasury, business and pension registers. ISO 27001, 20+ years.",
@@ -197,10 +199,10 @@
           "Workflow automation",
           "Digital archive"
         ],
-        "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defense — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
+        "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defence — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
         "clients": [
           {
-            "org": "Ministry of Defense",
+            "org": "Ministry of Defence",
             "system": "INFODMS document management"
           },
           {
@@ -476,6 +478,12 @@
     "close": "Close assistant",
     "thinking": "Thinking…",
     "error": "Something went wrong. Please try again.",
+    "errors": {
+      "rateLimited": "Too many messages. Please wait a moment before trying again.",
+      "busy": "The assistant is busy right now. Please try again in a moment.",
+      "tooLong": "This conversation got too long. Please start a new one.",
+      "disabled": "The assistant is switched off at the moment."
+    },
     "suggestions": [
       "What does Infostream do?",
       "How is data kept secure?",

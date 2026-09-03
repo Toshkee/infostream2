@@ -2,16 +2,13 @@ import type { Dict, Locale } from "@/lib/dictionaries";
 import type { AssistantFacts } from "@/lib/facts";
 import { company } from "@/lib/company";
 
+// The request-shape contract lives in a client-safe module so the browser
+// widget can share it; re-exported here so existing server imports still work.
+export { LIMITS, type ChatMessage, type ChatRole } from "@/lib/chatLimits";
+
 // Shared types + grounding logic for the Infostream website assistant.
 // This module holds NO secrets — it only shapes the request the server route
 // sends to Gemini. The API key lives in process.env and is read in route.ts.
-
-type ChatRole = "user" | "assistant";
-
-export interface ChatMessage {
-  role: ChatRole;
-  content: string;
-}
 
 // Default to a current fast Gemini model; overridable via env without a redeploy.
 const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
@@ -23,12 +20,6 @@ export const GEMINI_MODELS: string[] = Array.from(
   new Set([GEMINI_MODEL, "gemini-2.5-flash-lite", "gemini-flash-latest"])
 );
 
-// Defend the public /api/chat endpoint against oversized or runaway prompts.
-export const LIMITS = {
-  maxMessages: 16,
-  maxCharsPerMessage: 2_000,
-  maxTotalChars: 8_000,
-} as const;
 
 /**
  * Build the system instruction that constrains the model to Infostream-only

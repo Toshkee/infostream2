@@ -111,6 +111,15 @@ export default function Technology({ technology }: { technology: Dict["technolog
 
       maskReveal(".tech-h2");
 
+      // The network scene is currently `hidden` — the concrete register carries
+      // the section instead. A ScrollTrigger whose trigger is display:none
+      // fires immediately, so without this guard 16 infinite motionPath tweens
+      // would run for every visitor at every viewport, rewriting attributes
+      // each frame on an SVG nobody can see. Restoring the scene to the layout
+      // brings its animation back with it — no second edit needed here.
+      const scene = ref.current?.querySelector<SVGSVGElement>(".tech-scene");
+      if (!scene || getComputedStyle(scene).display === "none") return;
+
       // Links wire themselves in, then nodes pop on, then packets stream.
       gsap.set(links, { drawSVG: "0%" });
       gsap.set(nodes, { opacity: 0, transformOrigin: "center", scale: 0.5 });

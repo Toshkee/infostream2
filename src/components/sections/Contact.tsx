@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { maskReveal } from "@/lib/maskReveal";
 import { useRef } from "react";
 import type { Dict } from "@/lib/dictionaries";
+import { company } from "@/lib/company";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -95,7 +96,9 @@ export default function Contact({ contact }: { contact: Dict["contact"] }) {
               </div>
               <div className="cta-item">
                 <dt className="text-[11px] font-medium tracking-[0.22em] uppercase text-[var(--fg-dim)]">
-                  Podgorica
+                  {/* The city is a locale-independent company fact, so it comes
+                      from company.ts rather than sitting as a literal here. */}
+                  {company.address.locality}
                 </dt>
                 <dd className="mt-2 text-[var(--fg)] max-w-sm leading-relaxed">
                   {contact.office}

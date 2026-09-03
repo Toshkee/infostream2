@@ -41,114 +41,122 @@ export default function Security({ security }: { security: Dict["security"] }) {
         }
       );
 
-      // Entrance — rings fade in (drawSVG would flatten their dash pattern),
-      // the shield assembles dot by dot from the top, satellites pop.
-      gsap.set(".sec-orbit", { opacity: 0, scale: 0.92, transformOrigin: "50% 50%" });
-      gsap.set(".sec-link", { drawSVG: "0%" });
-      gsap.set(".sec-sat", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" });
-      gsap.set(".sec-core", { opacity: 0, transformOrigin: "50% 50%" });
-      gsap.set(".ps-dot", { opacity: 0, scale: 0, transformOrigin: "50% 50%" });
+      // The orbital diagram is `hidden lg:block`. A ScrollTrigger whose trigger
+      // is display:none fires immediately, so without this gate every phone and
+      // tablet would spin up ~158 infinite dot tweens plus the shield and glint
+      // loops for the life of the page, repainting a diagram nobody can see.
+      // A matchMedia created inside a useGSAP context is reverted with it.
+      const mm = gsap.matchMedia();
+      mm.add("(min-width: 1024px)", () => {
+        // Entrance — rings fade in (drawSVG would flatten their dash pattern),
+        // the shield assembles dot by dot from the top, satellites pop.
+        gsap.set(".sec-orbit", { opacity: 0, scale: 0.92, transformOrigin: "50% 50%" });
+        gsap.set(".sec-link", { drawSVG: "0%" });
+        gsap.set(".sec-sat", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%" });
+        gsap.set(".sec-core", { opacity: 0, transformOrigin: "50% 50%" });
+        gsap.set(".ps-dot", { opacity: 0, scale: 0, transformOrigin: "50% 50%" });
 
-      const tl = gsap.timeline({
-        scrollTrigger: { trigger: ".sec-viz", start: "top 75%" },
-      });
-      tl.to(".sec-core", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0)
-        .to(".sec-orbit", { opacity: 1, scale: 1, duration: 1.1, stagger: 0.15, ease: "power2.out" }, 0.1)
-        .to(
-          ".ps-dot",
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.5,
-            ease: "back.out(2)",
-            // DOM order is row-major top→bottom with the logo dots appended
-            // last, so the shield assembles downward and the mark lands last.
-            stagger: 0.9 / SHIELD_DOTS.length,
-          },
-          0.15
-        )
-        .to(".sec-link", { drawSVG: "100%", duration: 0.7, stagger: 0.08, ease: "power2.out" }, 0.7)
-        .to(".sec-sat", { opacity: 1, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.8)" }, 0.9);
-
-      // The shield breathes as one object.
-      gsap.to(".sec-shield", {
-        scale: 1.015,
-        duration: 3.2,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        svgOrigin: "280 280",
-      });
-
-      // Verification wave — scheduled inside the same scroll-triggered
-      // timeline as the entrance, so the first sweep always plays in view.
-      // A bright band sweeps down through the particles every WAVE_PERIOD,
-      // offset per dot by its height. On the FIRST pass the wave transforms
-      // the mark: each logo particle flares as the band reaches it, then
-      // dissolves, while the solid lockup wipes in top-down at the exact pace
-      // of the band — the wave leaves the real logo behind it. Body dots keep
-      // flaring on every subsequent pass (repeating tweens share the period).
-      const WAVE_PERIOD = 6;
-      const WAVE_TRAVEL = 1.3;
-      const WAVE_AT = 1.9; // timeline position of the first sweep's top edge
-      const yNorm = (y: number) => (y - SHIELD_Y_MIN) / (SHIELD_Y_MAX - SHIELD_Y_MIN);
-      gsap.utils.toArray<SVGCircleElement>(".ps-dot").forEach((el, i) => {
-        const d = SHIELD_DOTS[i];
-        const at = WAVE_AT + yNorm(d.y) * WAVE_TRAVEL;
-        if (d.mark) {
-          const flareFill = d.fill === LOGO_RED ? "#e8555a" : "#7ad8d2";
-          tl.to(
-            el,
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: ".sec-viz", start: "top 75%" },
+        });
+        tl.to(".sec-core", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0)
+          .to(".sec-orbit", { opacity: 1, scale: 1, duration: 1.1, stagger: 0.15, ease: "power2.out" }, 0.1)
+          .to(
+            ".ps-dot",
             {
-              keyframes: [
-                { scale: 1.45, fill: flareFill, duration: 0.25, ease: "power2.out" },
-                { scale: 1.25, opacity: 0, duration: 0.5, ease: "power2.in" },
-              ],
-              transformOrigin: "50% 50%",
+              opacity: 1,
+              scale: 1,
+              duration: 0.5,
+              ease: "back.out(2)",
+              // DOM order is row-major top→bottom with the logo dots appended
+              // last, so the shield assembles downward and the mark lands last.
+              stagger: 0.9 / SHIELD_DOTS.length,
             },
-            at
-          );
-        } else {
-          tl.to(
-            el,
-            {
-              keyframes: [
-                { scale: 1.45, fill: "#7ad8d2", duration: 0.25, ease: "power2.out" },
-                { scale: 1, fill: `rgba(58,165,160,${d.o})`, duration: 0.7, ease: "power2.inOut" },
-              ],
-              repeat: -1,
-              repeatDelay: WAVE_PERIOD - 0.95,
-              transformOrigin: "50% 50%",
-            },
-            at
-          );
-        }
+            0.15
+          )
+          .to(".sec-link", { drawSVG: "100%", duration: 0.7, stagger: 0.08, ease: "power2.out" }, 0.7)
+          .to(".sec-sat", { opacity: 1, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.8)" }, 0.9);
+
+        // The shield breathes as one object.
+        gsap.to(".sec-shield", {
+          scale: 1.015,
+          duration: 3.2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          svgOrigin: "280 280",
+        });
+
+        // Verification wave — scheduled inside the same scroll-triggered
+        // timeline as the entrance, so the first sweep always plays in view.
+        // A bright band sweeps down through the particles every WAVE_PERIOD,
+        // offset per dot by its height. On the FIRST pass the wave transforms
+        // the mark: each logo particle flares as the band reaches it, then
+        // dissolves, while the solid lockup wipes in top-down at the exact pace
+        // of the band — the wave leaves the real logo behind it. Body dots keep
+        // flaring on every subsequent pass (repeating tweens share the period).
+        const WAVE_PERIOD = 6;
+        const WAVE_TRAVEL = 1.3;
+        const WAVE_AT = 1.9; // timeline position of the first sweep's top edge
+        const yNorm = (y: number) => (y - SHIELD_Y_MIN) / (SHIELD_Y_MAX - SHIELD_Y_MIN);
+        gsap.utils.toArray<SVGCircleElement>(".ps-dot").forEach((el, i) => {
+          const d = SHIELD_DOTS[i];
+          const at = WAVE_AT + yNorm(d.y) * WAVE_TRAVEL;
+          if (d.mark) {
+            const flareFill = d.fill === LOGO_RED ? "#e8555a" : "#7ad8d2";
+            tl.to(
+              el,
+              {
+                keyframes: [
+                  { scale: 1.45, fill: flareFill, duration: 0.25, ease: "power2.out" },
+                  { scale: 1.25, opacity: 0, duration: 0.5, ease: "power2.in" },
+                ],
+                transformOrigin: "50% 50%",
+              },
+              at
+            );
+          } else {
+            tl.to(
+              el,
+              {
+                keyframes: [
+                  { scale: 1.45, fill: "#7ad8d2", duration: 0.25, ease: "power2.out" },
+                  { scale: 1, fill: `rgba(58,165,160,${d.o})`, duration: 0.7, ease: "power2.inOut" },
+                ],
+                repeat: -1,
+                repeatDelay: WAVE_PERIOD - 0.95,
+                transformOrigin: "50% 50%",
+              },
+              at
+            );
+          }
+        });
+
+        // Solid logo wipes in top-down, tracking the band across the mark's rows.
+        const markYs = SHIELD_DOTS.filter((d) => d.mark).map((d) => d.y);
+        const tTop = WAVE_AT + yNorm(Math.min(...markYs)) * WAVE_TRAVEL;
+        const tBottom = WAVE_AT + yNorm(Math.max(...markYs)) * WAVE_TRAVEL;
+        tl.fromTo(
+          ".sec-logo-solid",
+          { opacity: 1, clipPath: "inset(0% 0% 100% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", duration: tBottom - tTop + 0.3, ease: "none", immediateRender: false },
+          tTop + 0.15
+        );
+        // Once the logo has resolved, the carved channel refills at body density
+        // so the mark doesn't sit in a cut-out hole in the dot grid.
+        tl.to(".ps-ghost", { opacity: 1, duration: 0.8, ease: "power2.out", stagger: 0.012 }, tBottom + 0.4);
+
+        // Badges glint once per wave, just after it clears the shield; the solid
+        // logo swells with them. (Link lines stay quiet — the badge lift alone
+        // carries the beat.)
+        const glint = gsap.timeline({ repeat: -1 });
+        glint
+          .to(".sec-logo-solid", { scale: 1.04, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
+          .to(".sec-sat", { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
+          .to(".sec-sat-halo", { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
+          .to({}, { duration: WAVE_PERIOD - 0.8 });
+        tl.add(glint, WAVE_AT + WAVE_TRAVEL);
       });
-
-      // Solid logo wipes in top-down, tracking the band across the mark's rows.
-      const markYs = SHIELD_DOTS.filter((d) => d.mark).map((d) => d.y);
-      const tTop = WAVE_AT + yNorm(Math.min(...markYs)) * WAVE_TRAVEL;
-      const tBottom = WAVE_AT + yNorm(Math.max(...markYs)) * WAVE_TRAVEL;
-      tl.fromTo(
-        ".sec-logo-solid",
-        { opacity: 1, clipPath: "inset(0% 0% 100% 0%)" },
-        { clipPath: "inset(0% 0% 0% 0%)", duration: tBottom - tTop + 0.3, ease: "none", immediateRender: false },
-        tTop + 0.15
-      );
-      // Once the logo has resolved, the carved channel refills at body density
-      // so the mark doesn't sit in a cut-out hole in the dot grid.
-      tl.to(".ps-ghost", { opacity: 1, duration: 0.8, ease: "power2.out", stagger: 0.012 }, tBottom + 0.4);
-
-      // Badges glint once per wave, just after it clears the shield; the solid
-      // logo swells with them. (Link lines stay quiet — the badge lift alone
-      // carries the beat.)
-      const glint = gsap.timeline({ repeat: -1 });
-      glint
-        .to(".sec-logo-solid", { scale: 1.04, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
-        .to(".sec-sat", { scale: 1.06, duration: 0.4, ease: "power2.out", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 0)
-        .to(".sec-sat-halo", { attr: { stroke: "rgba(58,165,160,0.55)" }, duration: 0.4, yoyo: true, repeat: 1 }, 0)
-        .to({}, { duration: WAVE_PERIOD - 0.8 });
-      tl.add(glint, WAVE_AT + WAVE_TRAVEL);
     },
     { scope: ref, dependencies: [reducedMotion] }
   );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
 import { htmlLang, localeNames } from "@/lib/locales";
@@ -15,6 +16,11 @@ type Section = (typeof SECTIONS)[number];
 // point back to the homepage sections and the pill is present from the start.
 export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; lang: Locale; home?: boolean }) {
   const other: Locale = lang === "eng" ? "mne" : "eng";
+  // Swap the locale segment and stay on the same page rather than dumping the
+  // visitor on the other locale's homepage. Expertise slugs are identical in
+  // every dictionary, so the rest of the path carries over verbatim.
+  const pathname = usePathname();
+  const otherHref = pathname ? pathname.replace(/^\/[^/]*/, `/${other}`) : `/${other}`;
   const target = (id: string) => (home ? `#${id}` : `/${lang}#${id}`);
   const [scrolled, setScrolled] = useState(false);
   // The pill stays hidden over the hero and slides in as the visitor scrolls
@@ -88,9 +94,13 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
         // Keep the compact navigation available on phones from the first frame.
         // Desktop still introduces it after the hero, leaving that opening view quiet.
+        // lg:invisible matters as much as the transform: an off-screen header
+        // that is merely transparent still takes focus, so the first Tab
+        // presses on the homepage would land on a nav nobody can see.
+        // visibility is transitionable, so the pill still fades out smoothly.
         shown
-          ? "translate-y-0 opacity-100"
-          : "translate-y-0 opacity-100 lg:-translate-y-[120%] lg:opacity-0 lg:pointer-events-none"
+          ? "translate-y-0 opacity-100 visible"
+          : "translate-y-0 opacity-100 lg:-translate-y-[120%] lg:opacity-0 lg:pointer-events-none lg:invisible"
       }`}
     >
       <div className="mx-auto max-w-[1280px] px-4 max-sm:px-3 sm:px-6 lg:px-10 pt-5 max-sm:pt-3">
@@ -144,7 +154,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
           {/* Right */}
           <div className="flex items-center gap-2 flex-none">
             <Link
-              href={`/${other}`}
+              href={otherHref}
               hrefLang={htmlLang[other]}
               aria-label={localeNames[other].switchLabel}
               className="hidden sm:flex items-center text-[11px] font-semibold tracking-[0.12em] uppercase text-white/60 hover:text-white px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-all duration-200"
@@ -162,7 +172,9 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
 
             {/* Hamburger */}
             <button
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-label={mobileOpen ? nav.closeMenu : nav.openMenu}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
               onClick={() => setMobileOpen((o) => !o)}
               className="lg:hidden flex flex-col justify-center items-center w-9 max-sm:w-8 h-9 max-sm:h-8 gap-[5px] rounded-lg hover:bg-white/[0.06] transition-colors ml-1"
             >
@@ -175,6 +187,11 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
 
         {/* ── Mobile dropdown ── */}
         <div
+          id="mobile-menu"
+          // Collapsed it is only clipped to zero height, so without `inert` its
+          // links stay focusable and a keyboard user tabs through a menu that
+          // isn't on screen.
+          inert={!mobileOpen}
           className={`lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
             mobileOpen ? "max-h-[30rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"
           }`}
@@ -216,7 +233,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
 
             <div className="mt-2 pt-3 border-t border-white/[0.06] flex items-center justify-between px-3">
               <Link
-                href={`/${other}`}
+                href={otherHref}
                 className="text-[12px] font-medium text-white/60 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
               >
                 {localeNames[other].native}
