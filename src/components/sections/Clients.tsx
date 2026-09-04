@@ -20,6 +20,9 @@ const FEATURED_ASSETS: Record<string, { src?: string; className?: string }> = {
   "employment-agency": { src: "/clients/employment-agency.transparent.png" },
   pio: { src: "/clients/pio.transparent.png" },
   "ministry-defense": { src: "/clients/ministry-defense.transparent.png" },
+  // The Gazette's own lockup (arms + bar + wordmark, white variant) from
+  // sluzbenilist.me: a body-specific mark, not the bare national arms.
+  "official-gazette": { src: "/clients/official-gazette.transparent.png", className: "max-h-11 max-w-[10rem]" },
   erste: { src: "/clients/erste-s.transparent.png" },
   grawe: { src: "/clients/grawe.transparent.png" },
   rtcg: { src: "/clients/rtcg.transparent.png" },

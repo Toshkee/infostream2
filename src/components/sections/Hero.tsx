@@ -1,12 +1,18 @@
 "use client";
 
+import Image from "next/image";
 import type { Dict } from "@/lib/dictionaries";
-import { EyebrowBars, Starfield, tealPeriod } from "./visuals";
+import { EyebrowBars, tealPeriod } from "./visuals";
 
 // The intro is pure CSS (`.hero-rise` in globals.css), not a GSAP timeline:
 // it starts with the first painted frame — before the JS bundle hydrates —
 // so slow devices never stare at an empty starfield, and a frozen/occluded
 // tab can't strand it mid-fade the way rAF-driven time-tweens are.
+// 16px thumbnail of the office photo, shown while the real file streams in
+// so the backdrop surfaces softly instead of snapping from flat dark.
+const HERO_BLUR =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDJvZo9RukeFG2Jjdn0zitiOeCS1MTIdkKnqBhQO9ZqX/2Uuv2eORAeMfKauabbreN9o1AAk8YX6YwayUbm/NY//9k=";
+
 export default function Hero({ hero }: { hero: Dict["hero"] }) {
   const titleWords = hero.title.split(" ");
 
@@ -33,12 +39,34 @@ export default function Hero({ hero }: { hero: Dict["hero"] }) {
               "radial-gradient(ellipse 45% 40% at 78% 22%, rgba(72,184,177,0.07) 0%, transparent 70%)",
           }}
         />
-        {/* Desktop keeps the full dust field; phones get a lighter one (a few
-            dozen dots, still SVG, cheap to paint) so the opening screen isn't
-            a flat gradient. */}
-        <Starfield className="hidden sm:block" />
-        <Starfield count={55} seed={0x5747} strength={0.85} bias={false} className="sm:hidden" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
+      </div>
+
+      {/* Office photograph across the whole backdrop. Heavily darkened, with
+          a left-to-right scrim so the copy on the left sits on near-solid
+          dark and the room shows through more on the right; the bottom edge
+          dissolves into the page background. Deliberately NOT part of the
+          `hero-rise` stagger: the blur placeholder must be on screen from the
+          first paint so the backdrop never shows bare before the photo. */}
+      <div aria-hidden className="absolute inset-0 z-[1]">
+        <Image
+          src="/hero-office.webp"
+          alt=""
+          fill
+          priority
+          placeholder="blur"
+          blurDataURL={HERO_BLUR}
+          sizes="100vw"
+          className="hero-drift object-cover object-[60%_45%] opacity-[0.58] saturate-[0.8]"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(13,17,28,0.85) 0%, rgba(13,17,28,0.55) 45%, rgba(13,17,28,0.18) 100%)",
+          }}
+        />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-[var(--bg-inset)]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1280px] flex-col justify-center px-6 pt-20 pb-8 md:pt-24 md:pb-12 lg:px-10">

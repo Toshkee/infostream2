@@ -406,6 +406,15 @@ h1, h2, h3,
 }
 .hero-rise { animation: heroRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* Hero photograph: one slow, one-shot push-in. Runs alongside the rise
+   (both are compositor-only transforms); the reduced-motion block below
+   collapses it to a single frame like every other animation. */
+@keyframes heroDrift {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+.hero-drift { animation: heroDrift 26s linear both; transform-origin: 60% 45%; }
+
 /* Film grain — a faint static texture. Keeping it still lets the actual page
    motion carry attention instead of making every surface continually move. */
 .grain-overlay {
