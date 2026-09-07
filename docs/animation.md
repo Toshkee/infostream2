@@ -40,7 +40,7 @@ lands visibly offset. Stop snapping is implemented in `src/lib/scrollSnap.ts`
 ## 4. Scrubbed scenes are pure functions of scroll progress
 
 `Expertise` writes one CSS variable per frame (`--xp`) and everything inside
-the pin derives from it via `rev()` in `visuals.tsx`. Do not animate elements
+the pin derives from it via the `drev()` reveal helper in `Expertise.tsx`. Do not animate elements
 inside a pinned scene with time-based GSAP tweens: a `lagSmoothing` skip or an
 occluded-tab rAF freeze can strand them mid-tween. Reveals that are not
 scroll-scrubbed use `maskReveal()` in `src/lib/maskReveal.ts`, which is a CSS

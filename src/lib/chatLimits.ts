@@ -4,7 +4,7 @@
 // fact loaders, so the browser bundle can't import these from there. The route
 // re-exports LIMITS from assistant.ts for continuity.
 
-export type ChatRole = "user" | "assistant";
+type ChatRole = "user" | "assistant";
 
 export interface ChatMessage {
   role: ChatRole;

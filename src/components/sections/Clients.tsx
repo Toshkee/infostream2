@@ -122,7 +122,6 @@ const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/pension|fond pio/, { src: "/clients/pio.transparent.png", cover: true }],
   [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.png" }],
   [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.transparent.png", cover: true }],
-  [/parliament|skupštin/, { src: "/clients/parliament.transparent.png", cover: true }],
 ];
 
 function orgLogo(org: string): { src: string; cover?: boolean } | null {
@@ -137,17 +136,14 @@ function orgLogo(org: string): { src: string; cover?: boolean } | null {
 const ORG_ICON_RULES: [RegExp, IconName][] = [
   [/military|intelligence|vojno/, "radar"],
   [/defen[cs]e|odbran/, "shield"],
-  [/interior|unutrašnj/, "shield"],
   [/pension|\bpio\b/, "shieldCheck"],
   [/employment|zapošljavanj/, "search"],
   [/human resources|kadrov/, "users"],
   [/gazette|službeni/, "fileText"],
-  [/registr?ar|register/, "database"],
   [/innovat|inovac/, "rocket"],
   [/cfcu|\beu\b/, "handshake"],
   [/tax|poresk/, "barChart"],
   [/finance|finansij/, "trendingUp"],
-  [/court|sud/, "list"],
 ];
 
 function orgIcon(org: string): IconName {

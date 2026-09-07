@@ -4,7 +4,7 @@ import { company } from "@/lib/company";
 
 // The request-shape contract lives in a client-safe module so the browser
 // widget can share it; re-exported here so existing server imports still work.
-export { LIMITS, type ChatMessage, type ChatRole } from "@/lib/chatLimits";
+export { LIMITS, type ChatMessage } from "@/lib/chatLimits";
 
 // Shared types + grounding logic for the Infostream website assistant.
 // This module holds NO secrets — it only shapes the request the server route

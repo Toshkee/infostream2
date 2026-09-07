@@ -59,7 +59,7 @@ const domainStyle = (target: number): CSSVars => ({
 });
 
 // Maps the scene-local --u onto a 0..1 reveal --r (opacity + lift), starting
-// at `start` over `len` — local copy of the shared rev() tuned for --u set
+// at `start` over `len` — reveal helper tuned for --u set
 // per domain wrapper below. Every call must satisfy start + len <= 0: the pin
 // ends exactly at the last scene's center (u = 0), so anything that completes
 // later can never fully reveal on the final domain.

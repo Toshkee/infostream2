@@ -4,7 +4,6 @@
   --bg: #eef1f5;
   --bg-elev: #ffffff;
   --bg-inset: #0d111c;
-  --bg-inset-elev: #131a2a;
   --fg: #0a0e16;
   --fg-dim: #5a6477;
   --line: #d8dee8;
@@ -13,21 +12,9 @@
   --brand-teal: #3aa5a0;
   --brand-teal-bright: #48b8b1;
   --brand-teal-soft: #7ad8d2;
-  --signal-ok: #7ce38b;
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-bg-elev: var(--bg-elev);
-  --color-bg-inset: var(--bg-inset);
-  --color-fg: var(--fg);
-  --color-fg-dim: var(--fg-dim);
-  --color-line: var(--line);
-  --color-brand-red: var(--brand-red);
-  --color-brand-teal: var(--brand-teal);
-  --color-brand-teal-bright: var(--brand-teal-bright);
-  --color-brand-teal-soft: var(--brand-teal-soft);
-  --color-signal-ok: var(--signal-ok);
   --font-sans: var(--font-sans-stack);
   --font-mono: var(--font-mono-stack);
 }
