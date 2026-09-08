@@ -13,9 +13,7 @@ import { smoothScrollTo } from "@/components/providers/SmoothScroll";
 const SECTIONS = ["expertise", "platform", "clients", "technology", "security", "contact"] as const;
 type Section = (typeof SECTIONS)[number];
 
-// `home` is the homepage: section links are in-page anchors and the pill
-// stays hidden over the hero. Elsewhere (the expertise subpages) the links
-// point back to the homepage sections and the pill is present from the start.
+// Homepage links are in-page anchors; subpage links return to those sections.
 export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; lang: Locale; home?: boolean }) {
   const other: Locale = lang === "eng" ? "mne" : "eng";
   // Swap the locale segment and stay on the same page rather than dumping the
@@ -25,9 +23,6 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   const otherHref = pathname ? pathname.replace(/^\/[^/]*/, `/${other}`) : `/${other}`;
   const target = (id: string) => (home ? `#${id}` : `/${lang}#${id}`);
   const [scrolled, setScrolled] = useState(false);
-  // The pill stays hidden over the hero and slides in as the visitor scrolls
-  // toward the expertise section (~60% of the first viewport).
-  const [shown, setShown] = useState(!home);
   const [active, setActive] = useState<Section | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const intersecting = useRef(new Set<Section>());
@@ -37,7 +32,6 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 24);
-      setShown(!home || y > window.innerHeight * 0.6);
       const nearTop = y < 80;
       if (nearTop) {
         setActive(null);
@@ -92,19 +86,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   ] as const;
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out ${
-        // Keep the compact navigation available on phones from the first frame.
-        // Desktop still introduces it after the hero, leaving that opening view quiet.
-        // lg:invisible matters as much as the transform: an off-screen header
-        // that is merely transparent still takes focus, so the first Tab
-        // presses on the homepage would land on a nav nobody can see.
-        // visibility is transitionable, so the pill still fades out smoothly.
-        shown
-          ? "translate-y-0 opacity-100 visible"
-          : "translate-y-0 opacity-100 lg:-translate-y-[120%] lg:opacity-0 lg:pointer-events-none lg:invisible"
-      }`}
-    >
+    <header className="fixed top-0 inset-x-0 z-50">
       <div className="mx-auto max-w-[1280px] px-4 max-sm:px-3 sm:px-6 lg:px-10 pt-5 max-sm:pt-3">
 
         {/* ── Pill ── */}

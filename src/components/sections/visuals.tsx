@@ -10,14 +10,6 @@ import { seededRng } from "@/lib/rng";
 // CSSProperties widened to accept custom properties (--vars).
 export type CSSVars = CSSProperties & Record<`--${string}`, string | number>;
 
-// Must be the exact string the CSS gates in globals.css use — the pinned
-// variants display iff this matches, so a pin always has its JS. The height
-// floor sends very short windows to the static variants.
-// Keep the scroll-scrubbed scenes desktop-only. Phones get the static,
-// naturally scrolling variants: they are clearer, more reliable, and avoid
-// paying for a WebGL scene on a small touch device.
-export const MOTION_QUERY = "(prefers-reduced-motion: no-preference) and (min-height: 500px) and (min-width: 1024px)";
-
 // Colours a title's trailing full stop teal — the one accent glyph in the
 // headline treatments. Returns the text untouched if it has no closing
 // punctuation.

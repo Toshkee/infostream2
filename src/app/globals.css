@@ -286,10 +286,6 @@ h1, h2, h3,
 }
 .tech-word { animation: techWordIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Expertise uses a desktop-only scroll-scrubbed variant. Phones,
-   reduced-motion users, short viewports and no-JS visitors receive its static,
-   fully scrollable variant. The media query is the exact MOTION_QUERY string
-   in sections/visuals.tsx; <noscript> forces the static variant. */
 /* ─── Animated domain art (DomainArt on expertise detail pages) ───
    Reduced-motion users receive the complete static artwork instead. */
 @keyframes svcartBlink { 0%, 100% { opacity: 0.25; } 45% { opacity: 1; } }
@@ -345,12 +341,6 @@ h1, h2, h3,
 
 @keyframes svcartFloatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .svcart-floaty { animation: svcartFloatY 4.2s ease-in-out infinite; }
-
-.expertise-pinned { display: none; }
-@media (prefers-reduced-motion: no-preference) and (min-height: 500px) and (min-width: 1024px) {
-  .expertise-pinned { display: block; }
-  .expertise-static { display: none; }
-}
 
 /* Process ledger — rows light up as the scroll rail reaches them. --pa is
    the row's attention (0 ahead, 0.7 passed, 1 active) and only departs from

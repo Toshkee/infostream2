@@ -5,9 +5,6 @@
 //     and an assistant fact-brief file (src/lib/facts), and within each
 //     folder every locale's file has an identical key tree (same keys, same
 //     array lengths).
-//  2. MOTION_QUERY in visuals.tsx is byte-identical to the @media query that
-//     gates .expertise-pinned in globals.css — the pinned scenes are built
-//     against one and shown/hidden by the other.
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,26 +57,11 @@ for (const dir of LOCALE_DIRS) {
   }
 }
 
-// ── 2. MOTION_QUERY ↔ globals.css ──────────────────────────────────────────
-const visuals = read("src/components/sections/visuals.tsx");
-const mq = visuals.match(/export const MOTION_QUERY = "([^"]+)"/)?.[1];
-if (!mq) {
-  failures.push("visuals.tsx: could not find `export const MOTION_QUERY = \"...\"`");
-} else {
-  const css = read("src/app/globals.css");
-  const gate = `@media ${mq} {`;
-  if (!css.includes(gate)) {
-    failures.push(
-      `globals.css has no \`${gate}\` block — the .expertise-pinned gate must use exactly MOTION_QUERY from visuals.tsx`
-    );
-  }
-}
-
 // ── Report ─────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error("Invariant check failed:\n" + failures.map((f) => `  - ${f}`).join("\n"));
   process.exit(1);
 }
 console.log(
-  `Invariants OK: ${locales.length} locales, ${fileCount} locale files with matching key trees, motion query in sync.`
+  `Invariants OK: ${locales.length} locales, ${fileCount} locale files with matching key trees.`
 );

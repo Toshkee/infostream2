@@ -80,22 +80,22 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
     <section
       id="platform"
       ref={root}
-      className="relative bg-[var(--bg-inset)] py-20 text-white sm:py-28 lg:py-36"
+      className="relative bg-[var(--bg-inset)] py-14 text-white sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
           <header className="lg:sticky lg:top-32 lg:self-start">
             <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--brand-teal-bright)]">
               <EyebrowBars />
               {platform.eyebrow}
             </div>
-            <h2 className="proc-h2 mask-reveal font-display mt-6 max-w-lg text-[clamp(2.3rem,4vw,3.9rem)] font-medium leading-[1.02] tracking-[-0.03em]">
+            <h2 className="proc-h2 mask-reveal font-display mt-5 max-w-lg text-[clamp(2rem,4vw,3.9rem)] font-medium leading-[1.02] tracking-[-0.03em]">
               {tealPeriod(platform.title)}
             </h2>
-            <p className="mt-6 max-w-md text-[16px] leading-relaxed text-white/65">{platform.body}</p>
+            <p className="mt-4 max-w-md text-[14px] sm:text-[16px] leading-relaxed text-white/65">{platform.body}</p>
 
             {/* The one method claim we make, stated quietly under the framing. */}
-            <div className="mt-9 flex max-w-md items-center gap-3 border-t border-white/15 pt-4 text-[13px] text-white/60">
+            <div className="mt-5 sm:mt-9 flex max-w-md items-center gap-3 border-t border-white/15 pt-4 text-[13px] text-white/60">
               <Icon name="check" className="h-4 w-4 shrink-0 text-[var(--brand-teal-bright)]" />
               {platform.framework}
             </div>
@@ -123,7 +123,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             {platform.stages.map((stage, index) => (
               <li
                 key={stage.name}
-                className={`proc-row relative border-t border-white/10 py-9 sm:py-10 lg:py-11 ${
+                className={`proc-row relative border-t border-white/10 py-5 sm:py-8 lg:py-11 ${
                   index === platform.stages.length - 1 ? "border-b" : ""
                 }`}
               >
@@ -139,12 +139,12 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
                 {/* Name + deliverables sit in the left column, the description
                    in the right; on narrow screens they stack in reading order
                    (name, description, deliverables). */}
-                <div className="grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)] md:grid-rows-[auto_1fr] lg:gap-x-12">
+                <div className="grid gap-x-10 gap-y-3 sm:gap-y-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)] md:grid-rows-[auto_1fr] lg:gap-x-12">
                   <h3 className="proc-title font-display text-[clamp(1.6rem,2.2vw,2.05rem)] font-medium leading-[1.05] tracking-[-0.03em]">
                     {stage.name}
                   </h3>
 
-                  <p className="proc-body max-w-lg text-[15px] leading-relaxed md:col-start-2 md:row-span-2 md:row-start-1">
+                  <p className="proc-body max-w-lg text-[14px] sm:text-[15px] leading-relaxed md:col-start-2 md:row-span-2 md:row-start-1">
                     {stage.description}
                   </p>
 
@@ -153,7 +153,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
                     <div className="mono text-[10px] uppercase tracking-[0.3em] text-white/40">
                       {platform.outcomesLabel}
                     </div>
-                    <ul className="mt-3 space-y-1.5">
+                    <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 sm:mt-3 sm:block sm:space-y-1.5">
                       {stage.outcomes.map((o) => (
                         <li key={o} className="proc-chip text-[13px] leading-snug">
                           {o}
