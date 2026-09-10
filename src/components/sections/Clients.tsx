@@ -7,35 +7,59 @@ import { Icon, type IconName } from "./visuals";
    body. Where an official, organisation-specific mark is unavailable, use a
    typographic nameplate instead of implying one exists. */
 
-type ClientLogo = { src?: string; label: string; className?: string; officialKicker?: string };
+type ClientLogo = {
+  id: string;
+  src?: string;
+  label: string;
+  shortLabel?: string;
+  className?: string;
+  officialKicker?: string;
+};
 
 /* Structure in code, copy in dict: dict.clients.featured carries the labels
    (and which marks are official state bodies); this map holds the matching
    asset and any per-logo sizing, keyed by the entry's id. An entry with no
    asset renders as a typographic nameplate. */
-const FEATURED_ASSETS: Record<string, { src?: string; className?: string }> = {
-  "ministry-finance": { src: "/clients/ministry-finance.transparent.png" },
-  parliament: { src: "/clients/parliament.transparent.png" },
-  "innovation-fund": { src: "/clients/innovation-fund.transparent.png" },
+const FEATURED_ASSETS: Record<string, { src?: string; shortLabel?: string; className?: string }> = {
+  parliament: { src: "/clients/parliament-seal.transparent.png", className: "max-h-14 max-w-[9rem]" },
+  "innovation-fund": {
+    src: "/clients/innovation-fund-full-white.svg",
+    className: "max-h-[4.5rem] max-w-[12rem]",
+  },
   "employment-agency": { src: "/clients/employment-agency.transparent.png" },
-  pio: { src: "/clients/pio.transparent.png" },
+  pio: { src: "/clients/pio-full.jpg", className: "max-h-12 max-w-[9rem]" },
   "ministry-defense": { src: "/clients/ministry-defense.transparent.png" },
   // The Gazette's own lockup (arms + bar + wordmark, white variant) from
   // sluzbenilist.me: a body-specific mark, not the bare national arms.
   "official-gazette": { src: "/clients/official-gazette.transparent.png", className: "max-h-11 max-w-[10rem]" },
-  erste: { src: "/clients/erste-s.transparent.png" },
-  grawe: { src: "/clients/grawe.transparent.png" },
-  rtcg: { src: "/clients/rtcg.transparent.png" },
-  "port-of-adria": { src: "/clients/port-of-adria.transparent.png", className: "max-h-10 max-w-[8.5rem]" },
-  eu: { src: "/clients/eu.transparent.png", className: "max-h-12 max-w-[8.5rem]" },
+  erste: { src: "/clients/erste-bank.transparent.webp", className: "max-h-11 max-w-[10rem]" },
+  grawe: { src: "/clients/grawe-full.svg", className: "max-h-12 max-w-[12rem]" },
+  rtcg: { src: "/clients/rtcg-full.png", className: "max-h-12 max-w-[9.5rem] brightness-0 invert" },
+  "port-of-adria": { src: "/clients/port-of-adria-full.png", className: "max-h-[4.5rem] max-w-[10rem]" },
+  "eu-delegation": { src: "/clients/eu.transparent.png" },
+  "regional-development": { shortLabel: "MIRN" },
+  government: {
+    src: "/clients/government.transparent.png",
+  },
 };
 
+const LOGOS_REQUIRING_LABEL = new Set(["employment-agency", "ministry-defense"]);
+
 function featuredLogos(c: Dict["clients"]): ClientLogo[] {
-  return c.featured.map((f) => ({
-    label: f.label,
-    ...FEATURED_ASSETS[f.id],
-    officialKicker: f.official ? c.officialKicker : undefined,
-  }));
+  return c.featured.map((f) => {
+    const asset = FEATURED_ASSETS[f.id];
+    const src = f.id === "innovation-fund" && f.label.startsWith("Innovation")
+      ? "/clients/innovation-fund-full-white-eng-trimmed.png"
+      : asset?.src;
+
+    return {
+      id: f.id,
+      label: f.label,
+      ...asset,
+      src,
+      officialKicker: f.official ? c.officialKicker : undefined,
+    };
+  });
 }
 
 function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: boolean }) {
@@ -46,7 +70,29 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
           <div key={String(copy)} className="proof-strip-group" aria-hidden={copy || undefined}>
             {logos.map((logo) => (
               <div key={`${copy}-${logo.label}`} className="proof-strip-logo">
-                {logo.src ? (
+                {logo.id === "government" && logo.src ? (
+                  <span className="proof-strip-government-lockup">
+                    <Image
+                      src={logo.src}
+                      alt={copy ? "" : logo.label}
+                      width={390}
+                      height={71}
+                      unoptimized
+                    />
+                    <span aria-hidden className="proof-strip-government-divider" />
+                  </span>
+                ) : logo.id === "eu-delegation" && logo.src ? (
+                  <span className="proof-strip-eu-delegation">
+                    <Image
+                      src={logo.src}
+                      alt=""
+                      width={66}
+                      height={44}
+                      unoptimized
+                    />
+                    <strong>{logo.label}</strong>
+                  </span>
+                ) : logo.src ? (
                   <Image
                     src={logo.src}
                     alt={copy ? "" : logo.label}
@@ -56,7 +102,10 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                     className={`max-h-[4.5rem] w-auto max-w-[8.5rem] object-contain ${logo.className ?? ""}`}
                   />
                 ) : logo.officialKicker ? (
-                  <span className="proof-strip-official-lockup" aria-hidden={copy || undefined}>
+                  <span
+                    className={`proof-strip-official-lockup${logo.shortLabel ? " proof-strip-official-lockup-compact" : ""}`}
+                    aria-hidden={copy || undefined}
+                  >
                     <Image
                       src="/clients/montenegro-coa.transparent.png"
                       alt=""
@@ -66,13 +115,22 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                     />
                     <span>
                       <small>{logo.officialKicker}</small>
-                      <strong>{logo.label}</strong>
+                      <strong>
+                        {logo.shortLabel ? (
+                          <>
+                            <span aria-hidden>{logo.shortLabel}</span>
+                            <span className="sr-only">{logo.label}</span>
+                          </>
+                        ) : logo.label}
+                      </strong>
                     </span>
                   </span>
                 ) : (
                   <span className="proof-strip-nameplate" aria-hidden={copy || undefined}>{logo.label}</span>
                 )}
-                {logo.src && <span className="proof-strip-label">{logo.label}</span>}
+                {logo.src && LOGOS_REQUIRING_LABEL.has(logo.id) && (
+                  <span className="proof-strip-label">{logo.label}</span>
+                )}
               </div>
             ))}
           </div>
@@ -111,13 +169,12 @@ export default function Clients({ dict }: { dict: Dict }) {
    for another public body's logo. Assets in public/clients/ are local static
    files; `cover` fills the circle (flags); default is contained on white. */
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
-  [/erste/, { src: "/clients/erste-s.transparent.png" }],
+  [/erste/, { src: "/clients/erste-bank.transparent.webp" }],
   [/grawe/, { src: "/clients/grawe.transparent.png" }],
   [/rtcg|radio tele/, { src: "/clients/rtcg.transparent.png" }],
   [/port of adria/, { src: "/clients/port-of-adria.transparent.png" }],
   [/cfcu|\beu\b/, { src: "/clients/eu.transparent.png", cover: true }],
   // Organisation-specific marks — must precede broad keyword matches.
-  [/ministry of finance|ministarstvo finansija/, { src: "/clients/ministry-finance.transparent.png", cover: true }],
   [/innovation fund|fond za inovacije/, { src: "/clients/innovation-fund.transparent.png" }],
   [/pension|fond pio/, { src: "/clients/pio.transparent.png", cover: true }],
   [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.png" }],

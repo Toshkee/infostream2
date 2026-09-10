@@ -222,7 +222,7 @@
             "system": "KUDIS heritage information system"
           },
           {
-            "org": "Ministry of Regional & Investment Development and NGO Cooperation",
+            "org": "Ministry of Regional-Investment Development and Cooperation with Non-Governmental Organizations",
             "system": "ERPStream"
           },
           {
@@ -238,7 +238,7 @@
             "system": "ERPStream"
           },
           {
-            "org": "EU Delegation to Montenegro",
+            "org": "Delegation of the European Union to Montenegro",
             "system": "Freedom-of-information system"
           },
           {
@@ -270,7 +270,7 @@
       {
         "id": "ministry-finance",
         "label": "Ministry of Finance",
-        "official": false
+        "official": true
       },
       {
         "id": "parliament",
@@ -284,7 +284,7 @@
       },
       {
         "id": "innovation-fund",
-        "label": "Innovation Fund",
+        "label": "Innovation Fund of Montenegro",
         "official": false
       },
       {
@@ -328,8 +328,8 @@
         "official": false
       },
       {
-        "id": "eu",
-        "label": "European Union",
+        "id": "eu-delegation",
+        "label": "Delegation of the European Union to Montenegro",
         "official": false
       },
       {
@@ -339,7 +339,7 @@
       },
       {
         "id": "regional-development",
-        "label": "Ministry of Regional and Investment Development",
+        "label": "Ministry of Regional-Investment Development and Cooperation with Non-Governmental Organizations",
         "official": true
       },
       {
