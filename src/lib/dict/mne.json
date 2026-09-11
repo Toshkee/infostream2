@@ -140,10 +140,6 @@
             "system": "Informacioni sistem"
           },
           {
-            "org": "Vlada Crne Gore",
-            "system": "Platforma za COVID-19 subvencije"
-          },
-          {
             "org": "Port of Adria",
             "system": "ERPStream platforma"
           }
@@ -340,11 +336,6 @@
       {
         "id": "regional-development",
         "label": "Ministarstvo regionalno-investicionog razvoja i saradnje sa nevladinim organizacijama",
-        "official": true
-      },
-      {
-        "id": "government",
-        "label": "Vlada Crne Gore",
         "official": true
       }
     ]

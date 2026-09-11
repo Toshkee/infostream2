@@ -123,28 +123,6 @@ h1, h2, h3,
   transition: opacity 200ms ease;
 }
 .proof-strip-logo:hover img { opacity: 1; }
-.proof-strip-government-lockup {
-  position: relative;
-  display: block;
-  width: 10rem;
-  height: 3.65rem;
-  overflow: hidden;
-}
-.proof-strip-government-lockup img {
-  width: 20rem;
-  max-width: none;
-  height: auto;
-  filter: brightness(0) invert(1);
-}
-.proof-strip-government-divider {
-  position: absolute;
-  top: 7%;
-  bottom: 7%;
-  left: 39%;
-  width: 2px;
-  background: #e1251b;
-  opacity: 0.95;
-}
 .proof-strip-eu-delegation {
   display: flex;
   max-width: 12rem;
@@ -381,16 +359,6 @@ h1, h2, h3,
     max-height: 2.75rem;
     max-width: 6rem;
   }
-  .proof-strip-government-lockup {
-    width: 6rem;
-    height: 2.2rem;
-  }
-  .proof-strip-government-lockup img {
-    width: 12rem;
-    max-width: none;
-    max-height: none;
-  }
-  .proof-strip-government-divider { width: 1px; }
   .proof-strip-eu-delegation {
     max-width: 7.5rem;
     gap: 0.4rem;

@@ -7,8 +7,9 @@ import { DomainArt, EyebrowBars, Icon, Starfield, tealPeriod } from "./visuals";
 import { ClientMark } from "./Clients";
 import { CAP_ICONS } from "./expertiseMeta";
 
+// Indices into dict.expertise.items[].clients — re-check when that list changes.
 const FEATURED: Record<string, number[]> = {
-  finance: [0, 1, 6],
+  finance: [0, 1, 5],
   hr: [0, 1, 2],
   healthcare: [],
   dms: [0, 1],

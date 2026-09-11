@@ -23,7 +23,7 @@ type ClientLogo = {
 const FEATURED_ASSETS: Record<string, { src?: string; shortLabel?: string; className?: string }> = {
   parliament: { src: "/clients/parliament-seal.transparent.png", className: "max-h-14 max-w-[9rem]" },
   "innovation-fund": {
-    src: "/clients/innovation-fund-full-white.svg",
+    src: "/clients/innovation-fund-full.svg",
     className: "max-h-[4.5rem] max-w-[12rem]",
   },
   "employment-agency": { src: "/clients/employment-agency.transparent.webp" },
@@ -38,9 +38,6 @@ const FEATURED_ASSETS: Record<string, { src?: string; shortLabel?: string; class
   "port-of-adria": { src: "/clients/port-of-adria-full.webp", className: "max-h-[4.5rem] max-w-[10rem]" },
   "eu-delegation": { src: "/clients/eu.transparent.webp" },
   "regional-development": { shortLabel: "MIRN" },
-  government: {
-    src: "/clients/government.transparent.png",
-  },
 };
 
 const LOGOS_REQUIRING_LABEL = new Set(["employment-agency", "ministry-defense"]);
@@ -49,7 +46,7 @@ function featuredLogos(c: Dict["clients"]): ClientLogo[] {
   return c.featured.map((f) => {
     const asset = FEATURED_ASSETS[f.id];
     const src = f.id === "innovation-fund" && f.label.startsWith("Innovation")
-      ? "/clients/innovation-fund-full-white-eng-trimmed.webp"
+      ? "/clients/innovation-fund-full-eng-trimmed.webp"
       : asset?.src;
 
     return {
@@ -70,18 +67,7 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
           <div key={String(copy)} className="proof-strip-group" aria-hidden={copy || undefined}>
             {logos.map((logo) => (
               <div key={`${copy}-${logo.label}`} className="proof-strip-logo">
-                {logo.id === "government" && logo.src ? (
-                  <span className="proof-strip-government-lockup">
-                    <Image
-                      src={logo.src}
-                      alt={copy ? "" : logo.label}
-                      width={390}
-                      height={71}
-                      unoptimized
-                    />
-                    <span aria-hidden className="proof-strip-government-divider" />
-                  </span>
-                ) : logo.id === "eu-delegation" && logo.src ? (
+                {logo.id === "eu-delegation" && logo.src ? (
                   <span className="proof-strip-eu-delegation">
                     <Image
                       src={logo.src}
@@ -165,9 +151,11 @@ export default function Clients({ dict }: { dict: Dict }) {
    of arbitrary wraps. ClientMark renders the real logo when LOGO_RULES has
    one and falls back to a tinted line icon otherwise. */
 
-/* Real marks first. A state coat of arms is deliberately not used as a stand-in
-   for another public body's logo. Assets in public/clients/ are local static
-   files; `cover` fills the circle (flags); default is contained on white. */
+/* Body-specific marks first; state bodies without one carry the national
+   coat of arms, which is the official mark every ministry and administration
+   actually signs with. Assets in public/clients/ are local static files;
+   `cover` fills the circle (flags); default is contained on white. */
+const COA = { src: "/clients/montenegro-coa.transparent.webp" };
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/erste/, { src: "/clients/erste-bank.transparent.webp" }],
   [/grawe/, { src: "/clients/grawe.transparent.webp" }],
@@ -179,6 +167,9 @@ const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/pension|fond pio/, { src: "/clients/pio.transparent.webp", cover: true }],
   [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.webp" }],
   [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.transparent.webp", cover: true }],
+  [/european union|evropske unije/, { src: "/clients/eu.transparent.webp", cover: true }],
+  // State bodies: ministries, administrations, authorities, the Gazette, gov.me portals.
+  [/ministry|ministarstvo|administration|uprava|authority|department|služb|gazette|parliament|skupštin|\.gov\.me/, COA],
 ];
 
 function orgLogo(org: string): { src: string; cover?: boolean } | null {
