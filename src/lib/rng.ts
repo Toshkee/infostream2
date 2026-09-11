@@ -1,7 +1,7 @@
 /**
  * Deterministic LCG → [0, 1). The same seed always yields the same sequence,
- * so particle layouts and the constellation backdrop are stable across renders
- * (and identical on every reload). Shared by the R3F scenes and the sections.
+ * so the Starfield backdrop is stable across renders (and identical on every
+ * reload), which keeps server and client markup in agreement.
  */
 export function seededRng(seed: number): () => number {
   let s = seed >>> 0 || 1;
