@@ -25,6 +25,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<Section | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const intersecting = useRef(new Set<Section>());
   const prevNearTop = useRef(true);
 
@@ -72,8 +73,22 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   useEffect(() => {
     if (!mobileOpen) return;
     const close = () => setMobileOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    // A tap anywhere outside the pill (the page, the assistant launcher)
+    // dismisses the menu, so two overlays never stack on a phone.
+    const onPointer = (e: PointerEvent) => {
+      if (!headerRef.current?.contains(e.target as Node)) close();
+    };
     window.addEventListener("scroll", close, { passive: true, once: true });
-    return () => window.removeEventListener("scroll", close);
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      window.removeEventListener("scroll", close);
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
   }, [mobileOpen]);
 
   const links = [
@@ -86,7 +101,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   ] as const;
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50">
+    <header ref={headerRef} className="fixed top-0 inset-x-0 z-50">
       <div className="mx-auto max-w-[1280px] px-4 max-sm:px-3 sm:px-6 lg:px-10 pt-5 max-sm:pt-3">
 
         {/* ── Pill ── */}
@@ -148,8 +163,9 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
                 l === lang ? (
                   <span key={l} aria-current="true">{l}</span>
                 ) : (
-                  <Link key={l} href={otherHref} hrefLang={htmlLang[l]} aria-label={localeNames[l].switchLabel}>
+                  <Link key={l} href={otherHref} hrefLang={htmlLang[l]} title={localeNames[l].switchLabel}>
                     {l}
+                    <span className="sr-only">, {localeNames[l].switchLabel}</span>
                   </Link>
                 )
               )}

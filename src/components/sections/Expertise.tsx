@@ -61,7 +61,7 @@ export default function Expertise({ expertise: x, lang }: { expertise: Dict["exp
             {x.items.map((it, i) => {
               const shown = (FEATURED[it.slug] ?? []).flatMap((k) => it.clients[k] ?? []);
               return (
-                <article
+                <div
                   key={it.slug}
                   id={`domain-panel-${it.slug}`}
                   role="tabpanel"
@@ -101,7 +101,7 @@ export default function Expertise({ expertise: x, lang }: { expertise: Dict["exp
                   <Link href={`/${lang}/expertise/${it.slug}`} className="mt-6 inline-flex min-h-11 items-center gap-3 text-[13px] text-[var(--brand-teal-bright)] hover:underline">
                     {x.allClientsIn.replace("{domain}", it.name)}<span aria-hidden>↗</span>
                   </Link>
-                </article>
+                </div>
               );
             })}
           </div>

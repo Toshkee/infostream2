@@ -166,7 +166,7 @@ export default function Security({ security }: { security: Dict["security"] }) {
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
-            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal)]">
+            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-teal-ink)]">
               {security.eyebrow}
             </div>
             <h2 className="sec-h2 mask-reveal mt-5 text-[clamp(1.9rem,3.6vw,3rem)] leading-[1.05] tracking-[-0.02em] font-medium">
@@ -192,7 +192,7 @@ export default function Security({ security }: { security: Dict["security"] }) {
               <div className="flex items-start gap-4">
                 <CardBadge id={c.id} />
                 <div className="min-w-0">
-                  <div className="mono text-[12px] tracking-[0.18em] uppercase text-[var(--brand-teal)]">
+                  <div className="mono text-[12px] tracking-[0.18em] uppercase text-[var(--brand-teal-ink)]">
                     {c.name}
                   </div>
                   <p className="mt-2 text-[var(--fg-dim)] leading-relaxed text-[13.5px]">{c.desc}</p>

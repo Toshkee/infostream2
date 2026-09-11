@@ -6,6 +6,8 @@
 
 const SIZE = 20;
 const ORACLE_RED = "#F80000";
+// Oracle red as 8.5px text fails 4.5:1 on the dark badge; this variant passes.
+const ORACLE_RED_TEXT = "#FF4D42";
 
 function OracleDatabaseIcon() {
   return (
@@ -22,7 +24,7 @@ function OracleApexIcon() {
   return (
     <span
       className="font-bold text-[8.5px] tracking-[0.04em] leading-none"
-      style={{ color: ORACLE_RED }}
+      style={{ color: ORACLE_RED_TEXT }}
       aria-hidden
     >
       APEX

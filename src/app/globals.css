@@ -9,9 +9,13 @@
   --line: #d8dee8;
   --brand-red: #d63b3b;
   --brand-red-deep: #b62e2e;
+  /* Red for TEXT on the dark ground: #d63b3b is 4.1:1 on --bg-inset, this is 5.1:1. */
+  --brand-red-text: #e65252;
   --brand-teal: #3aa5a0;
   --brand-teal-bright: #48b8b1;
   --brand-teal-soft: #7ad8d2;
+  /* Teal for TEXT on the light ground: --brand-teal is 2.6:1 on --bg, this is 4.9:1. */
+  --brand-teal-ink: #25736f;
 }
 
 @theme inline {

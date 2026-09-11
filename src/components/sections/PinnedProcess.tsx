@@ -150,7 +150,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
 
                   {/* Deliverables — the concrete hand-over of the stage. */}
                   <div className="md:col-start-1 md:row-start-2 md:mt-1">
-                    <div className="mono text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    <div className="mono text-[10px] uppercase tracking-[0.3em] text-white/55">
                       {platform.outcomesLabel}
                     </div>
                     <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 sm:mt-3 sm:block sm:space-y-1.5">

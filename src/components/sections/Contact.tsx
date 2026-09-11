@@ -47,7 +47,7 @@ export default function Contact({ contact }: { contact: Dict["contact"] }) {
       <div className="relative z-10 mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-6 cta-heading">
-            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-red)]">
+            <div className="text-[11px] font-medium tracking-[0.25em] uppercase text-[var(--brand-red-deep)]">
               {contact.eyebrow}
             </div>
             <h2 className="cta-h2 mask-reveal mt-5 text-[clamp(2rem,4vw,3.4rem)] leading-[1.04] tracking-[-0.02em] font-medium">

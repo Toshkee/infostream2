@@ -26,17 +26,17 @@ const FEATURED_ASSETS: Record<string, { src?: string; shortLabel?: string; class
     src: "/clients/innovation-fund-full-white.svg",
     className: "max-h-[4.5rem] max-w-[12rem]",
   },
-  "employment-agency": { src: "/clients/employment-agency.transparent.png" },
-  pio: { src: "/clients/pio-full.jpg", className: "max-h-12 max-w-[9rem]" },
-  "ministry-defense": { src: "/clients/ministry-defense.transparent.png" },
+  "employment-agency": { src: "/clients/employment-agency.transparent.webp" },
+  pio: { src: "/clients/pio-full.webp", className: "max-h-12 max-w-[9rem]" },
+  "ministry-defense": { src: "/clients/ministry-defense.transparent.webp" },
   // The Gazette's own lockup (arms + bar + wordmark, white variant) from
   // sluzbenilist.me: a body-specific mark, not the bare national arms.
-  "official-gazette": { src: "/clients/official-gazette.transparent.png", className: "max-h-11 max-w-[10rem]" },
+  "official-gazette": { src: "/clients/official-gazette.transparent.webp", className: "max-h-11 max-w-[10rem]" },
   erste: { src: "/clients/erste-bank.transparent.webp", className: "max-h-11 max-w-[10rem]" },
   grawe: { src: "/clients/grawe-full.svg", className: "max-h-12 max-w-[12rem]" },
-  rtcg: { src: "/clients/rtcg-full.png", className: "max-h-12 max-w-[9.5rem] brightness-0 invert" },
-  "port-of-adria": { src: "/clients/port-of-adria-full.png", className: "max-h-[4.5rem] max-w-[10rem]" },
-  "eu-delegation": { src: "/clients/eu.transparent.png" },
+  rtcg: { src: "/clients/rtcg-full.webp", className: "max-h-12 max-w-[9.5rem] brightness-0 invert" },
+  "port-of-adria": { src: "/clients/port-of-adria-full.webp", className: "max-h-[4.5rem] max-w-[10rem]" },
+  "eu-delegation": { src: "/clients/eu.transparent.webp" },
   "regional-development": { shortLabel: "MIRN" },
   government: {
     src: "/clients/government.transparent.png",
@@ -49,7 +49,7 @@ function featuredLogos(c: Dict["clients"]): ClientLogo[] {
   return c.featured.map((f) => {
     const asset = FEATURED_ASSETS[f.id];
     const src = f.id === "innovation-fund" && f.label.startsWith("Innovation")
-      ? "/clients/innovation-fund-full-white-eng-trimmed.png"
+      ? "/clients/innovation-fund-full-white-eng-trimmed.webp"
       : asset?.src;
 
     return {
@@ -107,7 +107,7 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                     aria-hidden={copy || undefined}
                   >
                     <Image
-                      src="/clients/montenegro-coa.transparent.png"
+                      src="/clients/montenegro-coa.transparent.webp"
                       alt=""
                       width={36}
                       height={42}
@@ -170,15 +170,15 @@ export default function Clients({ dict }: { dict: Dict }) {
    files; `cover` fills the circle (flags); default is contained on white. */
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/erste/, { src: "/clients/erste-bank.transparent.webp" }],
-  [/grawe/, { src: "/clients/grawe.transparent.png" }],
-  [/rtcg|radio tele/, { src: "/clients/rtcg.transparent.png" }],
-  [/port of adria/, { src: "/clients/port-of-adria.transparent.png" }],
-  [/cfcu|\beu\b/, { src: "/clients/eu.transparent.png", cover: true }],
+  [/grawe/, { src: "/clients/grawe.transparent.webp" }],
+  [/rtcg|radio tele/, { src: "/clients/rtcg.transparent.webp" }],
+  [/port of adria/, { src: "/clients/port-of-adria.transparent.webp" }],
+  [/cfcu|\beu\b/, { src: "/clients/eu.transparent.webp", cover: true }],
   // Organisation-specific marks — must precede broad keyword matches.
-  [/innovation fund|fond za inovacije/, { src: "/clients/innovation-fund.transparent.png" }],
-  [/pension|fond pio/, { src: "/clients/pio.transparent.png", cover: true }],
-  [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.png" }],
-  [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.transparent.png", cover: true }],
+  [/innovation fund|fond za inovacije/, { src: "/clients/innovation-fund.transparent.webp" }],
+  [/pension|fond pio/, { src: "/clients/pio.transparent.webp", cover: true }],
+  [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.webp" }],
+  [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.transparent.webp", cover: true }],
 ];
 
 function orgLogo(org: string): { src: string; cover?: boolean } | null {
