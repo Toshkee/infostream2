@@ -151,11 +151,11 @@ export default function Clients({ dict }: { dict: Dict }) {
    of arbitrary wraps. ClientMark renders the real logo when LOGO_RULES has
    one and falls back to a tinted line icon otherwise. */
 
-/* Body-specific marks first; state bodies without one carry the national
-   coat of arms, which is the official mark every ministry and administration
-   actually signs with. Assets in public/clients/ are local static files;
-   `cover` fills the circle (flags); default is contained on white. */
-const COA = { src: "/clients/montenegro-coa.transparent.webp" };
+/* Organisations with a distinct, usable mark. State bodies under gov.me
+   share the unified government branding (no emblem of their own), so they
+   deliberately fall through to the tinted icons below rather than repeating
+   the coat of arms card after card. Assets in public/clients/ are local
+   static files; `cover` fills the circle (flags); default is contained. */
 const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/erste/, { src: "/clients/erste-bank.transparent.webp" }],
   [/grawe/, { src: "/clients/grawe.transparent.webp" }],
@@ -168,8 +168,6 @@ const LOGO_RULES: [RegExp, { src: string; cover?: boolean }][] = [
   [/employment|zapošljavanj/, { src: "/clients/employment-agency.transparent.webp" }],
   [/defen[cs]e|odbran/, { src: "/clients/ministry-defense.transparent.webp", cover: true }],
   [/european union|evropske unije/, { src: "/clients/eu.transparent.webp", cover: true }],
-  // State bodies: ministries, administrations, authorities, the Gazette, gov.me portals.
-  [/ministry|ministarstvo|administration|uprava|authority|department|služb|gazette|parliament|skupštin|\.gov\.me/, COA],
 ];
 
 function orgLogo(org: string): { src: string; cover?: boolean } | null {
@@ -186,12 +184,14 @@ const ORG_ICON_RULES: [RegExp, IconName][] = [
   [/defen[cs]e|odbran/, "shield"],
   [/pension|\bpio\b/, "shieldCheck"],
   [/employment|zapošljavanj/, "search"],
-  [/human resources|kadrov/, "users"],
+  [/human resources|ljudske resurse/, "users"],
   [/gazette|službeni/, "fileText"],
   [/innovat|inovac/, "rocket"],
-  [/cfcu|\beu\b/, "handshake"],
+  [/cfcu|\beu\b|european|evropsk/, "handshake"],
   [/tax|poresk/, "barChart"],
-  [/finance|finansij/, "trendingUp"],
+  [/finance|finansij|regional/, "trendingUp"],
+  [/maritime|pomorsk/, "radar"],
+  [/energy|energet/, "activity"],
 ];
 
 function orgIcon(org: string): IconName {
