@@ -19,72 +19,9 @@ import {
 } from "./visuals";
 import { ClientMark } from "./Clients";
 import { CAP_ICONS } from "./expertiseMeta";
+import { DOMAIN_TINT, domainStyle, drev, FEATURED, titleStyle } from "./expertise/presentation";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
-
-/* ─── Expertise — pinned domain showcase ───
-   Five scroll stops — an intro beat (the section title + body over the empty
-   sky) followed by the four domains (finance / HR / healthcare / DMS &
-   workflow) — sharing the process section's animation language: one --xp
-   variable (0..4, stop 0 = intro, stop i+1 = domain i) written per scrubbed
-   frame, every reveal a pure CSS function of it — deterministic and replayed
-   in reverse when scrolling back. No timers, no GSAP time-tweens (see
-   reveal-animations guidance: scrubbed vars survive occluded tabs).
-
-   Unlike the process scenes (decoration backed by an sr-only block), the
-   active domain here is the real content — it carries a live link to the
-   domain subpage, so the current scene stays in the accessibility tree and
-   only inactive scenes are inert. */
-
-// Which engagements a domain scene highlights as "Solutions delivered" —
-// indices into it.clients. This is structure, not copy ("structure in code,
-// copy in dict", as elsewhere); the full per-domain lists live in the Clients
-// section and on the domain subpages. Re-check when that list changes.
-const FEATURED: Record<string, number[]> = {
-  finance: [0, 1, 5], // Tax Administration · Treasury · Port of Adria
-  hr: [0, 1, 2], // HR Management Authority · Pension Fund · Employment Agency
-  healthcare: [],
-  dms: [0, 1], // Ministry of Defense · Military Intelligence Department
-};
-
-// Sequential fade around `target`: fully visible within ±0.32, fully gone by
-// ±0.48 — the outgoing domain clears before the incoming one starts. Unlike
-// the process scenes (sparse card layouts, where a 50/50 crossfade reads as
-// travel), these are dense text lists: overlapping two of them at half
-// opacity reads as ghosting, so the midpoint here is a clean dark beat.
-const domainStyle = (target: number): CSSVars => ({
-  "--so": `clamp(0, min(calc((var(--xp) - ${target - 0.48}) / 0.16), calc((${target + 0.48} - var(--xp)) / 0.16)), 1)`,
-  opacity: "var(--so)",
-  transform: `translateY(clamp(-18px, calc((var(--xp) - ${target}) * -26px), 18px))`,
-});
-
-// Maps the scene-local --u onto a 0..1 reveal --r (opacity + lift), starting
-// at `start` over `len` — reveal helper tuned for --u set
-// per domain wrapper below. Every call must satisfy start + len <= 0: the pin
-// ends exactly at the last scene's center (u = 0), so anything that completes
-// later can never fully reveal on the final domain.
-const drev = (start: number, len = 0.12, lift = 10): CSSVars => ({
-  "--r": `clamp(0, calc((var(--u) - ${start}) / ${len}), 1)`,
-  opacity: "var(--r)",
-  transform: `translateY(calc((1 - var(--r)) * ${lift}px))`,
-});
-
-// Domain title — clip-path wipe from the top, like the process descriptions.
-const titleStyle: CSSVars = {
-  "--r": "clamp(0, calc((var(--u) + 0.45) / 0.25), 1)",
-  clipPath: "inset(0 0 calc((1 - var(--r)) * 100%) 0)",
-  opacity: "calc(0.2 + 0.8 * var(--r))",
-};
-
-// Per-domain atmosphere — a faint hue tint layered over the shared nebula,
-// crossfaded by --xp proximity. Alphas stay ≤ ~0.1 so the stops read as
-// weather changing over one sky, not four color-coded slides.
-const DOMAIN_TINT: Record<string, string> = {
-  finance: "rgba(196, 150, 74, 0.09)",
-  hr: "rgba(148, 118, 214, 0.09)",
-  healthcare: "rgba(74, 196, 142, 0.09)",
-  dms: "rgba(92, 142, 214, 0.1)",
-};
 
 export default function Expertise({ expertise, lang }: { expertise: Dict["expertise"]; lang: Locale }) {
   const outer = useRef<HTMLDivElement>(null);
@@ -156,17 +93,12 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
         <style>{`.expertise-pinned{display:none !important}.expertise-static{display:block !important}`}</style>
       </noscript>
 
-      {/* ════ Pinned scroll-scrubbed variant (gated in CSS) ════ */}
       <div className="expertise-pinned">
         <div
           ref={pin}
           className="relative h-[100svh] w-full overflow-hidden text-white"
           style={{ "--xp": 0 } as CSSVars}
         >
-          {/* Quiet backdrop — a shade of the hero's nebula, no 3D layer: the
-             typography is the visual here. Outer stop is exactly --bg-inset so
-             the section's top and bottom edges dissolve into the hero above
-             and the process pin below with no visible seam. */}
           <div
             aria-hidden
             className="absolute inset-0"
@@ -175,7 +107,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                 "radial-gradient(ellipse 100% 80% at 70% 30%, #131b2e 0%, #0d111c 60%, #0d111c 100%)",
             }}
           />
-          {/* per-domain hue tint over the shared nebula, crossfaded by --xp */}
           {items.map((it, i) => (
             <div
               key={it.slug}
@@ -210,10 +141,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
             </div>
 
             <div className="mt-10 grid flex-1 min-h-0 gap-10 lg:mt-16 lg:grid-cols-[minmax(230px,290px)_1fr] lg:gap-16">
-              {/* Domain rail — compact stack with a scrub-driven fill; self-start
-                 so the track hugs the list instead of stretching to the pin.
-                 Each name is a real button that scrolls the pin to its stop.
-                 Below it, the mock's quiet positioning card. */}
               <div className="hidden self-start lg:flex lg:flex-col gap-12">
                 <div className="flex gap-5">
                   <div aria-hidden className="relative w-px self-stretch bg-white/10">
@@ -241,12 +168,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                 </div>
               </div>
 
-              {/* Domain scenes — stacked, crossfaded by --xp. Stop 0 is the
-                 intro beat: the section's framing title + body, previously
-                 only rendered in the static variant. It is fully revealed the
-                 moment the section scrolls into view (--u never goes negative
-                 at stop 0) and hands off to the first domain via the same
-                 sequential fade as every other stop. */}
               <div className="relative min-h-0">
                 <div
                   className="absolute inset-0 flex flex-col justify-start pt-1 lg:pt-2"
@@ -263,10 +184,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                   </h2>
                   <p className="mt-6 max-w-2xl text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
-                  {/* The four domains up front, each with its one-line scope,
-                     so the intro announces what follows instead of an empty
-                     sky (the rail alone only repeats the names). Hairline key
-                     rows like the hero facts; each jumps the pin to its stop. */}
                   <div className="mt-11 grid max-w-3xl grid-cols-4 gap-x-6">
                     {items.map((it, i) => (
                       <button
@@ -319,13 +236,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                         {it.short}
                       </p>
 
-                      {/* Capability row — hairline-divided icon + label pairs
-                         (per the mock). Equal grid columns instead of a wrap-
-                         prone flex row: five items never fit one flex line at
-                         in-between widths and the orphan carried a hanging
-                         hairline. Hidden on small screens: the paragraph above
-                         says the same in prose and the pin's height budget is
-                         tight there. */}
                       <div className="mt-8 hidden max-w-xl grid-flow-col auto-cols-fr md:grid">
                         {it.capabilities.map((label, k) => (
                           <div
@@ -345,10 +255,6 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                       </div>
                       </div>
 
-                      {/* Domain artwork — abstract line-art in the process
-                         section's visual language, one composition per field.
-                         The container only fades the dashed meridian in; the
-                         strokes draw themselves via draw()/fadeIn() below. */}
                       <div
                         className="hidden xl:flex xl:flex-col xl:items-center xl:gap-5"
                         style={drev(-0.44, 0.1, 8)}
