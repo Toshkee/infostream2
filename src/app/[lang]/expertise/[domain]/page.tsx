@@ -134,9 +134,10 @@ export default async function ExpertiseDomainPage(props: PageProps<"/[lang]/expe
           </Link>
 
           <nav aria-label={x.eyebrow} className="mt-7 lg:mt-10">
-            {/* horizontal scroll strip below lg; vertical rail with a hairline
-               track and a teal current-page notch from lg up */}
-            <ul className="-mx-6 flex gap-7 overflow-x-auto px-6 lg:mx-0 lg:flex-col lg:gap-0 lg:overflow-visible lg:border-l lg:border-white/10 lg:px-0">
+            {/* wrapping row below lg (a clipped scroll strip hid the last
+               domain on phones); vertical rail with a hairline track and a
+               teal current-page notch from lg up */}
+            <ul className="flex flex-wrap gap-x-7 gap-y-1 lg:flex-col lg:gap-0 lg:border-l lg:border-white/10">
               {x.items.map((d) => {
                 const current = d.slug === item.slug;
                 return (

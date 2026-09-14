@@ -198,7 +198,7 @@ export default function Technology({ technology }: { technology: Dict["technolog
                 key={reducedMotion ? "static" : tick}
                 className={`inline-block font-medium text-[var(--brand-red-text)] ${reducedMotion ? "" : "tech-word"}`}
               >
-                {active.word}.
+                {active.word}
               </span>
             </span>
           </div>

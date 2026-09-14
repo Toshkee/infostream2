@@ -75,6 +75,7 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                       width={66}
                       height={44}
                       unoptimized
+                      loading="eager"
                     />
                     <strong>{logo.label}</strong>
                   </span>
@@ -85,6 +86,10 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                     width={180}
                     height={120}
                     unoptimized
+                    // Eager, not lazy: the strip is the first thing in view when a
+                    // subpage link lands on /#clients, and a lazy logo inside the
+                    // moving track can pop in late. The files are small WebPs.
+                    loading="eager"
                     className={`max-h-[4.5rem] w-auto max-w-[8.5rem] object-contain ${logo.className ?? ""}`}
                   />
                 ) : logo.officialKicker ? (
@@ -98,6 +103,7 @@ function LogoStrip({ logos, reverse = false }: { logos: ClientLogo[]; reverse?: 
                       width={36}
                       height={42}
                       unoptimized
+                      loading="eager"
                     />
                     <span>
                       <small>{logo.officialKicker}</small>

@@ -117,7 +117,7 @@
           "Privredni registri",
           "Izvještavanje"
         ],
-        "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga — od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova — a istu disciplinu donijeli smo i u privredu, gdje ERPStream vodi poslovne knjige kompanije Port of Adria.",
+        "body": "Javni novac ostavlja dug trag: budžeti, naplata poreza, privredni registri, sprovođenje EU fondova. Gradili smo i održavali sisteme duž čitavog tog traga, od centralnih registara Poreske uprave do platforme za izvršenje ugovora EU fondova, a istu disciplinu donijeli smo i u privredu, gdje ERPStream vodi poslovne knjige kompanije Port of Adria.",
         "clients": [
           {
             "org": "Poreska uprava Crne Gore",
@@ -156,7 +156,7 @@
           "Administracija zaposlenih",
           "Upravljanje kadrovima"
         ],
-        "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi, naknade — evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO, a ista platforma vodi evidencije i poslodavcima van javnog sektora — Erste banci, Grawe osiguranju i nacionalnom javnom servisu.",
+        "body": "HR softver za institucije manje se tiče organigrama, a više prava: karijere, doprinosi i naknade, evidencije koje moraju ostati tačne decenijama. Izgradili smo informacioni sistem za upravljanje kadrovima Uprave za ljudske resurse i nacionalni informacioni sistem Fonda PIO, a ista platforma vodi evidencije i poslodavcima van javnog sektora: Erste banci, Grawe osiguranju i nacionalnom javnom servisu.",
         "clients": [
           {
             "org": "Uprava za ljudske resurse",
@@ -195,7 +195,7 @@
           "Automatizacija tokova rada",
           "Digitalna arhiva"
         ],
-        "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS — uveden po NATO standardima dokumentacije u Ministarstvu odbrane — i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
+        "body": "Institucije počivaju na dokumentima: predmeti, sjednice, licence, službene evidencije. InfoDMS, uveden po NATO standardima dokumentacije u Ministarstvu odbrane, i ERPStream platforma drže te evidencije u pokretu, sljedive i trajne kroz čitavu upravu.",
         "clients": [
           {
             "org": "Ministarstvo odbrane",

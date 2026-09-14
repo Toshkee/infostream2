@@ -72,7 +72,16 @@ export default function Hero({ hero }: { hero: Dict["hero"] }) {
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1280px] flex-col justify-center px-6 pt-20 pb-8 md:pt-24 md:pb-12 lg:px-10">
         <div className="hero-rise text-[10px] font-medium tracking-[0.2em] uppercase text-[var(--brand-teal-bright)] flex items-center gap-3 sm:text-[11px] sm:tracking-[0.25em]">
           <EyebrowBars />
-          {hero.eyebrow}
+          {/* "Brand / tagline": the brand half is redundant under the logo and
+             makes the line wrap on phones, so it only shows from sm up. */}
+          {hero.eyebrow.includes(" / ") ? (
+            <span>
+              <span className="max-sm:hidden">{hero.eyebrow.split(" / ")[0]} / </span>
+              {hero.eyebrow.split(" / ").slice(1).join(" / ")}
+            </span>
+          ) : (
+            hero.eyebrow
+          )}
         </div>
         <h1 className="font-display mt-6 text-[clamp(2.2rem,5.2vw,4.8rem)] leading-[1.02] tracking-[-0.025em] font-medium text-white max-w-4xl">
           {titleWords.map((w, i) => (

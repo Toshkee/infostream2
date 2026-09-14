@@ -117,7 +117,7 @@
           "Business registries",
           "Reporting"
         ],
-        "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail — from the Tax Administration's central registers to the contract-execution platform for EU assistance funds — and brought the same discipline to the private sector, where ERPStream runs the books at Port of Adria.",
+        "body": "Public money leaves a long trail: budgets, tax collection, business registries, EU-fund execution. We have built and operated systems along that whole trail, from the Tax Administration's central registers to the contract-execution platform for EU assistance funds, and brought the same discipline to the private sector, where ERPStream runs the books at Port of Adria.",
         "clients": [
           {
             "org": "Tax Administration of Montenegro",
@@ -156,7 +156,7 @@
           "Employee administration",
           "Workforce management"
         ],
-        "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions, benefits — records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund, and the same platform keeps the records of employers outside the public sector — ERSTE Bank, Grawe and the national broadcaster.",
+        "body": "HR software for institutions is less about org charts and more about entitlements: careers, contributions and benefits, records that must stay correct for decades. We built the HR management information system of the Human Resources Management Authority and the national information system of the Pension & Disability Insurance Fund, and the same platform keeps the records of employers outside the public sector: ERSTE Bank, Grawe and the national broadcaster.",
         "clients": [
           {
             "org": "Human Resources Management Authority",
@@ -195,7 +195,7 @@
           "Workflow automation",
           "Digital archive"
         ],
-        "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS — deployed to NATO documentation standards at the Ministry of Defence — and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
+        "body": "Institutions run on documents: filings, sessions, licences, official records. InfoDMS, deployed to NATO documentation standards at the Ministry of Defence, and the ERPStream workflow platform keep those records moving, traceable and permanent across government.",
         "clients": [
           {
             "org": "Ministry of Defence",
