@@ -226,7 +226,7 @@ export async function POST(request: Request) {
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     })),
-    generationConfig: { temperature: 0.3, topP: 0.9, maxOutputTokens: 800 },
+    generationConfig: { temperature: 0.3, topP: 0.9, maxOutputTokens: 2048 },
   };
 
   const call = await callGemini(payload, apiKey);
