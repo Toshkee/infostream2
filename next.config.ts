@@ -39,8 +39,26 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Don't advertise the framework in every response.
+  poweredByHeader: false,
+
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // Files in /public are served with `max-age=0` by default, so the hero
+      // photo and every client logo revalidate on each visit. They change
+      // rarely and never without a deploy, so cache them for a day and let
+      // the CDN keep them for a week; the ETag still handles a real change.
+      {
+        source: "/:path*.(webp|png|jpg|jpeg|svg|ico)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
   },
 
   // Pin Turbopack's workspace root to THIS project directory. Without it, Next
