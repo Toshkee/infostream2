@@ -13,7 +13,7 @@ import {
 } from "@/lib/dictionaries";
 import { SITE_URL, absoluteUrl, company } from "@/lib/company";
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import AssistantLoader from "@/components/AssistantLoader";
+import AssistantLoader from "@/components/assistant/AssistantLoader";
 import { assistantEnabled } from "@/lib/assistantFlag";
 
 const sans = Inter({

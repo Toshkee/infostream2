@@ -1,7 +1,7 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { AssistantPanel, type AssistantMessage } from "@/components/assistant/AssistantPanel";
+import { AssistantPanel, type AssistantMessage } from "./AssistantPanel";
 import { conversationWindow, isChatErrorCode } from "@/lib/chatLimits";
 import type { Dict, Locale } from "@/lib/dictionaries";
 import gsap from "gsap";
