@@ -39,7 +39,7 @@ export default function Footer({ dict, lang }: { dict: Dict; lang: Locale }) {
           {/* Credentials column */}
           <div className="text-[13.5px] text-white/60 space-y-3">
             <div className="text-[11px] font-medium tracking-[0.14em] uppercase text-white/55">{dict.footer.certifications}</div>
-            <div className="text-white/80">ISO 27001 · ISO 9001</div>
+            <div className="text-white/80">ISO 27001 · ISO 9001 · ISO 20000</div>
             <div className="text-white/80">{dict.footer.partner}</div>
             <div className="text-white/80">Bitdefender Enterprise</div>
             <div className="text-white/80">{dict.footer.experience}</div>
