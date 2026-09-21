@@ -1,0 +1,30 @@
+# systemd unit. Copy to /etc/systemd/system/infostream.service, then:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now infostream
+# Logs: journalctl -u infostream -f   (includes the /api/chat audit lines)
+
+[Unit]
+Description=Infostream website (Next.js)
+After=network.target
+
+[Service]
+Type=simple
+User=infostream
+Group=infostream
+# `current` is a symlink that deploy.sh flips to the newest release.
+WorkingDirectory=/srv/infostream/current
+EnvironmentFile=/etc/infostream.env
+Environment=NODE_ENV=production
+# Bind to loopback only: nginx is the sole way in.
+ExecStart=/usr/bin/env node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=3
+
+# Hardening: the app only needs to read its release folder.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/infostream
+
+[Install]
+WantedBy=multi-user.target

@@ -112,6 +112,33 @@ platform's load balancer). Checklist:
 5. Run one process (the in-memory limiter is per process). If you scale to
    several, the proxy-level limit from step 3 is the one that counts.
 
+**VPS setup (the production target).** Ready-made files live in `deploy/`.
+They assume a Linux VPS with systemd, nginx, Node 20+ and git, and about 2 GB
+of free RAM for the build.
+
+1. Create the user and folder:
+   `sudo useradd --system --create-home infostream && sudo mkdir -p /srv/infostream && sudo chown infostream: /srv/infostream`
+2. Copy `deploy/deploy.sh` to `/srv/infostream/deploy.sh`.
+3. Copy `deploy/infostream.env.example` to `/etc/infostream.env`, fill in
+   `GEMINI_API_KEY`, then `sudo chown root:infostream /etc/infostream.env && sudo chmod 640 /etc/infostream.env`.
+4. Install `deploy/infostream.service` into `/etc/systemd/system/` and run
+   `sudo systemctl daemon-reload && sudo systemctl enable infostream`.
+5. Let the deploy user restart the service without a password
+   (`sudo visudo -f /etc/sudoers.d/infostream`):
+   `infostream ALL=NOPASSWD: /usr/bin/systemctl restart infostream`
+6. As `infostream`, run `/srv/infostream/deploy.sh`. It builds into
+   `releases/<timestamp>-<commit>`, flips the `current` symlink, restarts and
+   smoke-tests the app on `127.0.0.1:3000`. It keeps the last three releases.
+7. Install `deploy/nginx.conf` as the site config. If the old site answers for
+   `infostream.co.me` on the same VPS, disable its server block in the same
+   step. Then `sudo nginx -t && sudo systemctl reload nginx`. If the VPS has
+   no certificate yet, run `sudo certbot certonly --webroot -w /var/www/html -d infostream.co.me -d www.infostream.co.me`
+   with only the port 80 block enabled first.
+
+Every later release is step 6 again. To roll back, point `current` at an
+older folder in `releases/` and restart the service. Logs, including the
+assistant's one-line audit entries, are in `journalctl -u infostream`.
+
 **Option B: Vercel**
 
 Connect the GitHub repository, set `GEMINI_API_KEY` and `TRUSTED_PROXY=1` in
