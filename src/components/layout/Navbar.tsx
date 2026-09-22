@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Dict, Locale } from "@/lib/dictionaries";
 import { htmlLang, localeNames, locales } from "@/lib/locales";
 import { smoothScrollTo } from "@/components/providers/SmoothScroll";
@@ -28,6 +28,9 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
   const headerRef = useRef<HTMLElement>(null);
   const intersecting = useRef(new Set<Section>());
   const prevNearTop = useRef(true);
+  const pillRef = useRef<HTMLDivElement>(null);
+  const tubeRef = useRef<HTMLSpanElement>(null);
+  const linkRefs = useRef(new Map<Section, HTMLAnchorElement>());
 
   useEffect(() => {
     const onScroll = () => {
@@ -70,6 +73,49 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
+  // Tubelight: park the indicator on the active link. Geometry goes straight
+  // into CSS variables (no re-render) and the slide itself is a CSS
+  // transition. Appearing from nothing (active was null) it snaps into place
+  // and only fades, so it never sweeps in from the left edge; a resize (font
+  // swap, viewport change) re-measures without animating.
+  useLayoutEffect(() => {
+    const pill = pillRef.current;
+    const tube = tubeRef.current;
+    if (!pill || !tube) return;
+    const place = (slide: boolean) => {
+      const link = active ? linkRefs.current.get(active) : undefined;
+      if (!link) {
+        tube.dataset.shown = "false";
+        return;
+      }
+      const p = pill.getBoundingClientRect();
+      const r = link.getBoundingClientRect();
+      if (!slide) tube.style.transitionProperty = "opacity";
+      tube.style.setProperty("--tube-x", `${r.left - p.left}px`);
+      tube.style.setProperty("--tube-w", `${r.width}px`);
+      tube.style.setProperty("--tube-y", `${r.top - p.top}px`);
+      tube.style.setProperty("--tube-h", `${r.height}px`);
+      if (!slide) {
+        void tube.offsetWidth;
+        tube.style.transitionProperty = "";
+      }
+      tube.dataset.shown = "true";
+    };
+    place(tube.dataset.shown === "true");
+    let first = true;
+    const ro = new ResizeObserver(() => {
+      if (first) {
+        first = false;
+        return;
+      }
+      place(false);
+    });
+    ro.observe(pill);
+    const nav = pill.querySelector("nav");
+    if (nav) ro.observe(nav);
+    return () => ro.disconnect();
+  }, [active]);
+
   useEffect(() => {
     if (!mobileOpen) return;
     const close = () => setMobileOpen(false);
@@ -106,6 +152,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
 
         {/* ── Pill ── */}
         <div
+          ref={pillRef}
           className={`relative flex items-center justify-between rounded-2xl border border-white/[0.08] bg-[rgba(10,14,22,0.82)] backdrop-blur-2xl px-4 max-sm:px-3 sm:px-6 py-3 max-sm:py-2.5 transition-all duration-500 ${
             scrolled
               ? "shadow-[0_20px_60px_-12px_rgba(0,0,0,0.75)]"
@@ -128,20 +175,32 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
             />
           </Link>
 
+          {/* Tubelight: a teal lamp hanging from the pill's top edge over the
+             active link, echoing the hero lamp (CSS, see .nav-tube). */}
+          <span ref={tubeRef} aria-hidden data-shown="false" className="nav-tube hidden lg:block">
+            <span className="nav-tube-bg" />
+            <span className="nav-tube-glow" />
+            <span className="nav-tube-bar" />
+          </span>
+
           {/* Desktop nav */}
           <nav
             aria-label="Primary"
-            className="hidden lg:flex items-center gap-7 text-[13.5px] font-medium"
+            className="relative hidden lg:flex items-center gap-1.5 text-[13.5px] font-medium"
           >
             {links.map(({ id, label }) => {
               const isActive = active === id;
               return (
                 <a
                   key={id}
+                  ref={(el) => {
+                    if (el) linkRefs.current.set(id, el);
+                    else linkRefs.current.delete(id);
+                  }}
                   href={target(id)}
                   aria-current={isActive ? "true" : undefined}
-                  className={`transition-colors duration-200 ${
-                    isActive ? "text-[var(--brand-teal-bright)]" : "text-white/60 hover:text-white"
+                  className={`rounded-full px-3 py-1.5 transition-colors duration-200 ${
+                    isActive ? "text-white" : "text-white/60 hover:text-white"
                   }`}
                 >
                   {label}
