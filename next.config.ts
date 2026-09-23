@@ -32,9 +32,15 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
-  // Two years; only meaningful once the site is served over HTTPS.
+  // Two years, THIS HOST ONLY. `includeSubDomains` is deliberately absent:
+  // vpn.infostream.co.me answers on plain HTTP with no TLS listener at all,
+  // and the directive would make every browser that has seen this header
+  // refuse to open it over HTTP for the next two years. HSTS cannot be
+  // withdrawn once sent — a browser holds it until the max-age expires or the
+  // same host serves max-age=0. Re-add `; includeSubDomains` the day every
+  // subdomain (vpn included) terminates TLS, and not before.
   ...(process.env.NODE_ENV === "production"
-    ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]
+    ? [{ key: "Strict-Transport-Security", value: "max-age=63072000" }]
     : []),
 ];
 
