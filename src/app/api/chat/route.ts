@@ -32,6 +32,28 @@ const GLOBAL = { windowMs: 60_000, max: 240 };
 // it in that mode. Still far above what a small site's real visitors produce.
 const GLOBAL_UNTRUSTED_MAX = 120;
 const hits = new Map<string, number[]>();
+// ── Daily ceiling on upstream calls ─────────────────────────────────────────
+// The per-minute limits above bound a BURST; this bounds the BILL. A steady
+// trickle sitting just under them still buys ~345k Gemini calls a month. A
+// company site sees a few dozen conversations a day, so this sits far above
+// real use and only ever bites a sustained abuser or a runaway script.
+// Per process, resets at UTC midnight and on restart — deliberately the cheap
+// first line, NOT the guarantee. The hard stop is the budget cap on the key in
+// Google Cloud Billing, which no bug on this box can exceed.
+const DAILY_MAX = Number(process.env.CHAT_DAILY_MAX ?? 1_500);
+let dayKey = "";
+let dayCount = 0;
+
+// Counts every request that gets as far as spending an upstream call.
+function dailyExhausted(): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== dayKey) {
+    dayKey = today;
+    dayCount = 0;
+  }
+  dayCount += 1;
+  return dayCount > DAILY_MAX;
+}
 // Hard cap on the raw request body, checked before it is read. Generous over
 // LIMITS.maxTotalChars to leave room for JSON framing and multi-byte text.
 const MAX_BODY_BYTES = 64_000;
@@ -176,6 +198,16 @@ export async function POST(request: Request) {
       "anon"
     : null;
   if (rateLimited(ip)) return fail(429, "Too many requests. Please slow down.", "rateLimited");
+  // Day's budget spent: answer like any other overload rather than explaining
+  // that a quota exists, and log it loudly — on a site this size, hitting this
+  // means something is wrong, not that the assistant got popular overnight.
+  if (dailyExhausted())
+    return fail(
+      503,
+      "The assistant is busy right now. Please try again in a moment.",
+      "busy",
+      `daily cap of ${DAILY_MAX} upstream calls reached`
+    );
 
   // Parse + validate the body.
   let body: unknown;
