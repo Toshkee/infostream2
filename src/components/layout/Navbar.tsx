@@ -176,7 +176,7 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
           </Link>
 
           {/* Tubelight: a teal lamp hanging from the pill's top edge over the
-             active link, echoing the hero lamp (CSS, see .nav-tube). */}
+             active link (CSS, see .nav-tube). */}
           <span ref={tubeRef} aria-hidden data-shown="false" className="nav-tube hidden lg:block">
             <span className="nav-tube-bg" />
             <span className="nav-tube-glow" />
