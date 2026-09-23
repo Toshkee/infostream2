@@ -236,6 +236,16 @@ scripts/check-invariants.mjs    repo guards run by `npm run check`
 docs/animation.md               scroll/animation contract
 ```
 
+**Redirects from the old site.** The WordPress site this replaces had five
+pages — `/`, `/about-us/`, `/what-we-do/`, `/technologies/`, `/bitdefender/` —
+plus `/?lang=bs` for Montenegrin. `deploy/nginx.conf` maps each to the section
+that replaced it and returns 410 for the WordPress plumbing (`/feed/`,
+`/wp-json/`, `/wp-admin/` and friends), which tells crawlers those are gone for
+good rather than temporarily missing. Note that the old site's `robots.txt`
+said `Disallow: /`, so little of it was indexed to begin with; the redirects
+are cheap insurance, not a rescue. If anything else turns up in Google Search
+Console after launch, add it to the same block.
+
 **Images and `sharp`.** `next/image` optimises at runtime and needs the native
 `sharp` library. It is declared in `package.json`, but its prebuilt binaries
 are platform-specific and npm treats them as optional — a host where they fail
