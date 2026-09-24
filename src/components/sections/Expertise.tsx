@@ -382,11 +382,11 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
           <p className="mt-4 max-w-2xl max-sm:hidden text-[15.5px] leading-relaxed text-white/65">{x.body}</p>
 
           {/* Phones get all four domains as one vertical list, in reading
-              order: name, headline, a clamped summary and the subpage link.
-              Nothing to tap through, nothing hidden behind a selector. */}
+              order: name, headline, summary, capabilities and the subpage
+              link. Nothing to tap through, nothing hidden behind a selector. */}
           <ul className="mt-8 border-b border-white/10 sm:hidden">
             {items.map((it) => (
-              <li key={it.slug} className="border-t border-white/10 py-7">
+              <li key={it.slug} className="border-t border-white/10 py-8">
                 {/* name + headline beside the domain's line-art instrument,
                     so each entry carries its own visual identity */}
                 <div className="flex items-start justify-between gap-5">
@@ -400,14 +400,15 @@ export default function Expertise({ expertise, lang }: { expertise: Dict["expert
                     <DomainArt slug={it.slug} />
                   </div>
                 </div>
-                <p className="mt-3 text-[13.5px] leading-relaxed text-white/62">{it.short}</p>
-                {/* capability pairs — icon + label, two per row */}
-                <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3">
-                  {it.capabilities.slice(0, 4).map((label, k) => (
-                    <li key={label} className="flex items-center gap-2.5 text-[12px] leading-snug text-white/72">
+                <p className="mt-4 text-[14px] leading-relaxed text-white/62">{it.short}</p>
+                {/* capabilities as one quiet wrapping line, small icon +
+                    muted label, rather than a grid competing with the copy */}
+                <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+                  {it.capabilities.map((label, k) => (
+                    <li key={label} className="flex items-center gap-1.5 text-[12px] leading-snug text-white/50">
                       <Icon
                         name={(CAP_ICONS[it.slug] ?? [])[k] ?? "layers"}
-                        className="h-4 w-4 shrink-0 text-[var(--brand-teal-bright)]"
+                        className="h-3.5 w-3.5 shrink-0 text-[var(--brand-teal-bright)] opacity-75"
                       />
                       {label}
                     </li>

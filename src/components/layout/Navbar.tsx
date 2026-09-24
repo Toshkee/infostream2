@@ -230,14 +230,6 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
               )}
             </div>
 
-            <a
-              href={target("contact")}
-              className="text-[13px] max-sm:text-[12px] font-medium px-4 max-sm:px-3 py-2.5 max-sm:py-2 rounded-xl bg-[var(--brand-red)] text-white hover:bg-[var(--brand-red-deep)] transition-colors duration-200"
-              style={{ boxShadow: "0 1px 4px rgba(214,59,59,0.25)" }}
-            >
-              {nav.cta}
-            </a>
-
             {/* Hamburger */}
             <button
               aria-label={mobileOpen ? nav.closeMenu : nav.openMenu}
@@ -299,20 +291,13 @@ export default function Navbar({ nav, lang, home = true }: { nav: Dict["nav"]; l
               })}
             </nav>
 
-            <div className="mt-2 pt-3 border-t border-white/[0.06] flex items-center justify-between px-3">
+            <div className="mt-2 pt-3 border-t border-white/[0.06] flex items-center px-3">
               <Link
                 href={otherHref}
                 className="text-[12px] font-medium text-white/60 hover:text-white transition-colors px-3 py-3 -mx-3 rounded-lg"
               >
                 {localeNames[other].native}
               </Link>
-              <a
-                href={target("contact")}
-                onClick={() => setMobileOpen(false)}
-                className="text-[13px] font-medium px-5 py-2 rounded-xl bg-[var(--brand-red)] text-white"
-              >
-                {nav.cta}
-              </a>
             </div>
           </div>
         </div>

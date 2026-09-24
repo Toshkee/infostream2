@@ -83,7 +83,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
       className="relative bg-[var(--bg-inset)] py-14 text-white sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
-        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
+        <div className="grid gap-10 sm:gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
           <header className="lg:sticky lg:top-32 lg:self-start">
             <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--brand-teal-bright)]">
               <EyebrowBars />
@@ -94,8 +94,10 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             </h2>
             <p className="mt-4 max-w-md text-[14px] sm:text-[16px] leading-relaxed text-white/65">{platform.body}</p>
 
-            {/* The one method claim we make, stated quietly under the framing. */}
-            <div className="mt-5 sm:mt-9 flex max-w-md items-center gap-3 border-t border-white/15 pt-4 text-[13px] text-white/60">
+            {/* The one method claim we make, stated quietly under the framing.
+               Not on phones, where its hairline sat just above the list's
+               first rule and doubled up. */}
+            <div className="mt-9 hidden max-w-md items-center gap-3 border-t border-white/15 pt-4 text-[13px] text-white/60 sm:flex">
               <Icon name="check" className="h-4 w-4 shrink-0 text-[var(--brand-teal-bright)]" />
               {platform.framework}
             </div>
@@ -123,7 +125,7 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
             {platform.stages.map((stage, index) => (
               <li
                 key={stage.name}
-                className={`proc-row relative border-t border-white/10 py-5 sm:py-8 lg:py-11 ${
+                className={`proc-row relative border-t border-white/10 py-7 sm:py-8 lg:py-11 ${
                   index === platform.stages.length - 1 ? "border-b" : ""
                 }`}
               >
@@ -149,11 +151,11 @@ export default function PinnedProcess({ dict }: { dict: Dict }) {
                   </p>
 
                   {/* Deliverables — the concrete hand-over of the stage. */}
-                  <div className="md:col-start-1 md:row-start-2 md:mt-1">
+                  <div className="mt-2 sm:mt-0 md:col-start-1 md:row-start-2 md:mt-1">
                     <div className="mono text-[10px] uppercase tracking-[0.3em] text-white/55">
                       {platform.outcomesLabel}
                     </div>
-                    <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 sm:mt-3 sm:block sm:space-y-1.5">
+                    <ul className="mt-2.5 space-y-1.5 sm:mt-3">
                       {stage.outcomes.map((o) => (
                         <li key={o} className="proc-chip text-[13px] leading-snug">
                           {o}
